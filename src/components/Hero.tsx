@@ -21,7 +21,7 @@ const Hero = () => {
       />
       
       {/* Animated glow effect */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 animate-pulse" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 animate-glow-pulse" />
       
       <div className="container relative z-10 py-24">
         <div className="max-w-2xl animate-fade-in">

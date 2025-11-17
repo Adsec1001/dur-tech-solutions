@@ -55,7 +55,7 @@ const ComputerSystems = () => {
   return (
     <section id="systems" className="py-20">
       <div className="container">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Hazır Bilgisayar Sistemleri
           </h2>
@@ -66,7 +66,11 @@ const ComputerSystems = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {systems.map((system, index) => (
-            <Card key={index} className="border-border hover:shadow-lg transition-all duration-300">
+            <Card 
+              key={index} 
+              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in"
+              style={{ animationDelay: `${index * 0.15}s`, animationFillMode: 'both' }}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant={getCategoryColor(system.category)}>{system.category}</Badge>
@@ -102,7 +106,7 @@ const ComputerSystems = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">İncele</Button>
+                <Button className="w-full hover:scale-105 transition-transform duration-300">İncele</Button>
               </CardFooter>
             </Card>
           ))}
