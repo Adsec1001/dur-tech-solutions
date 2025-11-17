@@ -1,37 +1,81 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Shield } from "lucide-react";
 import heroImage from "@/assets/hero-tech.jpg";
 
 const Hero = () => {
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <section id="home" className="relative min-h-[600px] flex items-center overflow-hidden">
+    <section id="home" className="relative min-h-[700px] flex items-center overflow-hidden">
+      {/* Animated background with gradient overlay */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 animate-fade-in"
         style={{
-          backgroundImage: `linear-gradient(to right, hsl(var(--background)) 0%, hsl(var(--background) / 0.95) 50%, hsl(var(--background) / 0.7) 100%), url(${heroImage})`,
+          backgroundImage: `linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background) / 0.97) 40%, hsl(var(--background) / 0.85) 70%, hsl(var(--background) / 0.6) 100%), url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       />
       
-      <div className="container relative z-10 py-20">
-        <div className="max-w-2xl">
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+      {/* Animated glow effect */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 animate-pulse" />
+      
+      <div className="container relative z-10 py-24">
+        <div className="max-w-2xl animate-fade-in">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Profesyonel Bilişim Çözümleri</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             Teknolojik Çözümleriniz için
-            <span className="text-primary block mt-2">Güvenilir Ortak</span>
+            <span className="text-primary block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+              Güvenilir Ortak
+            </span>
           </h1>
-          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            Güvenlik sistemlerinden Windows lisanslarına, oyun kurulumlarından teknik desteğe kadar 
+          
+          <p className="text-xl text-muted-foreground mb-10 leading-relaxed">
+            Güvenlik sistemlerinden Windows lisanslarına, tamir ve bakımdan eğitime kadar 
             tüm bilişim ihtiyaçlarınız için yanınızdayız.
           </p>
+          
           <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="group">
+            <Button 
+              size="lg" 
+              className="group bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:scale-105"
+              onClick={() => scrollToSection('services')}
+            >
               Hizmetlerimizi Keşfedin
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-2" />
             </Button>
-            <Button size="lg" variant="outline">
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="border-2 hover:border-primary hover:text-primary hover:scale-105 transition-all duration-300"
+              onClick={() => scrollToSection('contact')}
+            >
               İletişime Geçin
             </Button>
+          </div>
+          
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-border/50">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">10+</div>
+              <div className="text-sm text-muted-foreground">Yıllık Deneyim</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">500+</div>
+              <div className="text-sm text-muted-foreground">Mutlu Müşteri</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">7/24</div>
+              <div className="text-sm text-muted-foreground">Destek</div>
+            </div>
           </div>
         </div>
       </div>
