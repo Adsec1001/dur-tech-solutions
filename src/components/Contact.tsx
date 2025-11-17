@@ -6,25 +6,25 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Telefon",
-      content: "+90 (555) 123 45 67",
-      link: "tel:+905551234567"
+      content: "+90 539 778 40 00",
+      link: "tel:+905397784000"
     },
     {
       icon: Mail,
       title: "E-posta",
-      content: "info@durbilisim.com",
-      link: "mailto:info@durbilisim.com"
+      content: "durbilisimguvenlik@gmail.com",
+      link: "mailto:durbilisimguvenlik@gmail.com"
     },
     {
       icon: MapPin,
       title: "Adres",
-      content: "Merkez Mahallesi, Teknoloji Caddesi No:42",
+      content: "Yusuf Kılıç Mahallesi 83043 Sokak No:18 Toroslar / Mersin",
       link: "#"
     },
     {
       icon: Clock,
       title: "Çalışma Saatleri",
-      content: "Pazartesi - Cumartesi: 09:00 - 18:00",
+      content: "Pazartesi - Pazar: 08:00 - 19:00",
       link: "#"
     }
   ];

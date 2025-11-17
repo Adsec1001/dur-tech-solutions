@@ -23,9 +23,33 @@ const Services = () => {
     },
     {
       icon: Headphones,
+      title: "Tamir & Bakım Hizmetleri",
+      description: "Bilgisayar, PlayStation ve cep telefonu tamir, bakım ve format işlemleri.",
+      features: ["Bilgisayar Tamiri", "PlayStation Bakım", "Format İşlemleri", "Cep Telefonu Tamiri"]
+    },
+    {
+      icon: Download,
+      title: "Yazılım & Mobil Hizmetler",
+      description: "Cep telefonu yazılım yükleme, iCloud ve FRP bypass işlemleri.",
+      features: ["Yazılım Güncelleme", "iCloud Bypass", "FRP Bypass", "Mobil Sorun Çözümleri"]
+    },
+    {
+      icon: Shield,
+      title: "Eğitim Hizmetleri",
+      description: "Bilgisayar ve ağ sistemleri konusunda profesyonel eğitimler.",
+      features: ["Bilgisayar Eğitimi", "Ağ Eğitimi", "Sistem Yönetimi", "Güvenlik Eğitimi"]
+    },
+    {
+      icon: Headphones,
+      title: "Uzaktan Destek",
+      description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
+      features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
+    },
+    {
+      icon: Headphones,
       title: "Teknik Destek",
-      description: "7/24 teknik destek hizmeti ile her zaman yanınızdayız.",
-      features: ["Uzaktan Destek", "Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale"]
+      description: "Yerinde ve uzaktan teknik destek hizmeti ile her zaman yanınızdayız.",
+      features: ["Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale", "7/24 Destek"]
     }
   ];
 
@@ -41,7 +65,7 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {services.map((service, index) => (
             <Card key={index} className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardHeader>
