@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-tech.jpg";
+import logo from "@/assets/durbilisim.png";
 
 const Hero = () => {
   const scrollToSection = (id: string) => {
@@ -26,8 +27,8 @@ const Hero = () => {
       <div className="container relative z-10 py-24">
         <div className="max-w-2xl animate-fade-in">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in">
-            <Shield className="h-4 w-4 text-primary" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in shadow-neon-sm">
+            <img src={logo} alt="Dur Bilişim" className="h-5 w-auto" />
             <span className="text-sm font-medium text-primary">Profesyonel Bilişim Çözümleri</span>
           </div>
           
@@ -46,7 +47,7 @@ const Hero = () => {
           <div className="flex flex-wrap gap-4">
             <Button 
               size="lg" 
-              className="group bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:scale-105"
+              className="group bg-primary hover:bg-primary/90 shadow-neon hover:shadow-neon-lg transition-all duration-300 hover:scale-105"
               onClick={() => scrollToSection('services')}
             >
               Hizmetlerimizi Keşfedin
@@ -55,7 +56,7 @@ const Hero = () => {
             <Button 
               size="lg" 
               variant="outline"
-              className="border-2 hover:border-primary hover:text-primary hover:scale-105 transition-all duration-300"
+              className="border-2 hover:border-primary hover:text-primary hover:shadow-neon-sm hover:scale-105 transition-all duration-300"
               onClick={() => scrollToSection('contact')}
             >
               İletişime Geçin
@@ -65,15 +66,15 @@ const Hero = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-6 mt-16 pt-8 border-t border-border/50">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">10+</div>
+              <div className="text-3xl font-bold text-primary mb-1 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">10+</div>
               <div className="text-sm text-muted-foreground">Yıllık Deneyim</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">500+</div>
+              <div className="text-3xl font-bold text-primary mb-1 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">500+</div>
               <div className="text-sm text-muted-foreground">Mutlu Müşteri</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-1">7/24</div>
+              <div className="text-3xl font-bold text-primary mb-1 drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">7/24</div>
               <div className="text-sm text-muted-foreground">Destek</div>
             </div>
           </div>
