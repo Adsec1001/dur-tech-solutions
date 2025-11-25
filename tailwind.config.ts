@@ -62,6 +62,9 @@ export default {
         soft: "var(--shadow-soft)",
         medium: "var(--shadow-medium)",
         large: "var(--shadow-large)",
+        neon: "var(--shadow-neon)",
+        "neon-secondary": "var(--shadow-neon-secondary)",
+        "neon-accent": "var(--shadow-neon-accent)",
       },
       backgroundImage: {
         "gradient-hero": "var(--gradient-hero)",
