@@ -31,7 +31,7 @@ const Header = () => {
             </a>
           ))}
           <Button size="sm" className="ml-4">
-            Hizmet Satın Al
+            Teklif Al
           </Button>
         </nav>
 
@@ -53,7 +53,7 @@ const Header = () => {
                   {item.label}
                 </a>
               ))}
-              <Button className="mt-4">Hizmet Satın Al</Button>
+              <Button className="mt-4">Teklif Al</Button>
             </nav>
           </SheetContent>
         </Sheet>
