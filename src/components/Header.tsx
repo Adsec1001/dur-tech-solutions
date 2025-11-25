@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu, Facebook, Instagram, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/durbilisim.png";
@@ -25,12 +25,23 @@ const Header = () => {
             <a
               key={item.label}
               href={item.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               {item.label}
             </a>
           ))}
-          <Button size="sm" className="ml-4">
+          <div className="flex items-center gap-3 ml-4">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+              <Facebook className="h-5 w-5" />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+              <Phone className="h-5 w-5" />
+            </a>
+          </div>
+          <Button size="sm" className="shadow-neon-sm hover:shadow-neon">
             Teklif Al
           </Button>
         </nav>
@@ -48,12 +59,23 @@ const Header = () => {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="text-lg font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
                   {item.label}
                 </a>
               ))}
-              <Button className="mt-4">Teklif Al</Button>
+              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Facebook className="h-6 w-6" />
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="h-6 w-6" />
+                </a>
+                <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="h-6 w-6" />
+                </a>
+              </div>
+              <Button className="mt-4 shadow-neon-sm">Teklif Al</Button>
             </nav>
           </SheetContent>
         </Sheet>
