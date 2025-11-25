@@ -33,7 +33,7 @@ const Hero = () => {
           
           <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             Teknolojik Çözümleriniz için
-            <span className="text-primary block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+            <span className="text-primary block mt-2 drop-shadow-[0_0_10px_hsl(var(--primary))]">
               Güvenilir Ortak
             </span>
           </h1>
