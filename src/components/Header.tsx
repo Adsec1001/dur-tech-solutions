@@ -1,6 +1,7 @@
-import { Shield, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import logo from "@/assets/durbilisim.png";
 
 const Header = () => {
   const menuItems = [
@@ -13,8 +14,8 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Shield className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-3">
+          <img src={logo} alt="Dur Bilişim Logo" className="h-10 w-auto" />
           <span className="text-xl font-bold text-foreground">Dur Bilişim</span>
         </div>
 
