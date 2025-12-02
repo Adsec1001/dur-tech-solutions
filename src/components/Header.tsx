@@ -37,7 +37,7 @@ const Header = () => {
             <a href="https://www.instagram.com/durbilisim/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Instagram className="h-5 w-5" />
             </a>
-            <a href="https://wa.me/905397784000?text=Merhaba%2C%20teknik%20destek%20talebim%20var%C4%B1%2E" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+            <a href="https://wa.me/905397784000?text=Merhaba%20teknik%20destek%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Phone className="h-5 w-5" />
             </a>
           </div>
@@ -71,7 +71,7 @@ const Header = () => {
                 <a href="https://www.instagram.com/durbilisim/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   <Instagram className="h-6 w-6" />
                 </a>
-                <a href="https://wa.me/905397784000?text=Merhaba%2C%20teknik%20destek%20talebim%20var%C4%B1%2E" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://wa.me/905397784000?text=Merhaba%20teknik%20destek%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   <Phone className="h-6 w-6" />
                 </a>
               </div>
