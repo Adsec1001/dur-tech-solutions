@@ -7,30 +7,58 @@ const testimonials = [
   {
     id: 1,
     name: "Ahmet Yılmaz",
-    company: "ABC Teknoloji",
-    content: "Dur Bilişim ile çalışmak büyük bir keyif. Teknik destek ekibi her zaman hızlı ve profesyonel çözümler sunuyor.",
+    company: "Anadolu Lojistik",
+    content: "Dur Bilişim ile çalışmak büyük bir keyif. Depo otomasyon sistemlerimizin kurulumunda gösterdikleri profesyonellik sayesinde operasyonel verimliğimiz %40 arttı.",
     role: "IT Müdürü"
   },
   {
     id: 2,
     name: "Fatma Kaya",
-    company: "XYZ Holding",
-    content: "Bilgisayar sistemlerimizin kurulumu ve bakımı konusunda mükemmel bir iş çıkardılar. Kesinlikle tavsiye ederim.",
+    company: "Özgür Mobilya",
+    content: "Mağazalarımızdaki kasa ve stok takip sistemlerinin kurulumunu eksiksiz tamamladılar. Teknik destekleri de çok hızlı, her sorunumuza anında müdahale ediyorlar.",
     role: "Genel Müdür"
   },
   {
     id: 3,
     name: "Mehmet Demir",
-    company: "Delta Yazılım",
-    content: "Yıllardır Dur Bilişim'den hizmet alıyoruz. Güvenilir ve kaliteli çözümleri ile işlerimizi kolaylaştırıyorlar.",
+    company: "Kartal Yazılım",
+    content: "Yıllardır Dur Bilişim'den hizmet alıyoruz. Sunucu altyapımızı modernize ettiler ve sistem kesintilerimiz neredeyse sıfıra indi.",
     role: "Yazılım Direktörü"
   },
   {
     id: 4,
     name: "Ayşe Öztürk",
-    company: "Mega Market",
-    content: "Kasa sistemlerimizin kurulumu ve teknik desteği konusunda çok memnunuz. Profesyonel bir ekip.",
+    company: "Yıldız Market Zinciri",
+    content: "15 şubemizin tüm bilişim altyapısını Dur Bilişim yönetiyor. Güvenilir, hızlı ve uygun fiyatlı çözümler sunuyorlar.",
     role: "Operasyon Müdürü"
+  },
+  {
+    id: 5,
+    name: "Hasan Çelik",
+    company: "Ege Otomotiv",
+    content: "Servis randevu sistemimizi ve müşteri takip yazılımımızı kusursuz bir şekilde entegre ettiler. Müşteri memnuniyetimiz gözle görülür şekilde arttı.",
+    role: "Satış Müdürü"
+  },
+  {
+    id: 6,
+    name: "Zeynep Arslan",
+    company: "Güneş Eczaneleri",
+    content: "Eczane otomasyon sistemlerimizin bakımını düzenli olarak yapıyorlar. Acil durumlarda bile hemen ulaşabiliyoruz, gerçekten güvenilir bir iş ortağı.",
+    role: "İşletme Sahibi"
+  },
+  {
+    id: 7,
+    name: "Burak Şahin",
+    company: "Marmara İnşaat",
+    content: "Şantiyelerimiz için kurduğumuz network altyapısı mükemmel çalışıyor. Zorlu koşullarda bile kesintisiz bağlantı sağladılar.",
+    role: "Proje Koordinatörü"
+  },
+  {
+    id: 8,
+    name: "Selin Yıldırım",
+    company: "Akademi Dershaneleri",
+    content: "Online eğitim altyapımızı tamamen Dur Bilişim kurdu. Pandemi döneminde bile hiç aksama yaşamadık, öğrencilerimize kesintisiz hizmet verdik.",
+    role: "Eğitim Koordinatörü"
   }
 ];
 
