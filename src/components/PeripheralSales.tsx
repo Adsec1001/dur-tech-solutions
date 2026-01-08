@@ -1,4 +1,4 @@
-import { Mouse, Keyboard, Headphones, Monitor, Printer, Camera, Package } from "lucide-react";
+import { Mouse, Keyboard, Headphones, Monitor, Printer, Camera, Speaker, Mic, Cpu } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,22 @@ const PeripheralSales = () => {
       features: ["1080p/4K", "Otomatik Odak", "Mikrofon Dahil"],
       price: "400 ₺'den başlayan",
       icon: Camera
+    },
+    {
+      name: "Hoparlör",
+      category: "Ses",
+      brand: "Logitech / JBL / Creative",
+      features: ["2.1 Sistem", "Bluetooth", "RGB Aydınlatma"],
+      price: "700 ₺'den başlayan",
+      icon: Speaker
+    },
+    {
+      name: "Mikrofon",
+      category: "Ses",
+      brand: "Blue / HyperX / Razer",
+      features: ["USB Bağlantı", "Kardiyoid Patern", "Pop Filtre Dahil"],
+      price: "800 ₺'den başlayan",
+      icon: Mic
     }
   ];
 
@@ -63,6 +79,7 @@ const PeripheralSales = () => {
       case "Monitör": return "default";
       case "Yazıcı": return "secondary";
       case "Kamera": return "destructive";
+      case "Ses": return "default";
       default: return "default";
     }
   };
@@ -79,7 +96,7 @@ const PeripheralSales = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {peripherals.map((item, index) => {
             const IconComponent = item.icon;
             return (
@@ -117,6 +134,19 @@ const PeripheralSales = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* Coming Soon Section */}
+        <div className="mt-16 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-3 bg-muted/50 border border-border rounded-xl px-8 py-6">
+            <Cpu className="h-8 w-8 text-primary" />
+            <div>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                Hazır Sistem Bilgisayarlar
+              </h3>
+              <p className="text-lg text-muted-foreground mt-1">Yakında...</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
