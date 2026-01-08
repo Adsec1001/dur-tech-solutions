@@ -28,7 +28,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin</span>
+              <span>Yusuf Kılıç Mahallesi 83043 Sokak No:18 Toroslar / Mersin</span>
             </div>
             
             <p className="text-sm text-muted-foreground text-center md:text-right">
