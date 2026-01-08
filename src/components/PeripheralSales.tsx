@@ -8,7 +8,6 @@ const PeripheralSales = () => {
     {
       name: "Gaming Mouse",
       category: "Mouse",
-      brand: "Logitech / Razer",
       features: ["RGB Aydınlatma", "Programlanabilir Tuşlar", "Yüksek DPI"],
       price: "500 ₺'den başlayan",
       icon: Mouse
@@ -16,7 +15,6 @@ const PeripheralSales = () => {
     {
       name: "Mekanik Klavye",
       category: "Klavye",
-      brand: "HyperX / SteelSeries",
       features: ["Mekanik Switch", "RGB Aydınlatma", "Anti-Ghosting"],
       price: "800 ₺'den başlayan",
       icon: Keyboard
@@ -24,7 +22,6 @@ const PeripheralSales = () => {
     {
       name: "Gaming Kulaklık",
       category: "Kulaklık",
-      brand: "HyperX / Corsair",
       features: ["7.1 Surround", "Mikrofon", "Konforlu Tasarım"],
       price: "600 ₺'den başlayan",
       icon: Headphones
@@ -32,7 +29,6 @@ const PeripheralSales = () => {
     {
       name: "Monitör",
       category: "Monitör",
-      brand: "Samsung / LG / ASUS",
       features: ["144Hz+", "IPS/VA Panel", "Düşük Tepki Süresi"],
       price: "3.000 ₺'den başlayan",
       icon: Monitor
@@ -40,7 +36,6 @@ const PeripheralSales = () => {
     {
       name: "Yazıcı & Tarayıcı",
       category: "Yazıcı",
-      brand: "HP / Canon / Epson",
       features: ["Lazer/Mürekkep", "WiFi Bağlantı", "Çok Fonksiyonlu"],
       price: "2.000 ₺'den başlayan",
       icon: Printer
@@ -48,7 +43,6 @@ const PeripheralSales = () => {
     {
       name: "Webcam",
       category: "Kamera",
-      brand: "Logitech / Razer",
       features: ["1080p/4K", "Otomatik Odak", "Mikrofon Dahil"],
       price: "400 ₺'den başlayan",
       icon: Camera
@@ -56,7 +50,6 @@ const PeripheralSales = () => {
     {
       name: "Hoparlör",
       category: "Ses",
-      brand: "Logitech / JBL / Creative",
       features: ["2.1 Sistem", "Bluetooth", "RGB Aydınlatma"],
       price: "700 ₺'den başlayan",
       icon: Speaker
@@ -64,7 +57,6 @@ const PeripheralSales = () => {
     {
       name: "Mikrofon",
       category: "Ses",
-      brand: "Blue / HyperX / Razer",
       features: ["USB Bağlantı", "Kardiyoid Patern", "Pop Filtre Dahil"],
       price: "800 ₺'den başlayan",
       icon: Mic
@@ -111,9 +103,6 @@ const PeripheralSales = () => {
                     <IconComponent className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-xl">{item.name}</CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground">
-                    {item.brand}
-                  </CardDescription>
                   <p className="text-xl font-bold text-primary mt-2">
                     {item.price}
                   </p>
@@ -129,7 +118,12 @@ const PeripheralSales = () => {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full hover:scale-105 transition-transform duration-300">Bilgi Al</Button>
+                  <Button 
+                    className="w-full hover:scale-105 transition-transform duration-300"
+                    onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20bilgi%20almak%20istiyorum.", "_blank")}
+                  >
+                    Bilgi Al
+                  </Button>
                 </CardFooter>
               </Card>
             );

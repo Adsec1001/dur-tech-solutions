@@ -1,5 +1,6 @@
 import { Shield, Key, Download, Headphones } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const Services = () => {
   const services = [
@@ -89,6 +90,14 @@ const Services = () => {
                   ))}
                 </ul>
               </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full hover:scale-105 transition-transform duration-300"
+                  onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20bilgi%20almak%20istiyorum.", "_blank")}
+                >
+                  Bilgi Al
+                </Button>
+              </CardFooter>
             </Card>
           ))}
         </div>
