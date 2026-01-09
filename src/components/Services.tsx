@@ -7,8 +7,8 @@ const Services = () => {
     {
       icon: Shield,
       title: "Güvenlik Sistemleri",
-      description: "Kamera sistemleri, alarm sistemleri ve ağ güvenliği çözümleri ile işletmenizi koruyun.",
-      features: ["IP Kamera Kurulumu", "Alarm Sistemleri", "Ağ Güvenliği", "Siber Güvenlik Danışmanlığı"]
+      description: "Kamera sistemleri ve alarm sistemleri ile işletmenizi ve evinizi koruyun.",
+      features: ["IP Kamera Kurulumu", "Alarm Sistemleri", "Kamera Bakım & Onarım", "DVR/NVR Kurulumu"]
     },
     {
       icon: Key,
