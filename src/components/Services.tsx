@@ -1,11 +1,11 @@
-import { Shield, Key, Download, Headphones } from "lucide-react";
+import { Camera, Key, Download, Wrench, Smartphone, BookOpen, Laptop, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const Services = () => {
   const services = [
     {
-      icon: Shield,
+      icon: Camera,
       title: "Güvenlik Sistemleri",
       description: "Kamera sistemleri ve alarm sistemleri ile işletmenizi ve evinizi koruyun.",
       features: ["IP Kamera Kurulumu", "Alarm Sistemleri", "Kamera Bakım & Onarım", "DVR/NVR Kurulumu"]
@@ -23,31 +23,31 @@ const Services = () => {
       features: ["Oyun Kurulumu", "Profesyonel Yazılımlar", "Sistem Optimizasyonu", "Sürücü Kurulumu"]
     },
     {
-      icon: Headphones,
+      icon: Wrench,
       title: "Tamir & Bakım Hizmetleri",
       description: "Bilgisayar, PlayStation ve cep telefonu tamir, bakım ve format işlemleri.",
       features: ["Bilgisayar Tamiri", "PlayStation Bakım", "Format İşlemleri", "Cep Telefonu Tamiri"]
     },
     {
-      icon: Download,
+      icon: Smartphone,
       title: "Yazılım & Mobil Hizmetler",
       description: "Cep telefonu yazılım yükleme, iCloud ve FRP bypass işlemleri.",
       features: ["Yazılım Güncelleme", "iCloud Bypass", "FRP Bypass", "Mobil Sorun Çözümleri"]
     },
     {
-      icon: Shield,
+      icon: BookOpen,
       title: "Eğitim Hizmetleri",
       description: "Bilgisayar ve ağ sistemleri konusunda profesyonel eğitimler.",
       features: ["Bilgisayar Eğitimi", "Ağ Eğitimi", "Sistem Yönetimi", "Güvenlik Eğitimi"]
     },
     {
-      icon: Headphones,
+      icon: Laptop,
       title: "Uzaktan Destek",
       description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
       features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
     },
     {
-      icon: Headphones,
+      icon: Settings,
       title: "Teknik Destek",
       description: "Yerinde ve uzaktan teknik destek hizmeti ile her zaman yanınızdayız.",
       features: ["Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale", "7/24 Destek"]
