@@ -18,7 +18,7 @@ const Contact = () => {
     {
       icon: MapPin,
       title: "Adres",
-      content: "Yusuf Kılıç Mahallesi 83043 Sokak No:18 Toroslar / Mersin",
+      content: "Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin",
       link: "#"
     },
     {
