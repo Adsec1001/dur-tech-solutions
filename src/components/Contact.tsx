@@ -10,6 +10,12 @@ const Contact = () => {
       link: "tel:+905397784000"
     },
     {
+      icon: Phone,
+      title: "Telefon 2",
+      content: "+90 539 442 54 33",
+      link: "tel:+905394425433"
+    },
+    {
       icon: Mail,
       title: "E-posta",
       content: "durbilisimguvenlik@gmail.com",

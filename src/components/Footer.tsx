@@ -22,9 +22,6 @@ const Footer = () => {
               <a href="https://wa.me/905397784000?text=Merhaba%20teknik%20destek%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <Phone className="h-5 w-5" />
               </a>
-              <a href="tel:+905394425433" className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium">
-                0539 442 54 33
-              </a>
             </div>
           </div>
 
