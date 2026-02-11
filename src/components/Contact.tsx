@@ -6,14 +6,8 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Telefon",
-      content: "+90 539 778 40 00",
-      link: "tel:+905397784000"
-    },
-    {
-      icon: Phone,
-      title: "Telefon 2",
-      content: "+90 539 442 54 33",
-      link: "tel:+905394425433"
+      content: ["+90 539 778 40 00", "+90 539 442 54 33"],
+      link: ["tel:+905397784000", "tel:+905394425433"]
     },
     {
       icon: Mail,
@@ -56,13 +50,18 @@ const Contact = () => {
                     <info.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="font-semibold text-foreground mb-2">{info.title}</h3>
-                  {info.link.startsWith('#') ? (
+                  {Array.isArray(info.content) ? (
+                    <div className="flex flex-col gap-1">
+                      {info.content.map((item, i) => (
+                        <a key={i} href={(info.link as string[])[i]} className="text-sm text-primary hover:underline">
+                          {item}
+                        </a>
+                      ))}
+                    </div>
+                  ) : typeof info.link === 'string' && info.link.startsWith('#') ? (
                     <p className="text-sm text-muted-foreground">{info.content}</p>
                   ) : (
-                    <a 
-                      href={info.link}
-                      className="text-sm text-primary hover:underline"
-                    >
+                    <a href={info.link as string} className="text-sm text-primary hover:underline">
                       {info.content}
                     </a>
                   )}
