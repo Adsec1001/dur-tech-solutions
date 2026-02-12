@@ -2,54 +2,71 @@ import { Camera, Key, Download, Wrench, Smartphone, BookOpen, Laptop, Settings }
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
+import serviceSecurity from "@/assets/service-security.jpg";
+import serviceWindows from "@/assets/service-windows.jpg";
+import serviceSoftware from "@/assets/service-software.jpg";
+import serviceRepair from "@/assets/service-repair.jpg";
+import serviceMobile from "@/assets/service-mobile.jpg";
+import serviceEducation from "@/assets/service-education.jpg";
+import serviceRemote from "@/assets/service-remote.jpg";
+import serviceTechSupport from "@/assets/service-techsupport.jpg";
+
 const Services = () => {
   const services = [
     {
       icon: Camera,
       title: "Güvenlik Sistemleri",
       description: "Kamera sistemleri ve alarm sistemleri ile işletmenizi ve evinizi koruyun.",
+      image: serviceSecurity,
       features: ["IP Kamera Kurulumu", "Alarm Sistemleri", "Kamera Bakım & Onarım", "DVR/NVR Kurulumu"]
     },
     {
       icon: Key,
       title: "Windows Lisansları",
       description: "Orijinal Windows işletim sistemi ve Office lisansları uygun fiyatlarla.",
+      image: serviceWindows,
       features: ["Windows 10/11 Pro", "Office 365", "Windows Server", "Toplu Lisanslama"]
     },
     {
       icon: Download,
       title: "Program & Oyun Kurulumu",
       description: "Profesyonel yazılım ve oyun kurulum hizmetleri ile sisteminizi optimize edin.",
+      image: serviceSoftware,
       features: ["Oyun Kurulumu", "Profesyonel Yazılımlar", "Sistem Optimizasyonu", "Sürücü Kurulumu"]
     },
     {
       icon: Wrench,
       title: "Tamir & Bakım Hizmetleri",
       description: "Bilgisayar, PlayStation ve cep telefonu tamir, bakım ve format işlemleri.",
+      image: serviceRepair,
       features: ["Bilgisayar Tamiri", "PlayStation Bakım", "Format İşlemleri", "Cep Telefonu Tamiri"]
     },
     {
       icon: Smartphone,
       title: "Yazılım & Mobil Hizmetler",
       description: "Cep telefonu yazılım yükleme, iCloud ve FRP bypass işlemleri.",
+      image: serviceMobile,
       features: ["Yazılım Güncelleme", "iCloud Bypass", "FRP Bypass", "Mobil Sorun Çözümleri"]
     },
     {
       icon: BookOpen,
       title: "Eğitim Hizmetleri",
       description: "Bilgisayar ve ağ sistemleri konusunda profesyonel eğitimler.",
+      image: serviceEducation,
       features: ["Bilgisayar Eğitimi", "Ağ Eğitimi", "Sistem Yönetimi", "Güvenlik Eğitimi"]
     },
     {
       icon: Laptop,
       title: "Uzaktan Destek",
       description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
+      image: serviceRemote,
       features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
     },
     {
       icon: Settings,
       title: "Teknik Destek",
       description: "Yerinde ve uzaktan teknik destek hizmeti ile her zaman yanınızdayız.",
+      image: serviceTechSupport,
       features: ["Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale", "7/24 Destek"]
     }
   ];
@@ -70,13 +87,24 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in"
+              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in overflow-hidden"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 transition-transform duration-300 hover:scale-110">
-                  <service.icon className="h-6 w-6 text-primary" />
+              <div className="relative h-44 overflow-hidden">
+                <img 
+                  src={service.image} 
+                  alt={service.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+                <div className="absolute bottom-3 left-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+                    <service.icon className="h-5 w-5 text-primary" />
+                  </div>
                 </div>
+              </div>
+              <CardHeader className="pt-3 pb-2">
                 <CardTitle className="text-xl">{service.title}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
