@@ -9,13 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
   const { toast } = useToast();
-  const [form, setForm] = useState({ name: "", surname: "", phone: "", note: "" });
+  const [form, setForm] = useState({ name: "", surname: "", email: "", phone: "", note: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Ad alanı zorunludur";
     if (!form.surname.trim()) errs.surname = "Soyad alanı zorunludur";
+    if (!form.email.trim()) errs.email = "E-posta alanı zorunludur";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = "Geçerli bir e-posta adresi giriniz";
     if (!form.phone.trim()) errs.phone = "Telefon alanı zorunludur";
     else if (!/^\d{10}$/.test(form.phone)) errs.phone = "Telefon numarası 10 haneli olmalıdır (başında 0 olmadan)";
     if (!form.note.trim()) errs.note = "Not alanı zorunludur";
@@ -27,11 +29,12 @@ const Contact = () => {
     e.preventDefault();
     if (!validate()) return;
 
-    const message = `Merhaba, ben ${form.name} ${form.surname}.%0ATelefon: 0${form.phone}%0ANot: ${encodeURIComponent(form.note)}`;
-    window.open(`https://wa.me/905397784000?text=${message}`, "_blank");
+    const subject = encodeURIComponent(`İletişim Formu - ${form.name} ${form.surname}`);
+    const body = encodeURIComponent(`Ad: ${form.name}\nSoyad: ${form.surname}\nE-posta: ${form.email}\nTelefon: 0${form.phone}\n\nNot:\n${form.note}`);
+    window.open(`mailto:durbilisimguvenlik@gmail.com?subject=${subject}&body=${body}`, "_blank");
 
-    toast({ title: "Yönlendiriliyorsunuz", description: "WhatsApp üzerinden mesajınız iletilecektir." });
-    setForm({ name: "", surname: "", phone: "", note: "" });
+    toast({ title: "Yönlendiriliyorsunuz", description: "E-posta uygulamanız üzerinden mesajınız iletilecektir." });
+    setForm({ name: "", surname: "", email: "", phone: "", note: "" });
     setErrors({});
   };
 
@@ -100,6 +103,11 @@ const Contact = () => {
                 </div>
               </div>
               <div className="space-y-2">
+                <Label htmlFor="email">E-posta *</Label>
+                <Input id="email" type="email" placeholder="ornek@mail.com" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} maxLength={100} />
+                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="phone">Telefon * <span className="text-xs text-muted-foreground">(Başında 0 olmadan, 10 haneli)</span></Label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground font-medium">0</span>
@@ -113,7 +121,7 @@ const Contact = () => {
                 {errors.note && <p className="text-sm text-destructive">{errors.note}</p>}
               </div>
               <Button type="submit" className="w-full shadow-neon-sm hover:shadow-neon">
-                <Send className="h-4 w-4 mr-2" /> WhatsApp ile Gönder
+                <Send className="h-4 w-4 mr-2" /> E-posta ile Gönder
               </Button>
             </form>
           </CardContent>
