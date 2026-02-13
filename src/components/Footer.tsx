@@ -1,4 +1,4 @@
-import logo from "@/assets/durbilisim.png";
+import logo from "@/assets/db-logo.png";
 import { Facebook, Instagram, Phone, MapPin } from "lucide-react";
 
 const Footer = () => {
@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Dur Bilişim Logo" className="h-8 w-auto" />
+              <img src={logo} alt="Dur Bilişim Logo" className="h-12 w-auto" />
               <span className="font-bold text-foreground">Dur Bilişim</span>
             </div>
             
