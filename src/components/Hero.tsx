@@ -27,10 +27,10 @@ const Hero = () => {
       <div className="container relative z-10 py-24">
         <div className="max-w-2xl animate-fade-in">
           {/* Badge */}
-           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in shadow-neon-sm">
-             <img src={logo} alt="Dur Bilişim" className="h-8 w-auto" />
-            <span className="text-sm font-medium text-primary">Profesyonel Bilişim Çözümleri</span>
-          </div>
+           <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-scale-in shadow-neon-sm">
+             <img src={logo} alt="Dur Bilişim" className="h-10 w-auto drop-shadow-[0_0_6px_hsl(var(--primary)/0.4)]" />
+             <span className="text-sm font-medium text-primary">Profesyonel Bilişim Çözümleri</span>
+           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             Teknolojik Çözümleriniz için
