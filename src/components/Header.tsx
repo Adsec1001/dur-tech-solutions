@@ -41,9 +41,6 @@ const Header = () => {
               <Phone className="h-5 w-5" />
             </a>
           </div>
-          <Button size="sm" className="shadow-neon-sm hover:shadow-neon" asChild>
-            <a href="https://bionluk.com/adsec" target="_blank" rel="noopener noreferrer">Dijital Mağaza</a>
-          </Button>
         </nav>
 
         {/* Mobile Navigation */}
@@ -75,9 +72,6 @@ const Header = () => {
                   <Phone className="h-6 w-6" />
                 </a>
               </div>
-              <Button className="mt-4 shadow-neon-sm" asChild>
-                <a href="https://bionluk.com/adsec" target="_blank" rel="noopener noreferrer">Dijital Mağaza</a>
-              </Button>
             </nav>
           </SheetContent>
         </Sheet>
