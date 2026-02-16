@@ -10,6 +10,8 @@ import serviceMobile from "@/assets/service-mobile.jpg";
 import serviceEducation from "@/assets/service-education.jpg";
 import serviceRemote from "@/assets/service-remote.jpg";
 import serviceTechSupport from "@/assets/service-techsupport.jpg";
+import fiverrLogo from "@/assets/fiverr-logo.png";
+import bionlukLogo from "@/assets/bionluk-logo.png";
 
 const Services = () => {
   const services = [
@@ -75,30 +77,30 @@ const Services = () => {
     <section id="services" className="py-20 bg-muted/30">
       <div className="container">
         <div className="text-center mb-12 animate-fade-in">
+          <div className="mb-8 p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm max-w-2xl mx-auto">
+            <h3 className="text-xl font-semibold text-foreground mb-2">Freelance Uzaktan Destek</h3>
+            <p className="text-muted-foreground text-sm mb-5">
+              Bilgi teknolojileri ve ağ servisleri alanında; yazılım kurulumu, sistem optimizasyonu ve teknik destek gibi tüm hizmetlerimizi uzaktan bağlantı ile hızlı ve güvenli şekilde sunuyoruz.
+            </p>
+            <h4 className="text-base font-medium text-foreground mb-3">İletişime Geçebileceğiniz Platformlar</h4>
+            <div className="flex items-center justify-center gap-6">
+              <a href="https://www.fiverr.com/adsec_" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                <img src={fiverrLogo} alt="Fiverr" className="h-7 w-7 rounded-full" />
+                <span className="text-sm font-medium">Fiverr</span>
+              </a>
+              <a href="https://bionluk.com/adsec" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                <img src={bionlukLogo} alt="Bionluk" className="h-7 w-7 rounded-full" />
+                <span className="text-sm font-medium">Bionluk</span>
+              </a>
+            </div>
+          </div>
+
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Hizmetlerimiz
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Bilişim sektöründe kapsamlı çözümler sunuyoruz
           </p>
-
-          <div className="mt-8 p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm max-w-2xl mx-auto">
-            <h3 className="text-xl font-semibold text-foreground mb-2">Freelance Uzaktan Destek</h3>
-            <p className="text-muted-foreground text-sm mb-5">
-              Bilgisayar tamiri, yazılım kurulumu, sistem optimizasyonu ve teknik destek gibi tüm hizmetlerimizi uzaktan bağlantı ile hızlı ve güvenli şekilde sunuyoruz.
-            </p>
-            <h4 className="text-base font-medium text-foreground mb-3">İletişime Geçebileceğiniz Platformlar</h4>
-            <div className="flex items-center justify-center gap-6">
-              <a href="https://www.fiverr.com/adsec_" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-                <svg viewBox="0 0 24 24" className="h-6 w-6 fill-[#1DBF73]" xmlns="http://www.w3.org/2000/svg"><path d="M21.999 7.549h-3.271c0-2.744-1.851-3.063-2.857-3.063-1.24 0-2.122.679-2.122 1.93 0 1.358.849 1.766 2.449 2.467l1.104.476c2.449 1.057 3.894 2.186 3.894 4.798 0 3.16-2.282 4.841-5.374 4.841-3.482 0-5.673-1.68-5.928-4.918h3.304c.136 1.358 1.037 2.147 2.636 2.147 1.37 0 2.225-.713 2.225-1.866 0-1.253-.815-1.723-2.639-2.535l-1.078-.463C12.006 10.282 10.7 9.047 10.7 6.64c0-2.81 2.186-4.659 5.168-4.659 3.271 0 6.131 1.53 6.131 5.568zM5.765 7.549H3.509V18h3.27V7.549h2.968V4.853h-2.968V3.22c0-.866.326-1.182 1.179-1.182h1.789V0H8.051c-2.28 0-3.29 1.075-3.29 3.166v1.687H3.03v2.696h1.731V18h-3.27V7.549H0v-2.696h1.497V3.166C1.497.73 3.137 0 5.765 0h3.062v4.853H5.765v2.696z"/></svg>
-                <span className="text-sm font-medium">Fiverr</span>
-              </a>
-              <a href="https://bionluk.com/adsec" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-                <svg viewBox="0 0 24 24" className="h-6 w-6" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="11" fill="#FF6B35"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">B</text></svg>
-                <span className="text-sm font-medium">Bionluk</span>
-              </a>
-            </div>
-          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
