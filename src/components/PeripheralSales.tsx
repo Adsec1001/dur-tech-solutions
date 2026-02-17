@@ -1,5 +1,5 @@
-import { Cpu } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import SystemBuilder from "@/components/SystemBuilder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -84,15 +84,7 @@ const PeripheralSales = () => {
           ))}
         </div>
 
-        <div className="mt-16 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-3 bg-muted/50 border border-border rounded-xl px-8 py-6">
-            <Cpu className="h-8 w-8 text-primary" />
-            <div>
-              <h3 className="text-2xl md:text-3xl font-bold text-foreground">Hazır Sistem Bilgisayarlar</h3>
-              <p className="text-lg text-muted-foreground mt-1">Yakında...</p>
-            </div>
-          </div>
-        </div>
+        <SystemBuilder />
       </div>
     </section>
   );
