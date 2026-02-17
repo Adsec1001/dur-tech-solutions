@@ -14,10 +14,14 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-3">
+        <a
+          href="#home"
+          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          className="flex items-center gap-3 cursor-pointer"
+        >
           <img src={logo} alt="Dur Bilişim Logo" className="h-14 w-auto" />
           <span className="text-xl font-bold text-foreground">Dur Bilişim</span>
-        </div>
+        </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">

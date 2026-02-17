@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Instagram, Send } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,8 +47,8 @@ const Contact = () => {
   const contactInfo = [
     { icon: Phone, title: "Telefon", content: ["+90 539 778 40 00", "+90 539 442 54 33"], link: ["tel:+905397784000", "tel:+905394425433"] },
     { icon: Mail, title: "E-posta", content: "durbilisimguvenlik@gmail.com", link: "mailto:durbilisimguvenlik@gmail.com" },
-    { icon: MapPin, title: "Adres", content: "Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin", link: "#" },
-    { icon: Clock, title: "Çalışma Saatleri", content: "Pazartesi - Pazar: 08:00 - 19:00", link: "#" },
+    { icon: MapPin, title: "Adres", content: "Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin", link: "https://maps.google.com/?q=Yusuf+K%C4%B1l%C4%B1%C3%A7,+217.+Cd+No:63,+33220+Toroslar/Mersin" },
+    { icon: Instagram, title: "Instagram", content: "@durbilisim", link: "https://www.instagram.com/durbilisim/" },
   ];
 
   return (
@@ -74,10 +74,10 @@ const Contact = () => {
                         <a key={i} href={(info.link as string[])[i]} className="text-sm text-primary hover:underline">{item}</a>
                       ))}
                     </div>
-                  ) : typeof info.link === "string" && info.link.startsWith("#") ? (
+                  ) : typeof info.link === "string" && info.link === "#" ? (
                     <p className="text-sm text-muted-foreground">{info.content}</p>
                   ) : (
-                    <a href={info.link as string} className="text-sm text-primary hover:underline">{info.content}</a>
+                    <a href={info.link as string} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{info.content as string}</a>
                   )}
                 </div>
               </CardContent>
