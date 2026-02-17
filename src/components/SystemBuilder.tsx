@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Cpu, Monitor, Laptop, ChevronRight, FileDown, StickyNote } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import dbPdfLogo from "@/assets/db-pdf-logo.png";
 
 type SystemType = "low" | "office" | "gaming" | null;
 type FormFactor = "desktop" | "laptop" | null;
@@ -177,11 +178,14 @@ const SystemBuilder = () => {
               }}
             >
               {/* Header */}
-              <div style={{ textAlign: "center", marginBottom: "32px", borderBottom: "3px solid #0ea5e9", paddingBottom: "24px" }}>
-                <h1 style={{ fontSize: "28px", fontWeight: "bold", margin: "0 0 8px 0", color: "#0ea5e9" }}>
-                  Dur Bilişim
-                </h1>
-                <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>Hazır Sistem Bilgisayar Talep Formu</p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", marginBottom: "32px", borderBottom: "3px solid #0ea5e9", paddingBottom: "24px" }}>
+                <img src={dbPdfLogo} alt="DB Logo" style={{ height: "48px", width: "auto" }} crossOrigin="anonymous" />
+                <div>
+                  <h1 style={{ fontSize: "28px", fontWeight: "bold", margin: "0 0 4px 0", color: "#0ea5e9" }}>
+                    Dur Bilişim
+                  </h1>
+                  <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>Hazır Sistem Bilgisayar Talep Formu</p>
+                </div>
               </div>
 
               {/* Info rows */}
@@ -236,7 +240,7 @@ const SystemBuilder = () => {
 
               {/* Footer */}
               <div style={{ textAlign: "center", marginTop: "32px", paddingTop: "16px", borderTop: "1px solid #e0e0e0" }}>
-                <p style={{ fontSize: "11px", color: "#999" }}>© Dur Bilişim — durbilisim.lovable.app</p>
+                <p style={{ fontSize: "11px", color: "#999" }}>© Dur Bilişim</p>
               </div>
             </div>
           </div>
