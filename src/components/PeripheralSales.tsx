@@ -60,7 +60,7 @@ const PeripheralSales = () => {
                   <Badge variant={getCategoryColor(item.category)}>{item.category}</Badge>
                 </div>
                 <CardTitle className="text-xl">{item.name}</CardTitle>
-                <p className="text-xl font-bold text-primary mt-2">{item.price}</p>
+                
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">

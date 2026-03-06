@@ -8,6 +8,7 @@ const Header = () => {
     { label: "Ana Sayfa", href: "#home" },
     { label: "Hizmetler", href: "#services" },
     { label: "Bilgisayar Sistemleri", href: "#peripherals" },
+    { label: "İşlem Takibi", href: "#tracking" },
     { label: "İletişim", href: "#contact" },
   ];
 
