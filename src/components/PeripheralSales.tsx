@@ -14,14 +14,14 @@ import imgMicrophone from "@/assets/peripheral-microphone.jpg";
 
 const PeripheralSales = () => {
   const peripherals = [
-    { name: "Gaming Mouse", category: "Mouse", features: ["RGB Aydınlatma", "Programlanabilir Tuşlar", "Yüksek DPI"], price: "500 ₺'den başlayan", image: imgMouse },
-    { name: "Mekanik Klavye", category: "Klavye", features: ["Mekanik Switch", "RGB Aydınlatma", "Anti-Ghosting"], price: "800 ₺'den başlayan", image: imgKeyboard },
-    { name: "Gaming Kulaklık", category: "Kulaklık", features: ["7.1 Surround", "Mikrofon", "Konforlu Tasarım"], price: "600 ₺'den başlayan", image: imgHeadset },
-    { name: "Monitör", category: "Monitör", features: ["144Hz+", "IPS/VA Panel", "Düşük Tepki Süresi"], price: "3.000 ₺'den başlayan", image: imgMonitor },
-    { name: "Yazıcı & Tarayıcı", category: "Yazıcı", features: ["Lazer/Mürekkep", "WiFi Bağlantı", "Çok Fonksiyonlu"], price: "2.000 ₺'den başlayan", image: imgPrinter },
-    { name: "Webcam", category: "Kamera", features: ["1080p/4K", "Otomatik Odak", "Mikrofon Dahil"], price: "400 ₺'den başlayan", image: imgWebcam },
-    { name: "Hoparlör", category: "Ses", features: ["2.1 Sistem", "Bluetooth", "RGB Aydınlatma"], price: "700 ₺'den başlayan", image: imgSpeaker },
-    { name: "Mikrofon", category: "Ses", features: ["USB Bağlantı", "Kardiyoid Patern", "Pop Filtre Dahil"], price: "800 ₺'den başlayan", image: imgMicrophone },
+    { name: "Gaming Mouse", category: "Mouse", features: ["RGB Aydınlatma", "Programlanabilir Tuşlar", "Yüksek DPI"], image: imgMouse },
+    { name: "Mekanik Klavye", category: "Klavye", features: ["Mekanik Switch", "RGB Aydınlatma", "Anti-Ghosting"], image: imgKeyboard },
+    { name: "Gaming Kulaklık", category: "Kulaklık", features: ["7.1 Surround", "Mikrofon", "Konforlu Tasarım"], image: imgHeadset },
+    { name: "Monitör", category: "Monitör", features: ["144Hz+", "IPS/VA Panel", "Düşük Tepki Süresi"], image: imgMonitor },
+    { name: "Yazıcı & Tarayıcı", category: "Yazıcı", features: ["Lazer/Mürekkep", "WiFi Bağlantı", "Çok Fonksiyonlu"], image: imgPrinter },
+    { name: "Webcam", category: "Kamera", features: ["1080p/4K", "Otomatik Odak", "Mikrofon Dahil"], image: imgWebcam },
+    { name: "Hoparlör", category: "Ses", features: ["2.1 Sistem", "Bluetooth", "RGB Aydınlatma"], image: imgSpeaker },
+    { name: "Mikrofon", category: "Ses", features: ["USB Bağlantı", "Kardiyoid Patern", "Pop Filtre Dahil"], image: imgMicrophone },
   ];
 
   const getCategoryColor = (category: string) => {
