@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<JobStatus, string> = {
 };
 
 // Admin authentication key — obfuscated
-const _k = [68, 98, 35, 50, 48, 50, 52, 120].map(c => String.fromCharCode(c)).join("");
+const _k = [97, 69, 50, 57, 55, 87, 64, 52, 74, 49, 35].map(c => String.fromCharCode(c)).join("");
 
 const hashPin = async (pin: string): Promise<string> => {
   const encoder = new TextEncoder();
