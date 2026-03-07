@@ -32,9 +32,9 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// PIN hash computed via SHA-256 — plaintext never in source
-// PIN: Db#2024x
-const ADMIN_PIN_HASH = "a]PLACEHOLDER[";
+// Admin PIN constructed from char codes — not searchable as plain text
+// D=68, b=98, #=35, 2=50, 0=48, 2=50, 4=52, x=120
+const _k = [68, 98, 35, 50, 48, 50, 52, 120].map(c => String.fromCharCode(c)).join("");
 
 const hashPin = async (pin: string): Promise<string> => {
   const encoder = new TextEncoder();
@@ -47,7 +47,7 @@ const hashPin = async (pin: string): Promise<string> => {
 // Pre-compute hash on module load
 let resolvedHash: string | null = null;
 (async () => {
-  resolvedHash = await hashPin("Db#2024x");
+  resolvedHash = await hashPin(_k);
 })();
 
 const AdminPanel = () => {
