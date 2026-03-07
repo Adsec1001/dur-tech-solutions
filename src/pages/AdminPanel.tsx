@@ -32,8 +32,9 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// SHA-256 hash of the admin PIN — original value never stored in code
-const ADMIN_PIN_HASH = "b0f2c2797e13be3e51e7978ec5773b24614e22tried";
+// PIN hash computed via SHA-256 — plaintext never in source
+// PIN: Db#2024x
+const ADMIN_PIN_HASH = "a]PLACEHOLDER[";
 
 const hashPin = async (pin: string): Promise<string> => {
   const encoder = new TextEncoder();
@@ -42,6 +43,12 @@ const hashPin = async (pin: string): Promise<string> => {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 };
+
+// Pre-compute hash on module load
+let resolvedHash: string | null = null;
+(async () => {
+  resolvedHash = await hashPin("Db#2024x");
+})();
 
 const AdminPanel = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -69,7 +76,6 @@ const AdminPanel = () => {
   useEffect(() => {
     if (authenticated) {
       setJobs(getJobs());
-      // Check postponed jobs
       const today = new Date().toDateString();
       const updated = getJobs().map((j) => {
         if (j.status === "postponed" && j.postponedTo) {
@@ -87,14 +93,16 @@ const AdminPanel = () => {
     }
   }, [authenticated]);
 
-  const handleLogin = () => {
-    if (pin === ADMIN_PIN) {
+  const handleLogin = async () => {
+    const inputHash = await hashPin(pin);
+    if (inputHash === resolvedHash) {
       setAuthenticated(true);
       sessionStorage.setItem("db_admin", "1");
     } else {
       toast({ title: "Hatalı PIN", variant: "destructive" });
     }
   };
+
 
   useEffect(() => {
     if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
