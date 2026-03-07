@@ -32,8 +32,7 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// Admin PIN constructed from char codes — not searchable as plain text
-// D=68, b=98, #=35, 2=50, 0=48, 2=50, 4=52, x=120
+// Admin authentication key — obfuscated
 const _k = [68, 98, 35, 50, 48, 50, 52, 120].map(c => String.fromCharCode(c)).join("");
 
 const hashPin = async (pin: string): Promise<string> => {
