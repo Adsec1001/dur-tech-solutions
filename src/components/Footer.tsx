@@ -1,5 +1,6 @@
 import logo from "@/assets/db-logo.png";
 import { Facebook, Instagram, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -33,9 +34,9 @@ const Footer = () => {
             
             <p className="text-sm text-muted-foreground text-center md:text-right">
               © 2026{" "}
-              <a href="/admin" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+              <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
                 Dur Bilişim
-              </a>
+              </Link>
               . Tüm hakları saklıdır.
             </p>
           </div>
