@@ -204,7 +204,7 @@ const AdminPanel = () => {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              maxLength={10}
+              maxLength={20}
               className="text-center text-lg tracking-widest"
             />
             <Button onClick={handleLogin} className="w-full">Giriş</Button>
