@@ -32,7 +32,11 @@ const Footer = () => {
             </div>
             
             <p className="text-sm text-muted-foreground text-center md:text-right">
-              © 2026 Dur Bilişim. Tüm hakları saklıdır.
+              © 2026{" "}
+              <a href="/admin" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                Dur Bilişim
+              </a>
+              . Tüm hakları saklıdır.
             </p>
           </div>
         </div>
