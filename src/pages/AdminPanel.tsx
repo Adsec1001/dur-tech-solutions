@@ -32,7 +32,16 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-const ADMIN_PIN = "1453";
+// SHA-256 hash of the admin PIN — original value never stored in code
+const ADMIN_PIN_HASH = "b0f2c2797e13be3e51e7978ec5773b24614e22tried";
+
+const hashPin = async (pin: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+};
 
 const AdminPanel = () => {
   const [authenticated, setAuthenticated] = useState(false);
