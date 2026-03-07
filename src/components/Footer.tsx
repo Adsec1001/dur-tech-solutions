@@ -1,5 +1,6 @@
 import logo from "@/assets/db-logo.png";
 import { Facebook, Instagram, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
