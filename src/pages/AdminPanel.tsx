@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import {
   Clipboard, Monitor, Laptop, Wrench, CalendarClock, CheckCircle2, XCircle, LogOut
 } from "lucide-react";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
-import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode } from "@/lib/jobStorage";
+import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { useToast } from "@/hooks/use-toast";
 
 const SERVICE_LABELS: Record<ServiceType, string> = {
@@ -43,7 +43,6 @@ const hashPin = async (pin: string): Promise<string> => {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 };
 
-// Pre-compute hash on module load
 let resolvedHash: string | null = null;
 (async () => {
   resolvedHash = await hashPin(_k);
@@ -60,7 +59,6 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const { toast } = useToast();
 
-  // Form state
   const [form, setForm] = useState({
     customerName: "",
     customerSurname: "",
@@ -73,25 +71,36 @@ const AdminPanel = () => {
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
 
+  const refreshJobs = useCallback(async () => {
+    const data = await getJobs();
+    setJobs(data);
+    return data;
+  }, []);
+
   useEffect(() => {
     if (authenticated) {
-      setJobs(getJobs());
-      const today = new Date().toDateString();
-      const updated = getJobs().map((j) => {
-        if (j.status === "postponed" && j.postponedTo) {
-          const postponedDate = new Date(j.postponedTo).toDateString();
-          if (postponedDate <= today) {
-            return { ...j, status: "pending" as JobStatus, postponedTo: undefined };
+      refreshJobs().then(async (jobList) => {
+        const today = new Date().toDateString();
+        let needsUpdate = false;
+        const updated = jobList.map((j) => {
+          if (j.status === "postponed" && j.postponedTo) {
+            const postponedDate = new Date(j.postponedTo).toDateString();
+            if (postponedDate <= today) {
+              needsUpdate = true;
+              return { ...j, status: "pending" as JobStatus, postponedTo: undefined };
+            }
           }
+          return j;
+        });
+        if (needsUpdate) {
+          for (const job of updated) {
+            await updateJob(job);
+          }
+          setJobs(updated);
         }
-        return j;
-      });
-      import("@/lib/jobStorage").then(({ saveJobs }) => {
-        saveJobs(updated);
-        setJobs(updated);
       });
     }
-  }, [authenticated]);
+  }, [authenticated, refreshJobs]);
 
   const handleLogin = async () => {
     const inputHash = await hashPin(pin);
@@ -103,12 +112,11 @@ const AdminPanel = () => {
     }
   };
 
-
   useEffect(() => {
     if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
   }, []);
 
-  const handleAddJob = () => {
+  const handleAddJob = async () => {
     if (!form.customerName.trim() || !form.customerSurname.trim()) {
       toast({ title: "Ad ve soyad zorunludur", variant: "destructive" });
       return;
@@ -134,8 +142,8 @@ const AdminPanel = () => {
       completionNotes: "",
       createdAt: new Date().toISOString(),
     };
-    addJob(job);
-    setJobs(getJobs());
+    await addJob(job);
+    await refreshJobs();
     setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
     setAccessories([]);
     setShowForm(false);
@@ -148,7 +156,7 @@ const AdminPanel = () => {
     setNewAccessory("");
   };
 
-  const handleStatusChange = (job: ServiceJob, status: JobStatus) => {
+  const handleStatusChange = async (job: ServiceJob, status: JobStatus) => {
     const updated = { ...job, status };
     if (status === "postponed") {
       const tomorrow = new Date();
@@ -159,11 +167,11 @@ const AdminPanel = () => {
       updated.completedAt = new Date().toISOString();
       updated.completionNotes = completionNotes[job.id] || "";
     }
-    updateJob(updated);
-    setJobs(getJobs());
+    await updateJob(updated);
+    await refreshJobs();
   };
 
-  const handleAddStep = (job: ServiceJob) => {
+  const handleAddStep = async (job: ServiceJob) => {
     const text = newStepText[job.id]?.trim();
     if (!text) return;
     const step: JobStep = {
@@ -173,25 +181,25 @@ const AdminPanel = () => {
       createdAt: new Date().toISOString(),
     };
     const updated = { ...job, steps: [...job.steps, step] };
-    updateJob(updated);
-    setJobs(getJobs());
+    await updateJob(updated);
+    await refreshJobs();
     setNewStepText({ ...newStepText, [job.id]: "" });
   };
 
-  const toggleStep = (job: ServiceJob, stepId: string) => {
+  const toggleStep = async (job: ServiceJob, stepId: string) => {
     const updated = {
       ...job,
       steps: job.steps.map((s) =>
         s.id === stepId ? { ...s, completed: !s.completed, completedAt: !s.completed ? new Date().toISOString() : undefined } : s
       ),
     };
-    updateJob(updated);
-    setJobs(getJobs());
+    await updateJob(updated);
+    await refreshJobs();
   };
 
-  const handleDelete = (id: string) => {
-    deleteJob(id);
-    setJobs(getJobs());
+  const handleDelete = async (id: string) => {
+    await deleteJob(id);
+    await refreshJobs();
     toast({ title: "İş silindi" });
   };
 
@@ -254,7 +262,7 @@ const AdminPanel = () => {
                 <Input placeholder="Soyad *" value={form.customerSurname} onChange={(e) => setForm({ ...form, customerSurname: e.target.value })} maxLength={50} />
               </div>
               <Input
-                placeholder="Telefon Numarası * (0XX XXX XX XX)"
+                placeholder="Telefon Numarası (05XX XXX XX XX)"
                 value={form.customerPhone}
                 onChange={(e) => {
                   const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 11);
@@ -353,7 +361,7 @@ const AdminPanel = () => {
                         )}
                       </div>
                       {job.customerPhone && (
-                        <p className="text-xs text-muted-foreground mb-1">📞 {job.customerPhone.replace(/(\d{4})(\d{3})(\d{2})(\d{2})/, "$1 $2 $3 $4")}</p>
+                        <p className="text-xs text-muted-foreground mb-1">📞 {formatPhone(job.customerPhone)}</p>
                       )}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
@@ -380,7 +388,6 @@ const AdminPanel = () => {
                   {/* Expanded details */}
                   {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-border/50 space-y-4 animate-fade-in">
-                      {/* Accessories */}
                       {job.accessories.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Aksesuarlar</p>
@@ -392,7 +399,6 @@ const AdminPanel = () => {
                         </div>
                       )}
 
-                      {/* Notes */}
                       {job.notes && (
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Notlar</p>
@@ -400,7 +406,6 @@ const AdminPanel = () => {
                         </div>
                       )}
 
-                      {/* Steps */}
                       <div>
                         <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İşlem Adımları</p>
                         {job.steps.length === 0 && <p className="text-xs text-muted-foreground">Henüz adım eklenmedi</p>}
@@ -431,7 +436,6 @@ const AdminPanel = () => {
                         </div>
                       </div>
 
-                      {/* Completion notes */}
                       {job.status !== "completed" && (
                         <Textarea
                           placeholder="Tamamlanınca yapılan işlemi yazın..."
@@ -449,7 +453,6 @@ const AdminPanel = () => {
                         </div>
                       )}
 
-                      {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-2">
                         {job.status !== "in_progress" && job.status !== "completed" && (
                           <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleStatusChange(job, "in_progress")}>
