@@ -254,6 +254,16 @@ const AdminPanel = () => {
                 <Input placeholder="Ad *" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} maxLength={50} />
                 <Input placeholder="Soyad *" value={form.customerSurname} onChange={(e) => setForm({ ...form, customerSurname: e.target.value })} maxLength={50} />
               </div>
+              <Input
+                placeholder="Telefon Numarası * (0XX XXX XX XX)"
+                value={form.customerPhone}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 11);
+                  setForm({ ...form, customerPhone: val });
+                }}
+                maxLength={11}
+                inputMode="numeric"
+              />
 
               <div>
                 <p className="text-sm text-muted-foreground mb-2">Hizmet Türü</p>
