@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2 } from "lucide-react";
 import { ServiceJob, JobStatus } from "@/types/serviceJob";
 import { findByTrackingCode } from "@/lib/jobStorage";
@@ -32,12 +31,15 @@ const TrackingSection = () => {
   const [code, setCode] = useState("");
   const [job, setJob] = useState<ServiceJob | null>(null);
   const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!code.trim()) return;
-    const found = findByTrackingCode(code.trim());
+    setLoading(true);
+    const found = await findByTrackingCode(code.trim());
     setJob(found || null);
     setSearched(true);
+    setLoading(false);
   };
 
   const completedSteps = job ? job.steps.filter((s) => s.completed).length : 0;
@@ -66,12 +68,12 @@ const TrackingSection = () => {
               maxLength={10}
               className="font-mono text-center tracking-wider"
             />
-            <Button onClick={handleSearch}>
+            <Button onClick={handleSearch} disabled={loading}>
               <Search className="h-4 w-4" />
             </Button>
           </div>
 
-          {searched && !job && (
+          {searched && !job && !loading && (
             <Card className="border-destructive/30">
               <CardContent className="p-6 text-center">
                 <p className="text-destructive">Takip kodu bulunamadı. Lütfen kontrol edip tekrar deneyin.</p>
