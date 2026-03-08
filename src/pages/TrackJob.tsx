@@ -97,10 +97,24 @@ const TrackJob = () => {
                 </div>
               </div>
 
+              <div className="text-sm">
+                <p className="text-muted-foreground text-xs">Hizmet Türü</p>
+                <p className="font-medium text-foreground">
+                  {job.serviceType === "remote" ? "Uzaktan Destek" : job.serviceType === "freelance" ? "Freelance" : "Cihaz Servisi"}
+                </p>
+              </div>
+
               {job.deviceName && (
                 <div className="text-sm">
                   <p className="text-muted-foreground text-xs">Cihaz</p>
                   <p className="font-medium text-foreground">{job.deviceName}</p>
+                </div>
+              )}
+
+              {job.notes && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground text-xs">İşlem Bilgisi</p>
+                  <p className="font-medium text-foreground/80">{job.notes}</p>
                 </div>
               )}
 
