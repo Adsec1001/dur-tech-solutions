@@ -137,7 +137,7 @@ const AdminPanel = () => {
     };
     addJob(job);
     setJobs(getJobs());
-    setForm({ customerName: "", customerSurname: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
