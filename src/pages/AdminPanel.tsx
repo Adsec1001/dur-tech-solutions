@@ -118,7 +118,6 @@ const AdminPanel = () => {
       toast({ title: "Telefon numarası 11 haneli olmalıdır", variant: "destructive" });
       return;
     }
-    }
     const job: ServiceJob = {
       id: crypto.randomUUID(),
       trackingCode: generateTrackingCode(),
