@@ -54,7 +54,7 @@ const TrackingSection = () => {
             İşlem Takibi
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Takip kodunuzu girerek işleminizin güncel durumunu öğrenebilirsiniz
+            Sizlere iletilen takip kodunuzu bu alana girerek işleminizin güncel durumunu öğrenebilirsiniz.
           </p>
         </div>
 
