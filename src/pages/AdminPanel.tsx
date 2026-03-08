@@ -64,6 +64,7 @@ const AdminPanel = () => {
   const [form, setForm] = useState({
     customerName: "",
     customerSurname: "",
+    customerPhone: "",
     serviceType: "device" as ServiceType,
     deviceName: "",
     fee: "",
