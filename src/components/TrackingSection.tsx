@@ -47,7 +47,10 @@ const TrackingSection = () => {
     <section id="tracking" className="py-20">
       <div className="container">
         <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">İşlem Takibi</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 inline-flex items-center gap-2">
+            <Search className="h-7 w-7 text-primary" />
+            İşlem Takibi
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Takip kodunuzu girerek işleminizin güncel durumunu öğrenebilirsiniz
           </p>

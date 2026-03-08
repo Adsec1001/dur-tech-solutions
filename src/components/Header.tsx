@@ -1,6 +1,7 @@
-import { Menu, Facebook, Instagram, Phone } from "lucide-react";
+import { Menu, Facebook, Instagram, Phone, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Link } from "react-router-dom";
 import logo from "@/assets/db-logo.png";
 
 const Header = () => {
@@ -35,7 +36,16 @@ const Header = () => {
               {item.label}
             </a>
           ))}
-          <div className="flex items-center gap-3 ml-4">
+
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
+            <Shield className="h-4 w-4" />
+            Admin
+          </Link>
+
+          <div className="flex items-center gap-3 ml-2">
             <a href="https://www.facebook.com/profile.php?id=61562039079557#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Facebook className="h-5 w-5" />
             </a>
@@ -66,8 +76,12 @@ const Header = () => {
                   {item.label}
                 </a>
               ))}
+              <Link to="/admin" className="inline-flex items-center gap-2 text-lg font-semibold text-primary hover:text-primary/80 transition-colors">
+                <Shield className="h-5 w-5" />
+                Admin Panel
+              </Link>
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
-              <a href="https://www.facebook.com/profile.php?id=61562039079557#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://www.facebook.com/profile.php?id=61562039079557#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   <Facebook className="h-6 w-6" />
                 </a>
                 <a href="https://www.instagram.com/durbilisim/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
