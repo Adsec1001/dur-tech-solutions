@@ -80,12 +80,13 @@ const AdminPanel = () => {
   useEffect(() => {
     if (authenticated) {
       refreshJobs().then(async (jobList) => {
-        const today = new Date().toDateString();
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         let needsUpdate = false;
         const updated = jobList.map((j) => {
           if (j.status === "postponed" && j.postponedTo) {
-            const postponedDate = new Date(j.postponedTo).toDateString();
-            if (postponedDate <= today) {
+            const postponedTime = new Date(j.postponedTo).getTime();
+            if (postponedTime <= todayStart) {
               needsUpdate = true;
               return { ...j, status: "pending" as JobStatus, postponedTo: undefined };
             }
