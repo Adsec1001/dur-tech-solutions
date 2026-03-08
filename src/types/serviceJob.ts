@@ -20,6 +20,7 @@ export interface ServiceJob {
   trackingCode: string;
   customerName: string;
   customerSurname: string;
+  customerPhone: string;
   serviceType: ServiceType;
   deviceName: string;
   accessories: Accessory[];

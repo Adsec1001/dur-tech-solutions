@@ -64,6 +64,7 @@ const AdminPanel = () => {
   const [form, setForm] = useState({
     customerName: "",
     customerSurname: "",
+    customerPhone: "",
     serviceType: "device" as ServiceType,
     deviceName: "",
     fee: "",
@@ -112,11 +113,18 @@ const AdminPanel = () => {
       toast({ title: "Ad ve soyad zorunludur", variant: "destructive" });
       return;
     }
+    const phoneDigits = form.customerPhone.replace(/\D/g, "");
+    if (phoneDigits.length !== 11) {
+      toast({ title: "Telefon numarası 11 haneli olmalıdır", variant: "destructive" });
+      return;
+    }
+    }
     const job: ServiceJob = {
       id: crypto.randomUUID(),
       trackingCode: generateTrackingCode(),
       customerName: form.customerName.trim(),
       customerSurname: form.customerSurname.trim(),
+      customerPhone: phoneDigits,
       serviceType: form.serviceType,
       deviceName: form.deviceName.trim(),
       accessories: accessories,
@@ -129,7 +137,7 @@ const AdminPanel = () => {
     };
     addJob(job);
     setJobs(getJobs());
-    setForm({ customerName: "", customerSurname: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -246,6 +254,16 @@ const AdminPanel = () => {
                 <Input placeholder="Ad *" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} maxLength={50} />
                 <Input placeholder="Soyad *" value={form.customerSurname} onChange={(e) => setForm({ ...form, customerSurname: e.target.value })} maxLength={50} />
               </div>
+              <Input
+                placeholder="Telefon Numarası * (0XX XXX XX XX)"
+                value={form.customerPhone}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 11);
+                  setForm({ ...form, customerPhone: val });
+                }}
+                maxLength={11}
+                inputMode="numeric"
+              />
 
               <div>
                 <p className="text-sm text-muted-foreground mb-2">Hizmet Türü</p>
@@ -335,6 +353,9 @@ const AdminPanel = () => {
                           <span className="text-xs text-orange-400 font-medium">📌 Yarın yapılacak</span>
                         )}
                       </div>
+                      {job.customerPhone && (
+                        <p className="text-xs text-muted-foreground mb-1">📞 {job.customerPhone.replace(/(\d{4})(\d{3})(\d{2})(\d{2})/, "$1 $2 $3 $4")}</p>
+                      )}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
                         {job.deviceName && <span>• {job.deviceName}</span>}
