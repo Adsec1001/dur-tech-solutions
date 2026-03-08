@@ -113,6 +113,12 @@ const AdminPanel = () => {
       toast({ title: "Ad ve soyad zorunludur", variant: "destructive" });
       return;
     }
+    const phoneDigits = form.customerPhone.replace(/\D/g, "");
+    if (phoneDigits.length !== 11) {
+      toast({ title: "Telefon numarası 11 haneli olmalıdır", variant: "destructive" });
+      return;
+    }
+    }
     const job: ServiceJob = {
       id: crypto.randomUUID(),
       trackingCode: generateTrackingCode(),
