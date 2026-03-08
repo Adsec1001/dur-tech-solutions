@@ -353,6 +353,9 @@ const AdminPanel = () => {
                           <span className="text-xs text-orange-400 font-medium">📌 Yarın yapılacak</span>
                         )}
                       </div>
+                      {job.customerPhone && (
+                        <p className="text-xs text-muted-foreground mb-1">📞 {job.customerPhone.replace(/(\d{4})(\d{3})(\d{2})(\d{2})/, "$1 $2 $3 $4")}</p>
+                      )}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
                         {job.deviceName && <span>• {job.deviceName}</span>}
