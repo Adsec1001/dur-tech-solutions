@@ -124,6 +124,7 @@ const AdminPanel = () => {
       trackingCode: generateTrackingCode(),
       customerName: form.customerName.trim(),
       customerSurname: form.customerSurname.trim(),
+      customerPhone: phoneDigits,
       serviceType: form.serviceType,
       deviceName: form.deviceName.trim(),
       accessories: accessories,
