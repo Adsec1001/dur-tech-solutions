@@ -37,14 +37,6 @@ const Header = () => {
             </a>
           ))}
 
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-          >
-            <Shield className="h-4 w-4" />
-            Admin
-          </Link>
-
           <div className="flex items-center gap-3 ml-2">
             <a href="https://www.facebook.com/profile.php?id=61562039079557#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Facebook className="h-5 w-5" />
