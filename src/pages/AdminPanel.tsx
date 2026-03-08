@@ -114,7 +114,7 @@ const AdminPanel = () => {
       return;
     }
     const phoneDigits = form.customerPhone.replace(/\D/g, "");
-    if (phoneDigits.length > 0 && phoneDigits.length !== 11) {
+    if (phoneDigits.length !== 11) {
       toast({ title: "Telefon numarası 11 haneli olmalıdır", variant: "destructive" });
       return;
     }
