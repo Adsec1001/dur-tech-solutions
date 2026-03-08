@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      service_jobs: {
+        Row: {
+          accessories: Json | null
+          completed_at: string | null
+          completion_notes: string | null
+          created_at: string
+          customer_name: string
+          customer_phone: string | null
+          customer_surname: string
+          device_name: string | null
+          fee: number | null
+          id: string
+          notes: string | null
+          postponed_to: string | null
+          service_type: string
+          status: string
+          steps: Json | null
+          tracking_code: string
+        }
+        Insert: {
+          accessories?: Json | null
+          completed_at?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          customer_name: string
+          customer_phone?: string | null
+          customer_surname: string
+          device_name?: string | null
+          fee?: number | null
+          id?: string
+          notes?: string | null
+          postponed_to?: string | null
+          service_type?: string
+          status?: string
+          steps?: Json | null
+          tracking_code: string
+        }
+        Update: {
+          accessories?: Json | null
+          completed_at?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string | null
+          customer_surname?: string
+          device_name?: string | null
+          fee?: number | null
+          id?: string
+          notes?: string | null
+          postponed_to?: string | null
+          service_type?: string
+          status?: string
+          steps?: Json | null
+          tracking_code?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
