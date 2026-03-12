@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import SystemBuilder from "@/components/SystemBuilder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ interface Product {
 const PeripheralSales = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -66,7 +68,7 @@ const PeripheralSales = () => {
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               {item.image_url ? (
-                <div className="h-48 overflow-hidden">
+                <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_url)}>
                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                 </div>
               ) : (
@@ -113,6 +115,14 @@ const PeripheralSales = () => {
         </div>
 
         <SystemBuilder />
+
+        <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+          <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-background/95 border-border">
+            {zoomedImage && (
+              <img src={zoomedImage} alt="Ürün" className="w-full h-full object-contain max-h-[85vh] rounded" />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
