@@ -5,7 +5,7 @@ import SystemBuilder from "@/components/SystemBuilder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Package } from "lucide-react";
+import { Package, ShoppingBag } from "lucide-react";
 
 interface Product {
   id: string;
