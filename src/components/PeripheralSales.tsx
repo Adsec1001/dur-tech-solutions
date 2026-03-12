@@ -57,8 +57,9 @@ const PeripheralSales = () => {
     <section id="peripherals" className="py-20">
       <div className="container">
         <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ürünlerimiz</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">İhtiyacınıza uygun ürünler için bilgi alın</p>
+            <ShoppingBag className="h-10 w-10 text-primary mx-auto mb-4" />
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ürünlerimiz</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Kaliteli ve uygun fiyatlı teknoloji ürünleriyle ihtiyacınıza en uygun çözümü sunuyoruz. Detaylı bilgi almak için hemen bize ulaşın.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
