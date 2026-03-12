@@ -22,6 +22,7 @@ interface Product {
 const PeripheralSales = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
