@@ -68,7 +68,7 @@ const PeripheralSales = () => {
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               {item.image_url ? (
-                <div className="h-48 overflow-hidden">
+                <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_url)}>
                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                 </div>
               ) : (
