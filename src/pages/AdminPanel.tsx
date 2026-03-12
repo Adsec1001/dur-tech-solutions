@@ -312,23 +312,53 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-primary">Teknik Servis Paneli</h1>
-            <p className="text-sm text-muted-foreground">İş takibi ve yönetimi</p>
+            <h1 className="text-2xl font-bold text-primary">Admin Paneli</h1>
+            <p className="text-sm text-muted-foreground">İş takibi ve ürün yönetimi</p>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1">
-              <Plus className="h-4 w-4" /> Yeni İş
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => { sessionStorage.removeItem("db_admin"); setAuthenticated(false); }}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { sessionStorage.removeItem("db_admin"); setAuthenticated(false); }}
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab("jobs")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "jobs"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Wrench className="h-4 w-4" /> Teknik Servis
+          </button>
+          <button
+            onClick={() => setActiveTab("products")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "products"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Package className="h-4 w-4" /> Ürünler
+          </button>
+        </div>
+
+        {activeTab === "products" && <ProductManager />}
+
+        {activeTab === "jobs" && (
+        <>
+        <div className="flex items-center justify-between mb-4">
+          <div />
+          <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1">
+            <Plus className="h-4 w-4" /> Yeni İş
+          </Button>
         </div>
 
         {/* Add Job Form */}
