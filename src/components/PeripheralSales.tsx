@@ -115,6 +115,14 @@ const PeripheralSales = () => {
         </div>
 
         <SystemBuilder />
+
+        <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+          <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-background/95 border-border">
+            {zoomedImage && (
+              <img src={zoomedImage} alt="Ürün" className="w-full h-full object-contain max-h-[85vh] rounded" />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
