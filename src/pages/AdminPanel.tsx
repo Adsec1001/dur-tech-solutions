@@ -63,6 +63,7 @@ const AdminPanel = () => {
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [activeTab, setActiveTab] = useState<"jobs" | "products">("jobs");
+  const { toast } = useToast();
 
   const [form, setForm] = useState({
     customerName: "",
