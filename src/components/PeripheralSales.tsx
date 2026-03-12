@@ -43,6 +43,7 @@ const PeripheralSales = () => {
       <section id="peripherals" className="py-20">
         <div className="container">
           <div className="text-center mb-12 animate-fade-in">
+            <ShoppingBag className="h-10 w-10 text-primary mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ürünlerimiz</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Yakında ürünler eklenecektir</p>
           </div>
