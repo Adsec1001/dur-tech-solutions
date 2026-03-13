@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
@@ -23,7 +23,18 @@ interface Product {
 const PeripheralSales = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [zoomedImages, setZoomedImages] = useState<string[]>([]);
+  const [zoomedIndex, setZoomedIndex] = useState(0);
+
+  const openZoom = useCallback((images: string[], startIndex: number) => {
+    setZoomedImages(images);
+    setZoomedIndex(startIndex);
+  }, []);
+
+  const closeZoom = useCallback(() => {
+    setZoomedImages([]);
+    setZoomedIndex(0);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -72,7 +83,7 @@ const PeripheralSales = () => {
             >
               {item.image_urls && item.image_urls.length > 0 ? (
                 item.image_urls.length === 1 ? (
-                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_urls[0])}>
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, 0)}>
                     <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                   </div>
                 ) : (
@@ -80,7 +91,7 @@ const PeripheralSales = () => {
                     <CarouselContent>
                       {item.image_urls.map((url, idx) => (
                         <CarouselItem key={idx}>
-                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(url)}>
+                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, idx)}>
                             <img src={url} alt={`${item.name} ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                           </div>
                         </CarouselItem>
@@ -135,10 +146,37 @@ const PeripheralSales = () => {
 
         <SystemBuilder />
 
-        <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+        <Dialog open={zoomedImages.length > 0} onOpenChange={closeZoom}>
           <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-background/95 border-border">
-            {zoomedImage && (
-              <img src={zoomedImage} alt="Ürün" className="w-full h-full object-contain max-h-[85vh] rounded" />
+            {zoomedImages.length > 0 && (
+              <div className="relative flex items-center justify-center">
+                {zoomedImages.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-0 z-10 h-10 w-10 rounded-full bg-background/80 hover:bg-background"
+                    onClick={() => setZoomedIndex((zoomedIndex - 1 + zoomedImages.length) % zoomedImages.length)}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </Button>
+                )}
+                <img src={zoomedImages[zoomedIndex]} alt="Ürün" className="w-full h-full object-contain max-h-[85vh] rounded" />
+                {zoomedImages.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 z-10 h-10 w-10 rounded-full bg-background/80 hover:bg-background"
+                    onClick={() => setZoomedIndex((zoomedIndex + 1) % zoomedImages.length)}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </Button>
+                )}
+                {zoomedImages.length > 1 && (
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-sm text-muted-foreground bg-background/80 px-3 py-1 rounded-full">
+                    {zoomedIndex + 1} / {zoomedImages.length}
+                  </div>
+                )}
+              </div>
             )}
           </DialogContent>
         </Dialog>
