@@ -8,7 +8,7 @@ const Header = () => {
   const menuItems = [
     { label: "Ana Sayfa", href: "#home" },
     { label: "Hizmetler", href: "#services" },
-    { label: "Bilgisayar Sistemleri", href: "#peripherals" },
+    { label: "Ürünler", href: "#peripherals" },
     { label: "İşlem Takibi", href: "#tracking" },
     { label: "İletişim", href: "#contact" },
   ];
