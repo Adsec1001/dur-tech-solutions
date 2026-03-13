@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import SystemBuilder from "@/components/SystemBuilder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, ShoppingBag } from "lucide-react";
+import { Package, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Product {
   id: string;
@@ -13,7 +14,7 @@ interface Product {
   description: string | null;
   category: string | null;
   price: number | null;
-  image_url: string | null;
+  image_urls: string[];
   features: string[];
   is_active: boolean;
   sort_order: number;
@@ -31,7 +32,7 @@ const PeripheralSales = () => {
         .select("*")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
-      if (data) setProducts(data as Product[]);
+      if (data) setProducts(data as unknown as Product[]);
       setLoading(false);
     };
     fetchProducts();
@@ -57,9 +58,9 @@ const PeripheralSales = () => {
     <section id="peripherals" className="py-20">
       <div className="container">
         <div className="text-center mb-12 animate-fade-in">
-            <ShoppingBag className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ürünlerimiz</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Kaliteli ve uygun fiyatlı teknoloji ürünleriyle ihtiyacınıza en uygun çözümü sunuyoruz. Detaylı bilgi almak için hemen bize ulaşın.</p>
+          <ShoppingBag className="h-10 w-10 text-primary mx-auto mb-4" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ürünlerimiz</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Kaliteli ve uygun fiyatlı teknoloji ürünleriyle ihtiyacınıza en uygun çözümü sunuyoruz. Detaylı bilgi almak için hemen bize ulaşın.</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -69,10 +70,26 @@ const PeripheralSales = () => {
               className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
-              {item.image_url ? (
-                <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_url)}>
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
-                </div>
+              {item.image_urls && item.image_urls.length > 0 ? (
+                item.image_urls.length === 1 ? (
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_urls[0])}>
+                    <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                  </div>
+                ) : (
+                  <Carousel className="w-full">
+                    <CarouselContent>
+                      {item.image_urls.map((url, idx) => (
+                        <CarouselItem key={idx}>
+                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(url)}>
+                            <img src={url} alt={`${item.name} ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-2 h-7 w-7" />
+                    <CarouselNext className="right-2 h-7 w-7" />
+                  </Carousel>
+                )
               ) : (
                 <div className="h-48 bg-muted flex items-center justify-center">
                   <Package className="h-12 w-12 text-muted-foreground" />

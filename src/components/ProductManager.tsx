@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Save, X, Package, Image, XCircle } from "lucide-react";
+import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,7 +14,7 @@ interface Product {
   description: string | null;
   category: string | null;
   price: number | null;
-  image_url: string | null;
+  image_urls: string[];
   features: string[];
   is_active: boolean;
   sort_order: number;
@@ -29,6 +29,7 @@ const emptyForm = {
   features: [] as string[],
   is_active: true,
   sort_order: 0,
+  image_urls: [] as string[],
 };
 
 const ProductManager = () => {
@@ -37,8 +38,8 @@ const ProductManager = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [newFeature, setNewFeature] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
   const { toast } = useToast();
 
   const fetchProducts = useCallback(async () => {
@@ -46,7 +47,7 @@ const ProductManager = () => {
       .from("products")
       .select("*")
       .order("sort_order", { ascending: true });
-    if (data) setProducts(data as Product[]);
+    if (data) setProducts(data as unknown as Product[]);
   }, []);
 
   useEffect(() => {
@@ -69,16 +70,43 @@ const ProductManager = () => {
     return urlData.publicUrl;
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    const newUrls: string[] = [];
+    for (const file of Array.from(files)) {
+      const url = await uploadImage(file);
+      if (url) newUrls.push(url);
+    }
+    setForm(prev => ({ ...prev, image_urls: [...prev.image_urls, ...newUrls] }));
+    setUploading(false);
+    e.target.value = "";
+  };
+
+  const removeImage = (idx: number) => {
+    setForm(prev => ({ ...prev, image_urls: prev.image_urls.filter((_, i) => i !== idx) }));
+  };
+
+  // Drag and drop for image reordering
+  const handleDragStart = (idx: number) => setDragIdx(idx);
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) return;
+    setForm(prev => {
+      const urls = [...prev.image_urls];
+      const [moved] = urls.splice(dragIdx, 1);
+      urls.splice(idx, 0, moved);
+      return { ...prev, image_urls: urls };
+    });
+    setDragIdx(idx);
+  };
+  const handleDragEnd = () => setDragIdx(null);
+
   const handleSave = async () => {
     if (!form.name.trim()) {
       toast({ title: "Ürün adı zorunludur", variant: "destructive" });
       return;
-    }
-    setUploading(true);
-
-    let imageUrl: string | null = null;
-    if (imageFile) {
-      imageUrl = await uploadImage(imageFile);
     }
 
     const payload = {
@@ -89,7 +117,7 @@ const ProductManager = () => {
       features: form.features,
       is_active: form.is_active,
       sort_order: form.sort_order,
-      ...(imageUrl ? { image_url: imageUrl } : {}),
+      image_urls: form.image_urls,
     };
 
     if (editingId) {
@@ -102,12 +130,10 @@ const ProductManager = () => {
 
     resetForm();
     await fetchProducts();
-    setUploading(false);
   };
 
   const resetForm = () => {
     setForm(emptyForm);
-    setImageFile(null);
     setNewFeature("");
     setEditingId(null);
     setShowForm(false);
@@ -123,8 +149,8 @@ const ProductManager = () => {
       features: p.features || [],
       is_active: p.is_active,
       sort_order: p.sort_order,
+      image_urls: p.image_urls || [],
     });
-    setImageFile(null);
     setShowForm(true);
   };
 
@@ -180,16 +206,40 @@ const ProductManager = () => {
               )}
             </div>
 
-            {/* Image upload */}
+            {/* Multi-image upload with drag reorder */}
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Ürün Görseli</p>
+              <p className="text-sm text-muted-foreground mb-2">Ürün Görselleri (sürükle bırak ile sırala)</p>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className="text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                multiple
+                onChange={handleImageUpload}
+                className="text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mb-3"
               />
-              {imageFile && <p className="text-xs text-muted-foreground mt-1">{imageFile.name}</p>}
+              {uploading && <p className="text-xs text-primary animate-pulse">Görseller yükleniyor...</p>}
+              {form.image_urls.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-2">
+                  {form.image_urls.map((url, idx) => (
+                    <div
+                      key={idx}
+                      draggable
+                      onDragStart={() => handleDragStart(idx)}
+                      onDragOver={(e) => handleDragOver(e, idx)}
+                      onDragEnd={handleDragEnd}
+                      className={`relative group w-24 h-24 rounded-lg overflow-hidden border-2 cursor-grab active:cursor-grabbing transition-all ${dragIdx === idx ? "border-primary scale-105 opacity-70" : "border-border hover:border-primary/50"}`}
+                    >
+                      <img src={url} alt={`Görsel ${idx + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                        <GripVertical className="h-4 w-4 text-white" />
+                        <button onClick={() => removeImage(idx)} className="p-1 rounded-full bg-destructive/80 hover:bg-destructive">
+                          <XCircle className="h-3 w-3 text-white" />
+                        </button>
+                      </div>
+                      <span className="absolute bottom-0.5 left-1 text-[10px] text-white bg-black/60 px-1 rounded">{idx + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Active toggle */}
@@ -217,8 +267,15 @@ const ProductManager = () => {
           <Card key={p.id} className={`border-border/50 ${!p.is_active ? "opacity-50" : ""}`}>
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
-                {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} className="w-16 h-16 object-cover rounded-lg shrink-0" />
+                {p.image_urls && p.image_urls.length > 0 ? (
+                  <div className="flex gap-1 shrink-0">
+                    <img src={p.image_urls[0]} alt={p.name} className="w-16 h-16 object-cover rounded-lg" />
+                    {p.image_urls.length > 1 && (
+                      <div className="w-8 h-16 bg-muted rounded-lg flex items-center justify-center">
+                        <span className="text-xs text-muted-foreground font-medium">+{p.image_urls.length - 1}</span>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center shrink-0">
                     <Package className="h-6 w-6 text-muted-foreground" />
@@ -234,6 +291,7 @@ const ProductManager = () => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                     {p.price != null && <span>{p.price.toLocaleString("tr-TR")} ₺</span>}
                     <span>Sıra: {p.sort_order}</span>
+                    <span><Image className="inline h-3 w-3" /> {p.image_urls?.length || 0}</span>
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
