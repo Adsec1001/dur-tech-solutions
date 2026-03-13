@@ -1,4 +1,4 @@
-import { FileDown, Camera } from "lucide-react";
+import { FileDown, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +28,7 @@ const Downloads = () => {
       <div className="container">
         <div className="text-center mb-12 animate-fade-in">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Camera className="h-8 w-8 text-primary" />
+            <FileText className="h-8 w-8 text-primary" />
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Yardımcı Dokümanlar</h2>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Güvenlik sistemleri hakkında faydalı dokümanlarımızı buradan indirebilirsiniz</p>
