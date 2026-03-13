@@ -83,7 +83,7 @@ const PeripheralSales = () => {
             >
               {item.image_urls && item.image_urls.length > 0 ? (
                 item.image_urls.length === 1 ? (
-                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(item.image_urls[0])}>
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, 0)}>
                     <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                   </div>
                 ) : (
@@ -91,7 +91,7 @@ const PeripheralSales = () => {
                     <CarouselContent>
                       {item.image_urls.map((url, idx) => (
                         <CarouselItem key={idx}>
-                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => setZoomedImage(url)}>
+                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, idx)}>
                             <img src={url} alt={`${item.name} ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                           </div>
                         </CarouselItem>
