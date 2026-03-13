@@ -23,7 +23,18 @@ interface Product {
 const PeripheralSales = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [zoomedImages, setZoomedImages] = useState<string[]>([]);
+  const [zoomedIndex, setZoomedIndex] = useState(0);
+
+  const openZoom = useCallback((images: string[], startIndex: number) => {
+    setZoomedImages(images);
+    setZoomedIndex(startIndex);
+  }, []);
+
+  const closeZoom = useCallback(() => {
+    setZoomedImages([]);
+    setZoomedIndex(0);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
