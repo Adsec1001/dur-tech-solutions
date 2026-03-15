@@ -110,7 +110,18 @@ const PeripheralSales = () => {
               <CardHeader className="pt-4">
                 <div className="flex items-start justify-between mb-2">
                   {item.category && <Badge variant="secondary">{item.category}</Badge>}
-                  <Badge variant={item.stock > 0 ? "default" : "destructive"} className="text-xs">
+                  <Badge 
+                    variant={item.stock > 0 ? "default" : "destructive"} 
+                    className={`text-xs font-bold animate-pulse ${
+                      item.stock === 0 
+                        ? "bg-red-500/20 text-red-400 border-red-500/50 shadow-[0_0_8px_rgba(239,68,68,0.5)]" 
+                        : item.stock <= 3 
+                          ? "bg-red-500/20 text-red-400 border-red-500/50 shadow-[0_0_8px_rgba(239,68,68,0.4)]" 
+                          : item.stock <= 5 
+                            ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/50 shadow-[0_0_8px_rgba(234,179,8,0.4)]" 
+                            : "bg-primary/20 text-primary border-primary/50 shadow-[0_0_8px_hsl(var(--primary)/0.4)]"
+                    }`}
+                  >
                     {item.stock > 0 ? `${item.stock} adet` : "Tükendi"}
                   </Badge>
                 </div>
