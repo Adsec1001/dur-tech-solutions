@@ -108,11 +108,12 @@ const PeripheralSales = () => {
                 </div>
               )}
               <CardHeader className="pt-4">
-                {item.category && (
-                  <div className="flex items-start justify-between mb-2">
-                    <Badge variant="secondary">{item.category}</Badge>
-                  </div>
-                )}
+                <div className="flex items-start justify-between mb-2">
+                  {item.category && <Badge variant="secondary">{item.category}</Badge>}
+                  <Badge variant={item.stock > 0 ? "default" : "destructive"} className="text-xs">
+                    {item.stock > 0 ? `${item.stock} adet` : "Tükendi"}
+                  </Badge>
+                </div>
                 <CardTitle className="text-xl">{item.name}</CardTitle>
               </CardHeader>
               <CardContent>

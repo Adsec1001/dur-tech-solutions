@@ -306,10 +306,17 @@ const ProductManager = () => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                     {p.price != null && <span>{p.price.toLocaleString("tr-TR")} ₺</span>}
                     <span>Sıra: {p.sort_order}</span>
+                    <span className={p.stock <= 2 ? "text-destructive font-semibold" : ""}>Stok: {p.stock}</span>
                     <span><Image className="inline h-3 w-3" /> {p.image_urls?.length || 0}</span>
                   </div>
+                  {p.stock <= 2 && p.stock > 0 && (
+                    <p className="text-xs text-destructive font-medium mt-1 animate-pulse">⚠ Stok azaldı! Gün içinde sayım yapılmalı.</p>
+                  )}
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button size="sm" variant="outline" className="h-8 px-2 text-xs gap-1" onClick={() => decrementStock(p)} title="1 adet stoktan düş">
+                    -1
+                  </Button>
                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => startEdit(p)}>
                     <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                   </Button>
