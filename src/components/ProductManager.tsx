@@ -199,8 +199,14 @@ const ProductManager = () => {
             <Input placeholder="Kategori (örn: Mouse, Klavye)" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} maxLength={50} />
             <Textarea placeholder="Açıklama" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={500} rows={2} />
             <Input type="number" placeholder="Fiyat (₺)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} min={0} />
-            <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Sıralama (küçük = önce)" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
-            <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Stok Adedi" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} />
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">📋 İlan Sırası (küçük sayı = önce görünür)</p>
+              <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Örn: 1, 2, 3..." value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">📦 Stok Adedi (depodaki toplam adet)</p>
+              <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Örn: 10" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} />
+            </div>
 
             {/* Features */}
             <div>
