@@ -30,6 +30,7 @@ const emptyForm = {
   features: [] as string[],
   is_active: true,
   sort_order: 0,
+  stock: 0,
   image_urls: [] as string[],
 };
 
