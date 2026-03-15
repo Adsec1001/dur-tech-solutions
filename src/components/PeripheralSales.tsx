@@ -18,6 +18,7 @@ interface Product {
   features: string[];
   is_active: boolean;
   sort_order: number;
+  stock: number;
 }
 
 const PeripheralSales = () => {
