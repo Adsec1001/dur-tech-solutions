@@ -26,6 +26,7 @@ export type Database = {
           name: string
           price: number | null
           sort_order: number
+          stock: number
         }
         Insert: {
           category?: string | null
@@ -38,6 +39,7 @@ export type Database = {
           name: string
           price?: number | null
           sort_order?: number
+          stock?: number
         }
         Update: {
           category?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           name?: string
           price?: number | null
           sort_order?: number
+          stock?: number
         }
         Relationships: []
       }

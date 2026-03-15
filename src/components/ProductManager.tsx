@@ -18,6 +18,7 @@ interface Product {
   features: string[];
   is_active: boolean;
   sort_order: number;
+  stock: number;
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ const emptyForm = {
   features: [] as string[],
   is_active: true,
   sort_order: 0,
+  stock: 0,
   image_urls: [] as string[],
 };
 
@@ -117,6 +119,7 @@ const ProductManager = () => {
       features: form.features,
       is_active: form.is_active,
       sort_order: form.sort_order,
+      stock: form.stock,
       image_urls: form.image_urls,
     };
 
@@ -149,9 +152,20 @@ const ProductManager = () => {
       features: p.features || [],
       is_active: p.is_active,
       sort_order: p.sort_order,
+      stock: p.stock ?? 0,
       image_urls: p.image_urls || [],
     });
     setShowForm(true);
+  };
+
+  const decrementStock = async (p: Product) => {
+    if (p.stock <= 0) {
+      toast({ title: "Stok zaten 0", variant: "destructive" });
+      return;
+    }
+    await supabase.from("products").update({ stock: p.stock - 1 }).eq("id", p.id);
+    toast({ title: `${p.name} stoktan 1 adet düşüldü (Kalan: ${p.stock - 1})` });
+    await fetchProducts();
   };
 
   const handleDelete = async (id: string) => {
@@ -186,6 +200,7 @@ const ProductManager = () => {
             <Textarea placeholder="Açıklama" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={500} rows={2} />
             <Input type="number" placeholder="Fiyat (₺)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} min={0} />
             <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Sıralama (küçük = önce)" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
+            <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Stok Adedi" value={form.stock} onChange={(e) => setForm({ ...form, stock: parseInt(e.target.value) || 0 })} />
 
             {/* Features */}
             <div>
@@ -291,10 +306,17 @@ const ProductManager = () => {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                     {p.price != null && <span>{p.price.toLocaleString("tr-TR")} ₺</span>}
                     <span>Sıra: {p.sort_order}</span>
+                    <span className={p.stock <= 2 ? "text-destructive font-semibold" : ""}>Stok: {p.stock}</span>
                     <span><Image className="inline h-3 w-3" /> {p.image_urls?.length || 0}</span>
                   </div>
+                  {p.stock <= 2 && p.stock > 0 && (
+                    <p className="text-xs text-destructive font-medium mt-1 animate-pulse">⚠ Stok azaldı! Gün içinde sayım yapılmalı.</p>
+                  )}
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button size="sm" variant="outline" className="h-8 px-2 text-xs gap-1" onClick={() => decrementStock(p)} title="1 adet stoktan düş">
+                    -1
+                  </Button>
                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => startEdit(p)}>
                     <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                   </Button>
