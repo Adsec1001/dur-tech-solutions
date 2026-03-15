@@ -152,9 +152,20 @@ const ProductManager = () => {
       features: p.features || [],
       is_active: p.is_active,
       sort_order: p.sort_order,
+      stock: p.stock ?? 0,
       image_urls: p.image_urls || [],
     });
     setShowForm(true);
+  };
+
+  const decrementStock = async (p: Product) => {
+    if (p.stock <= 0) {
+      toast({ title: "Stok zaten 0", variant: "destructive" });
+      return;
+    }
+    await supabase.from("products").update({ stock: p.stock - 1 }).eq("id", p.id);
+    toast({ title: `${p.name} stoktan 1 adet düşüldü (Kalan: ${p.stock - 1})` });
+    await fetchProducts();
   };
 
   const handleDelete = async (id: string) => {
