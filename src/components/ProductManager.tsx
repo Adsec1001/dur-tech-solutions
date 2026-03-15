@@ -119,6 +119,7 @@ const ProductManager = () => {
       features: form.features,
       is_active: form.is_active,
       sort_order: form.sort_order,
+      stock: form.stock,
       image_urls: form.image_urls,
     };
 
