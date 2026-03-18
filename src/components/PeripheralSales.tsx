@@ -127,7 +127,7 @@ const PeripheralSales = () => {
                 </div>
                 <CardTitle className="text-xl">{item.name}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 {item.description && (
                   <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
                 )}
