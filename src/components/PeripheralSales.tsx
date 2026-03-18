@@ -75,11 +75,11 @@ const PeripheralSales = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Kaliteli ve uygun fiyatlı teknoloji ürünleriyle ihtiyacınıza en uygun çözümü sunuyoruz. Detaylı bilgi almak için hemen bize ulaşın.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((item, index) => (
             <Card
               key={item.id}
-              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden flex flex-col"
+              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               {item.image_urls && item.image_urls.length > 0 ? (
@@ -127,7 +127,7 @@ const PeripheralSales = () => {
                 </div>
                 <CardTitle className="text-xl">{item.name}</CardTitle>
               </CardHeader>
-              <CardContent className="flex-1">
+              <CardContent>
                 {item.description && (
                   <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
                 )}
