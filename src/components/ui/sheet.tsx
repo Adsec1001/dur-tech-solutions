@@ -49,15 +49,9 @@ const sheetVariants = cva(
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {
-  className?: string;
-  children?: React.ReactNode;
-  style?: React.CSSProperties;
-  side?: "top" | "bottom" | "left" | "right";
-}
+    VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-  // @ts-ignore - Radix UI type mismatch
   ({ side = "right", className, children, ...props }, ref) => (
     <SheetPortal>
       <SheetOverlay />
