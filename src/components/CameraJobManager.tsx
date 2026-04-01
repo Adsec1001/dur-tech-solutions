@@ -144,7 +144,7 @@ const CameraJobManager = () => {
 
   const toggleChecklist = async (job: CameraJob, key: string) => {
     const updated = { ...job.checklist, [key]: !job.checklist[key] };
-    await supabase.from("camera_jobs").update({ checklist: updated }).eq("id", job.id);
+    await (supabase as any).from("camera_jobs").update({ checklist: updated }).eq("id", job.id);
     await fetchJobs();
   };
 
