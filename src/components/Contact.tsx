@@ -47,7 +47,7 @@ const Contact = () => {
   const contactInfo = [
     { icon: Phone, title: "Telefon", content: ["+90 539 778 40 00", "+90 539 442 54 33"], link: ["tel:+905397784000", "tel:+905394425433"] },
     { icon: Mail, title: "E-posta", content: "durbilisimguvenlik@gmail.com", link: "mailto:durbilisimguvenlik@gmail.com" },
-    { icon: MapPin, title: "Adres", content: "Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin", link: "https://maps.google.com/?q=Yusuf+K%C4%B1l%C4%B1%C3%A7,+217.+Cd+No:63,+33220+Toroslar/Mersin" },
+    { icon: MapPin, title: "Adres", content: "Yusuf Kılıç, 217. Cd No:63/A, 33220 Toroslar/Mersin", link: "https://share.google/IAqiKdF3GuABFNJGO" },
     { icon: Instagram, title: "Instagram", content: "@durbilisim", link: "https://www.instagram.com/durbilisim/" },
   ];
 

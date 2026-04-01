@@ -75,16 +75,16 @@ const PeripheralSales = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Kaliteli ve uygun fiyatlı teknoloji ürünleriyle ihtiyacınıza en uygun çözümü sunuyoruz. Detaylı bilgi almak için hemen bize ulaşın.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {products.map((item, index) => (
             <Card
               key={item.id}
-              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden"
+              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden flex flex-col"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               {item.image_urls && item.image_urls.length > 0 ? (
                 item.image_urls.length === 1 ? (
-                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, 0)}>
+                  <div className="h-44 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, 0)}>
                     <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                   </div>
                 ) : (
@@ -92,7 +92,7 @@ const PeripheralSales = () => {
                     <CarouselContent>
                       {item.image_urls.map((url, idx) => (
                         <CarouselItem key={idx}>
-                          <div className="h-48 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, idx)}>
+                          <div className="h-44 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, idx)}>
                             <img src={url} alt={`${item.name} ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                           </div>
                         </CarouselItem>
@@ -103,13 +103,13 @@ const PeripheralSales = () => {
                   </Carousel>
                 )
               ) : (
-                <div className="h-48 bg-muted flex items-center justify-center">
+                <div className="h-44 bg-muted flex items-center justify-center">
                   <Package className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
-              <CardHeader className="pt-4">
-                <div className="flex items-start justify-between mb-2">
-                  {item.category && <Badge variant="secondary">{item.category}</Badge>}
+              <CardHeader className="pt-4 pb-2">
+                <div className="flex items-start justify-between mb-1">
+                  {item.category && <Badge variant="secondary" className="text-xs">{item.category}</Badge>}
                   <Badge 
                     variant={item.stock > 0 ? "default" : "destructive"} 
                     className={`text-xs font-bold animate-pulse ${
@@ -125,29 +125,33 @@ const PeripheralSales = () => {
                     {item.stock > 0 ? `${item.stock} adet` : "Tükendi"}
                   </Badge>
                 </div>
-                <CardTitle className="text-xl">{item.name}</CardTitle>
+                <CardTitle className="text-base leading-tight">{item.name}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1 pb-2">
                 {item.description && (
-                  <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
+                  <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.description}</p>
                 )}
                 {item.features && item.features.length > 0 && (
-                  <ul className="space-y-2">
-                    {item.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-muted-foreground">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
-                        {feature}
+                  <ul className="space-y-1">
+                    {item.features.slice(0, 3).map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-xs text-muted-foreground">
+                        <div className="w-1 h-1 rounded-full bg-primary mr-1.5 shrink-0" />
+                        <span className="truncate">{feature}</span>
                       </li>
                     ))}
+                    {item.features.length > 3 && (
+                      <li className="text-xs text-primary">+{item.features.length - 3} daha</li>
+                    )}
                   </ul>
                 )}
                 {item.price != null && item.price > 0 && (
-                  <p className="text-lg font-bold text-primary mt-3">{item.price.toLocaleString("tr-TR")} ₺</p>
+                  <p className="text-base font-bold text-primary mt-2">{item.price.toLocaleString("tr-TR")} ₺</p>
                 )}
               </CardContent>
-              <CardFooter>
+              <CardFooter className="pt-0 mt-auto">
                 <Button
                   className="w-full hover:scale-105 transition-transform duration-300"
+                  size="sm"
                   onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20" + encodeURIComponent(item.name) + "%20hakkında%20bilgi%20almak%20istiyorum.", "_blank")}
                 >
                   Bilgi Al

@@ -28,7 +28,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
-              <span>Yusuf Kılıç, 217. Cd No:63, 33220 Toroslar/Mersin</span>
+              <a href="https://share.google/IAqiKdF3GuABFNJGO" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Yusuf Kılıç, 217. Cd No:63/A, 33220 Toroslar/Mersin</a>
             </div>
             
             <p className="text-sm text-muted-foreground text-center md:text-right">
