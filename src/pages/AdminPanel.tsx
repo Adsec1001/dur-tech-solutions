@@ -362,6 +362,7 @@ const AdminPanel = () => {
         </div>
 
         {activeTab === "products" && <ProductManager />}
+        {activeTab === "camera" && <CameraJobManager />}
 
         {activeTab === "jobs" && (
         <>
