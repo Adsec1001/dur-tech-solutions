@@ -267,7 +267,7 @@ const CameraJobManager = () => {
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <Camera className="h-4 w-4 text-primary" />
+                      <Cctv className="h-4 w-4 text-primary" />
                       <span className="font-semibold text-foreground">{job.customer_name}</span>
                       <Badge className={STATUS_COLORS[job.status]}>{STATUS_LABELS[job.status]}</Badge>
                       <Badge variant="secondary" className="text-xs">{JOB_TYPE_LABELS[job.job_type]}</Badge>
