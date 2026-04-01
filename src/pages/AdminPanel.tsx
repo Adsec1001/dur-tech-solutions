@@ -63,7 +63,7 @@ const AdminPanel = () => {
   const [newStepText, setNewStepText] = useState<Record<string, string>>({});
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
-  const [activeTab, setActiveTab] = useState<"jobs" | "products">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera">("jobs");
   const { toast } = useToast();
 
   const [form, setForm] = useState({
