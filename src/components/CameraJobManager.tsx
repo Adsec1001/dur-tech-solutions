@@ -80,11 +80,11 @@ const CameraJobManager = () => {
   const { toast } = useToast();
 
   const fetchJobs = useCallback(async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("camera_jobs")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setJobs(data as unknown as CameraJob[]);
+    if (data) setJobs(data as CameraJob[]);
   }, []);
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
