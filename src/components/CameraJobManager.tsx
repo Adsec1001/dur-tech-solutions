@@ -114,10 +114,10 @@ const CameraJobManager = () => {
     };
 
     if (editingId) {
-      await supabase.from("camera_jobs").update(payload).eq("id", editingId);
+      await (supabase as any).from("camera_jobs").update(payload).eq("id", editingId);
       toast({ title: "İş güncellendi!" });
     } else {
-      await supabase.from("camera_jobs").insert(payload);
+      await (supabase as any).from("camera_jobs").insert(payload);
       toast({ title: "Kamera işi eklendi!" });
     }
     resetForm();
