@@ -340,6 +340,16 @@ const AdminPanel = () => {
             <Wrench className="h-4 w-4" /> Teknik Servis
           </button>
           <button
+            onClick={() => setActiveTab("camera")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "camera"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Camera className="h-4 w-4" /> Kamera İşleri
+          </button>
+          <button
             onClick={() => setActiveTab("products")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               activeTab === "products"
