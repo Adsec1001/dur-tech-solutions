@@ -149,7 +149,7 @@ const CameraJobManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    await supabase.from("camera_jobs").delete().eq("id", id);
+    await (supabase as any).from("camera_jobs").delete().eq("id", id);
     toast({ title: "İş silindi" });
     await fetchJobs();
   };
