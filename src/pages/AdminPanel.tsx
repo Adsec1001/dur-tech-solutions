@@ -9,6 +9,7 @@ import {
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
+import CameraJobManager from "@/components/CameraJobManager";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { useToast } from "@/hooks/use-toast";
