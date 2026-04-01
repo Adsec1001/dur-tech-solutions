@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
-  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench
+  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Camera
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
+import CameraJobManager from "@/components/CameraJobManager";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { useToast } from "@/hooks/use-toast";
@@ -62,7 +63,7 @@ const AdminPanel = () => {
   const [newStepText, setNewStepText] = useState<Record<string, string>>({});
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
-  const [activeTab, setActiveTab] = useState<"jobs" | "products">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera">("jobs");
   const { toast } = useToast();
 
   const [form, setForm] = useState({
@@ -339,6 +340,16 @@ const AdminPanel = () => {
             <Wrench className="h-4 w-4" /> Teknik Servis
           </button>
           <button
+            onClick={() => setActiveTab("camera")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "camera"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Camera className="h-4 w-4" /> Kamera İşleri
+          </button>
+          <button
             onClick={() => setActiveTab("products")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               activeTab === "products"
@@ -351,6 +362,7 @@ const AdminPanel = () => {
         </div>
 
         {activeTab === "products" && <ProductManager />}
+        {activeTab === "camera" && <CameraJobManager />}
 
         {activeTab === "jobs" && (
         <>

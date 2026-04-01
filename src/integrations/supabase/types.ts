@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      camera_jobs: {
+        Row: {
+          address: string | null
+          camera_count: number
+          checklist: Json
+          completed_at: string | null
+          created_at: string
+          customer_name: string
+          customer_phone: string | null
+          dvr_model: string | null
+          fee: number | null
+          id: string
+          job_type: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          address?: string | null
+          camera_count?: number
+          checklist?: Json
+          completed_at?: string | null
+          created_at?: string
+          customer_name: string
+          customer_phone?: string | null
+          dvr_model?: string | null
+          fee?: number | null
+          id?: string
+          job_type?: string
+          notes?: string | null
+          status?: string
+        }
+        Update: {
+          address?: string | null
+          camera_count?: number
+          checklist?: Json
+          completed_at?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string | null
+          dvr_model?: string | null
+          fee?: number | null
+          id?: string
+          job_type?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
