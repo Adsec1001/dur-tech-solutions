@@ -556,6 +556,10 @@ const AdminPanel = () => {
                         </div>
                       </div>
 
+                      {editForm.serviceType === "remote" && (
+                        <Input placeholder="RustDesk ID" value={(editForm as any).rustdeskId || ""} onChange={(e) => setEditForm({ ...editForm, rustdeskId: e.target.value } as any)} maxLength={50} />
+                      )}
+
                       {editForm.serviceType === "device" && (
                         <>
                           <Input placeholder="Cihaz Adı / Modeli" value={editForm.deviceName || ""} onChange={(e) => setEditForm({ ...editForm, deviceName: e.target.value })} maxLength={100} />
