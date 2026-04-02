@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "diger";
-type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi";
+type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi" | "ertelendi";
 
 const JOB_TYPE_LABELS: Record<CameraJobType, string> = {
   ariza: "Arıza",
