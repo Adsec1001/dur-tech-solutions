@@ -28,6 +28,7 @@ export type Database = {
           id: string
           job_type: string
           notes: string | null
+          postponed_to: string | null
           status: string
         }
         Insert: {
@@ -43,6 +44,7 @@ export type Database = {
           id?: string
           job_type?: string
           notes?: string | null
+          postponed_to?: string | null
           status?: string
         }
         Update: {
@@ -58,6 +60,7 @@ export type Database = {
           id?: string
           job_type?: string
           notes?: string | null
+          postponed_to?: string | null
           status?: string
         }
         Relationships: []
@@ -118,6 +121,7 @@ export type Database = {
           id: string
           notes: string | null
           postponed_to: string | null
+          rustdesk_id: string | null
           service_type: string
           status: string
           steps: Json | null
@@ -136,6 +140,7 @@ export type Database = {
           id?: string
           notes?: string | null
           postponed_to?: string | null
+          rustdesk_id?: string | null
           service_type?: string
           status?: string
           steps?: Json | null
@@ -154,6 +159,7 @@ export type Database = {
           id?: string
           notes?: string | null
           postponed_to?: string | null
+          rustdesk_id?: string | null
           service_type?: string
           status?: string
           steps?: Json | null
