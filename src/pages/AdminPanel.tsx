@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import CameraJobManager from "@/components/CameraJobManager";
+import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { useToast } from "@/hooks/use-toast";
