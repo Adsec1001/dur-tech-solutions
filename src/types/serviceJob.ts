@@ -32,4 +32,5 @@ export interface ServiceJob {
   createdAt: string;
   postponedTo?: string;
   completedAt?: string;
+  rustdeskId?: string;
 }

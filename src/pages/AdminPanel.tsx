@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
-  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Camera
+  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import CameraJobManager from "@/components/CameraJobManager";
+import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { useToast } from "@/hooks/use-toast";
@@ -74,6 +75,7 @@ const AdminPanel = () => {
     deviceName: "",
     fee: "",
     notes: "",
+    rustdeskId: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -149,10 +151,11 @@ const AdminPanel = () => {
       steps: [],
       completionNotes: "",
       createdAt: new Date().toISOString(),
+      rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -176,7 +179,8 @@ const AdminPanel = () => {
       notes: job.notes,
       completionNotes: job.completionNotes,
       status: job.status,
-    });
+      rustdeskId: job.rustdeskId,
+    } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
     setExpandedJob(job.id);
@@ -210,6 +214,7 @@ const AdminPanel = () => {
       notes: editForm.notes?.trim() || "",
       completionNotes: editForm.completionNotes?.trim() || "",
       status: (editForm.status as JobStatus) || job.status,
+      rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -325,6 +330,7 @@ const AdminPanel = () => {
           >
             <LogOut className="h-4 w-4" />
           </Button>
+          <AdminNotifications />
         </div>
 
         {/* Tabs */}
@@ -347,7 +353,7 @@ const AdminPanel = () => {
                 : "border-border text-muted-foreground hover:border-primary/40"
             }`}
           >
-            <Camera className="h-4 w-4" /> Kamera İşleri
+            <Cctv className="h-4 w-4" /> Kamera İşleri
           </button>
           <button
             onClick={() => setActiveTab("products")}
@@ -411,6 +417,10 @@ const AdminPanel = () => {
                   ))}
                 </div>
               </div>
+
+              {form.serviceType === "remote" && (
+                <Input placeholder="RustDesk ID" value={form.rustdeskId} onChange={(e) => setForm({ ...form, rustdeskId: e.target.value })} maxLength={50} />
+              )}
 
               {form.serviceType === "device" && (
                 <>
@@ -548,6 +558,10 @@ const AdminPanel = () => {
                           ))}
                         </div>
                       </div>
+
+                      {editForm.serviceType === "remote" && (
+                        <Input placeholder="RustDesk ID" value={(editForm as any).rustdeskId || ""} onChange={(e) => setEditForm({ ...editForm, rustdeskId: e.target.value } as any)} maxLength={50} />
+                      )}
 
                       {editForm.serviceType === "device" && (
                         <>

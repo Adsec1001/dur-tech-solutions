@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X } from "lucide-react";
+import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "diger";
-type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi";
+type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi" | "ertelendi";
 
 const JOB_TYPE_LABELS: Record<CameraJobType, string> = {
   ariza: "Arıza",
@@ -23,12 +23,14 @@ const STATUS_LABELS: Record<CameraJobStatus, string> = {
   bekliyor: "Bekliyor",
   devam_ediyor: "Devam Ediyor",
   tamamlandi: "Tamamlandı",
+  ertelendi: "Yarına Ertelendi",
 };
 
 const STATUS_COLORS: Record<CameraJobStatus, string> = {
   bekliyor: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   devam_ediyor: "bg-primary/20 text-primary border-primary/30",
   tamamlandi: "bg-green-500/20 text-green-400 border-green-500/30",
+  ertelendi: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
 interface CameraJob {
@@ -45,6 +47,7 @@ interface CameraJob {
   fee: number | null;
   created_at: string;
   completed_at: string | null;
+  postponed_to: string | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -157,6 +160,12 @@ const CameraJobManager = () => {
   const handleStatusChange = async (job: CameraJob, status: CameraJobStatus) => {
     const update: Record<string, unknown> = { status };
     if (status === "tamamlandi") update.completed_at = new Date().toISOString();
+    if (status === "ertelendi") {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      update.postponed_to = tomorrow.toISOString();
+    }
+    if (status !== "ertelendi") update.postponed_to = null;
     await (supabase as any).from("camera_jobs").update(update).eq("id", job.id);
     await fetchJobs();
   };
@@ -246,7 +255,7 @@ const CameraJobManager = () => {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        {(["all", "bekliyor", "devam_ediyor", "tamamlandi"] as const).map(s => (
+        {(["all", "bekliyor", "devam_ediyor", "tamamlandi", "ertelendi"] as const).map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${filter === s ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}>
             {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? jobs.length : jobs.filter(j => j.status === s).length})
@@ -262,7 +271,7 @@ const CameraJobManager = () => {
           const checkDone = Object.values(job.checklist || {}).filter(Boolean).length;
           const checkTotal = Object.keys(DEFAULT_CHECKLIST).length;
           return (
-            <Card key={job.id} className="border-border/50">
+            <Card key={job.id} className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
                   <div className="flex-1 min-w-0">
@@ -271,6 +280,7 @@ const CameraJobManager = () => {
                       <span className="font-semibold text-foreground">{job.customer_name}</span>
                       <Badge className={STATUS_COLORS[job.status]}>{STATUS_LABELS[job.status]}</Badge>
                       <Badge variant="secondary" className="text-xs">{JOB_TYPE_LABELS[job.job_type]}</Badge>
+                      {job.status === "ertelendi" && <span className="text-xs text-orange-400 font-medium">📌 Yarın yapılacak</span>}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                       <span>📹 {job.camera_count} kamera</span>
@@ -322,6 +332,11 @@ const CameraJobManager = () => {
                       {job.status !== "tamamlandi" && (
                         <Button size="sm" className="gap-1 text-xs bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange(job, "tamamlandi")}>
                           Tamamla
+                        </Button>
+                      )}
+                      {job.status !== "tamamlandi" && job.status !== "ertelendi" && (
+                        <Button size="sm" variant="outline" className="gap-1 text-xs text-orange-400 border-orange-500/30 hover:bg-orange-500/10" onClick={() => handleStatusChange(job, "ertelendi")}>
+                          <CalendarClock className="h-3 w-3" /> Yarına Ertele
                         </Button>
                       )}
                       <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleDelete(job.id)}>
