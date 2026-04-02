@@ -326,6 +326,7 @@ const AdminPanel = () => {
           >
             <LogOut className="h-4 w-4" />
           </Button>
+          <AdminNotifications />
         </div>
 
         {/* Tabs */}
