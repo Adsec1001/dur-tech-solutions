@@ -348,7 +348,7 @@ const AdminPanel = () => {
                 : "border-border text-muted-foreground hover:border-primary/40"
             }`}
           >
-            <Camera className="h-4 w-4" /> Kamera İşleri
+            <Cctv className="h-4 w-4" /> Kamera İşleri
           </button>
           <button
             onClick={() => setActiveTab("products")}
