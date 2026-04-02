@@ -47,6 +47,7 @@ interface CameraJob {
   fee: number | null;
   created_at: string;
   completed_at: string | null;
+  postponed_to: string | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
