@@ -214,6 +214,7 @@ const AdminPanel = () => {
       notes: editForm.notes?.trim() || "",
       completionNotes: editForm.completionNotes?.trim() || "",
       status: (editForm.status as JobStatus) || job.status,
+      rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
