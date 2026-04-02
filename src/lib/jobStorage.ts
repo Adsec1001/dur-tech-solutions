@@ -40,6 +40,7 @@ const jobToRow = (job: ServiceJob) => ({
   created_at: job.createdAt,
   postponed_to: job.postponedTo || null,
   completed_at: job.completedAt || null,
+  rustdesk_id: job.rustdeskId || null,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {
