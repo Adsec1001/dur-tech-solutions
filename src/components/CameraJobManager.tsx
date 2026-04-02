@@ -160,6 +160,12 @@ const CameraJobManager = () => {
   const handleStatusChange = async (job: CameraJob, status: CameraJobStatus) => {
     const update: Record<string, unknown> = { status };
     if (status === "tamamlandi") update.completed_at = new Date().toISOString();
+    if (status === "ertelendi") {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      update.postponed_to = tomorrow.toISOString();
+    }
+    if (status !== "ertelendi") update.postponed_to = null;
     await (supabase as any).from("camera_jobs").update(update).eq("id", job.id);
     await fetchJobs();
   };
