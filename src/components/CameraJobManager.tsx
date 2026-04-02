@@ -280,6 +280,7 @@ const CameraJobManager = () => {
                       <span className="font-semibold text-foreground">{job.customer_name}</span>
                       <Badge className={STATUS_COLORS[job.status]}>{STATUS_LABELS[job.status]}</Badge>
                       <Badge variant="secondary" className="text-xs">{JOB_TYPE_LABELS[job.job_type]}</Badge>
+                      {job.status === "ertelendi" && <span className="text-xs text-orange-400 font-medium">📌 Yarın yapılacak</span>}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                       <span>📹 {job.camera_count} kamera</span>
