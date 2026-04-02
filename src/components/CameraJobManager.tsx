@@ -23,12 +23,14 @@ const STATUS_LABELS: Record<CameraJobStatus, string> = {
   bekliyor: "Bekliyor",
   devam_ediyor: "Devam Ediyor",
   tamamlandi: "Tamamlandı",
+  ertelendi: "Yarına Ertelendi",
 };
 
 const STATUS_COLORS: Record<CameraJobStatus, string> = {
   bekliyor: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   devam_ediyor: "bg-primary/20 text-primary border-primary/30",
   tamamlandi: "bg-green-500/20 text-green-400 border-green-500/30",
+  ertelendi: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
 interface CameraJob {
