@@ -271,7 +271,7 @@ const CameraJobManager = () => {
           const checkDone = Object.values(job.checklist || {}).filter(Boolean).length;
           const checkTotal = Object.keys(DEFAULT_CHECKLIST).length;
           return (
-            <Card key={job.id} className="border-border/50">
+            <Card key={job.id} className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
                   <div className="flex-1 min-w-0">
