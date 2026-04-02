@@ -151,6 +151,7 @@ const AdminPanel = () => {
       steps: [],
       completionNotes: "",
       createdAt: new Date().toISOString(),
+      rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
     };
     await addJob(job);
     await refreshJobs();
