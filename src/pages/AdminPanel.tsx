@@ -179,7 +179,8 @@ const AdminPanel = () => {
       notes: job.notes,
       completionNotes: job.completionNotes,
       status: job.status,
-    });
+      rustdeskId: job.rustdeskId,
+    } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
     setExpandedJob(job.id);
