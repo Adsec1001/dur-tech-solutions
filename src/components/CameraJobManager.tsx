@@ -333,6 +333,11 @@ const CameraJobManager = () => {
                           Tamamla
                         </Button>
                       )}
+                      {job.status !== "tamamlandi" && job.status !== "ertelendi" && (
+                        <Button size="sm" variant="outline" className="gap-1 text-xs text-orange-400 border-orange-500/30 hover:bg-orange-500/10" onClick={() => handleStatusChange(job, "ertelendi")}>
+                          <CalendarClock className="h-3 w-3" /> Yarına Ertele
+                        </Button>
+                      )}
                       <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleDelete(job.id)}>
                         <Trash2 className="h-3 w-3" /> Sil
                       </Button>
