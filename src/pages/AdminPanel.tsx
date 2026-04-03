@@ -291,6 +291,13 @@ const AdminPanel = () => {
     await refreshJobs();
   };
 
+  const handleMarkPaid = async (job: ServiceJob) => {
+    const updated = { ...job, paidAmount: job.fee };
+    await updateJob(updated);
+    await refreshJobs();
+    toast({ title: "Ödeme tamamlandı olarak işaretlendi!" });
+  };
+
   const handleDelete = async (id: string) => {
     await deleteJob(id);
     await refreshJobs();
