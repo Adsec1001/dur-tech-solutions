@@ -182,6 +182,7 @@ const AdminPanel = () => {
       completionNotes: job.completionNotes,
       status: job.status,
       rustdeskId: job.rustdeskId,
+      paidAmount: job.paidAmount,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
