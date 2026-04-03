@@ -155,6 +155,12 @@ const CameraJobManager = () => {
     await fetchJobs();
   };
 
+  const handleMarkPaid = async (job: CameraJob) => {
+    await (supabase as any).from("camera_jobs").update({ paid_amount: job.fee }).eq("id", job.id);
+    toast({ title: "Ödeme tamamlandı olarak işaretlendi!" });
+    await fetchJobs();
+  };
+
   const handleDelete = async (id: string) => {
     await (supabase as any).from("camera_jobs").delete().eq("id", id);
     toast({ title: "İş silindi" });
