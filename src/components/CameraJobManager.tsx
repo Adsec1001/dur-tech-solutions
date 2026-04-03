@@ -216,6 +216,10 @@ const CameraJobManager = () => {
                 <p className="text-xs text-muted-foreground mb-1">💰 Ücret (₺)</p>
                 <Input type="number" placeholder="Ücret" value={form.fee} onChange={e => setForm({ ...form, fee: e.target.value })} min={0} />
               </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">💳 Ödenen (₺)</p>
+                <Input type="number" placeholder="Ödenen tutar" value={form.paid_amount} onChange={e => setForm({ ...form, paid_amount: e.target.value })} min={0} />
+              </div>
             </div>
 
             <Input placeholder="DVR/NVR Modeli" value={form.dvr_model} onChange={e => setForm({ ...form, dvr_model: e.target.value })} maxLength={100} />
