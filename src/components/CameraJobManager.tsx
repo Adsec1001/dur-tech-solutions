@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock } from "lucide-react";
+import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -152,6 +152,12 @@ const CameraJobManager = () => {
   const toggleChecklist = async (job: CameraJob, key: string) => {
     const updated = { ...job.checklist, [key]: !job.checklist[key] };
     await (supabase as any).from("camera_jobs").update({ checklist: updated }).eq("id", job.id);
+    await fetchJobs();
+  };
+
+  const handleMarkPaid = async (job: CameraJob) => {
+    await (supabase as any).from("camera_jobs").update({ paid_amount: job.fee }).eq("id", job.id);
+    toast({ title: "Ödeme tamamlandı olarak işaretlendi!" });
     await fetchJobs();
   };
 
@@ -343,6 +349,20 @@ const CameraJobManager = () => {
                         ))}
                       </div>
                     </div>
+
+                    {job.fee != null && job.fee > 0 && (job.paid_amount || 0) < job.fee && (
+                      <div className="flex items-center gap-2 p-2 rounded-lg border border-red-500/30 bg-red-500/5">
+                        <Banknote className="h-4 w-4 text-red-400 shrink-0" />
+                        <span className="text-xs text-red-400 font-medium flex-1">
+                          {(job.paid_amount || 0) > 0
+                            ? `Kalan: ${(job.fee - (job.paid_amount || 0)).toLocaleString("tr-TR")}₺`
+                            : `Ödenmedi: ${job.fee.toLocaleString("tr-TR")}₺`}
+                        </span>
+                        <Button size="sm" className="gap-1 text-xs h-7 bg-green-600 hover:bg-green-700" onClick={() => handleMarkPaid(job)}>
+                          <CheckCircle2 className="h-3 w-3" /> Ödendi İşaretle
+                        </Button>
+                      </div>
+                    )}
 
                     <div className="flex flex-wrap gap-2 pt-2">
                       {job.status === "bekliyor" && (

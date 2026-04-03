@@ -6,13 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
-  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv
+  Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
+  DollarSign, TrendingUp, AlertCircle, Banknote
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const SERVICE_LABELS: Record<ServiceType, string> = {
@@ -55,6 +57,7 @@ const AdminPanel = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [pin, setPin] = useState("");
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
+  const [cameraJobsForDashboard, setCameraJobsForDashboard] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
   const [editingJob, setEditingJob] = useState<string | null>(null);
@@ -84,6 +87,9 @@ const AdminPanel = () => {
   const refreshJobs = useCallback(async () => {
     const data = await getJobs();
     setJobs(data);
+    // Also fetch camera jobs for dashboard
+    const { data: camData } = await (supabase as any).from("camera_jobs").select("*");
+    if (camData) setCameraJobsForDashboard(camData);
     return data;
   }, []);
 
@@ -285,6 +291,13 @@ const AdminPanel = () => {
     await refreshJobs();
   };
 
+  const handleMarkPaid = async (job: ServiceJob) => {
+    const updated = { ...job, paidAmount: job.fee };
+    await updateJob(updated);
+    await refreshJobs();
+    toast({ title: "Ödeme tamamlandı olarak işaretlendi!" });
+  };
+
   const handleDelete = async (id: string) => {
     await deleteJob(id);
     await refreshJobs();
@@ -373,6 +386,59 @@ const AdminPanel = () => {
 
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
+
+        {/* Revenue Dashboard */}
+        {activeTab !== "products" && (() => {
+          const svcTotal = jobs.reduce((s, j) => s + j.fee, 0);
+          const svcPaid = jobs.reduce((s, j) => s + j.paidAmount, 0);
+          const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
+          const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
+          const totalRevenue = svcTotal + camTotal;
+          const totalPaid = svcPaid + camPaid;
+          const totalRemaining = totalRevenue - totalPaid;
+          const unpaidCount = jobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).length
+            + cameraJobsForDashboard.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee).length;
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border-border/50">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Toplam Gelir</span>
+                  </div>
+                  <p className="text-lg font-bold text-foreground">{totalRevenue.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-green-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Banknote className="h-4 w-4 text-green-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
+                  </div>
+                  <p className="text-lg font-bold text-green-400">{totalPaid.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-red-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
+                  </div>
+                  <p className="text-lg font-bold text-red-400">{totalRemaining.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-orange-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <DollarSign className="h-4 w-4 text-orange-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
+                  </div>
+                  <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })()}
 
         {activeTab === "jobs" && (
         <>
@@ -745,6 +811,20 @@ const AdminPanel = () => {
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Yapılan İşlem</p>
                           <p className="text-sm text-green-400/80">{job.completionNotes}</p>
+                        </div>
+                      )}
+
+                      {job.fee > 0 && job.paidAmount < job.fee && (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-red-500/30 bg-red-500/5">
+                          <Banknote className="h-4 w-4 text-red-400 shrink-0" />
+                          <span className="text-xs text-red-400 font-medium flex-1">
+                            {job.paidAmount > 0
+                              ? `Kalan: ${(job.fee - job.paidAmount).toLocaleString("tr-TR")}₺`
+                              : `Ödenmedi: ${job.fee.toLocaleString("tr-TR")}₺`}
+                          </span>
+                          <Button size="sm" className="gap-1 text-xs h-7 bg-green-600 hover:bg-green-700" onClick={() => handleMarkPaid(job)}>
+                            <CheckCircle2 className="h-3 w-3" /> Ödendi İşaretle
+                          </Button>
                         </div>
                       )}
 

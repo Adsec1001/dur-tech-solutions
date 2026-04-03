@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Cctv, CalendarClock, Wrench, X } from "lucide-react";
+import { Bell, Cctv, CalendarClock, Wrench, X, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceJob } from "@/types/serviceJob";
@@ -9,10 +9,10 @@ import { getJobs } from "@/lib/jobStorage";
 
 interface Notification {
   id: string;
-  type: "postponed_service" | "postponed_camera" | "maintenance_due";
+  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera";
   title: string;
   description: string;
-  icon: "wrench" | "cctv" | "calendar";
+  icon: "wrench" | "cctv" | "calendar" | "banknote";
 }
 
 const AdminNotifications = () => {
@@ -23,7 +23,7 @@ const AdminNotifications = () => {
   const checkNotifications = useCallback(async () => {
     const notifs: Notification[] = [];
 
-    // 1. Check postponed service jobs
+    // 1. Check postponed service jobs + unpaid
     const serviceJobs = await getJobs();
     const postponedServices = serviceJobs.filter(j => j.status === "postponed");
     postponedServices.forEach(j => {
@@ -36,7 +36,22 @@ const AdminNotifications = () => {
       });
     });
 
-    // 2. Check postponed camera jobs
+    // Unpaid service jobs
+    const unpaidServices = serviceJobs.filter(j => j.fee > 0 && j.paidAmount < j.fee);
+    unpaidServices.forEach(j => {
+      const remaining = j.fee - j.paidAmount;
+      notifs.push({
+        id: `svc-unpaid-${j.id}`,
+        type: "unpaid_service",
+        title: `Ödeme Bekliyor: ${j.customerName} ${j.customerSurname}`,
+        description: j.paidAmount > 0
+          ? `Kısmi ödeme: ${j.paidAmount}₺ alındı, kalan ${remaining}₺`
+          : `Toplam ${j.fee}₺ ödenmedi.`,
+        icon: "banknote",
+      });
+    });
+
+    // 2. Check camera jobs
     const { data: cameraJobs } = await (supabase as any)
       .from("camera_jobs")
       .select("*");
@@ -53,7 +68,7 @@ const AdminNotifications = () => {
         });
       });
 
-      // 3. Check 6-month maintenance due
+      // 6-month maintenance due
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
       const maintenanceDue = cameraJobs.filter((j: any) => 
@@ -70,6 +85,21 @@ const AdminNotifications = () => {
           icon: "calendar",
         });
       });
+
+      // Unpaid camera jobs
+      const unpaidCameras = cameraJobs.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee);
+      unpaidCameras.forEach((j: any) => {
+        const remaining = j.fee - (j.paid_amount || 0);
+        notifs.push({
+          id: `cam-unpaid-${j.id}`,
+          type: "unpaid_camera",
+          title: `Ödeme Bekliyor: ${j.customer_name}`,
+          description: (j.paid_amount || 0) > 0
+            ? `Kısmi ödeme: ${j.paid_amount}₺ alındı, kalan ${remaining}₺`
+            : `Toplam ${j.fee}₺ ödenmedi.`,
+          icon: "banknote",
+        });
+      });
     }
 
     setNotifications(notifs);
@@ -83,12 +113,14 @@ const AdminNotifications = () => {
   const activeNotifs = notifications.filter(n => !dismissed.includes(n.id));
   const count = activeNotifs.length;
 
-  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock };
+  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote };
 
   const colorMap: Record<Notification["type"], string> = {
     postponed_service: "text-orange-400",
     postponed_camera: "text-orange-400",
     maintenance_due: "text-yellow-400",
+    unpaid_service: "text-red-400",
+    unpaid_camera: "text-red-400",
   };
 
   return (
