@@ -380,6 +380,59 @@ const AdminPanel = () => {
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
 
+        {/* Revenue Dashboard */}
+        {activeTab !== "products" && (() => {
+          const svcTotal = jobs.reduce((s, j) => s + j.fee, 0);
+          const svcPaid = jobs.reduce((s, j) => s + j.paidAmount, 0);
+          const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
+          const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
+          const totalRevenue = svcTotal + camTotal;
+          const totalPaid = svcPaid + camPaid;
+          const totalRemaining = totalRevenue - totalPaid;
+          const unpaidCount = jobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).length
+            + cameraJobsForDashboard.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee).length;
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <Card className="border-border/50">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Toplam Gelir</span>
+                  </div>
+                  <p className="text-lg font-bold text-foreground">{totalRevenue.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-green-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Banknote className="h-4 w-4 text-green-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
+                  </div>
+                  <p className="text-lg font-bold text-green-400">{totalPaid.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-red-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
+                  </div>
+                  <p className="text-lg font-bold text-red-400">{totalRemaining.toLocaleString("tr-TR")}₺</p>
+                </CardContent>
+              </Card>
+              <Card className="border-orange-500/30">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <DollarSign className="h-4 w-4 text-orange-400" />
+                    <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
+                  </div>
+                  <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        })()}
+
         {activeTab === "jobs" && (
         <>
         <div className="flex items-center justify-between mb-4">
