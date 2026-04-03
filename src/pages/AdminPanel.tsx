@@ -76,6 +76,7 @@ const AdminPanel = () => {
     fee: "",
     notes: "",
     rustdeskId: "",
+    paidAmount: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
