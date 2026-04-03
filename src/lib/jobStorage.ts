@@ -20,6 +20,7 @@ const rowToJob = (row: any): ServiceJob => ({
   postponedTo: row.postponed_to || undefined,
   completedAt: row.completed_at || undefined,
   rustdeskId: row.rustdesk_id || undefined,
+  paidAmount: Number(row.paid_amount) || 0,
 });
 
 // Convert ServiceJob to DB row
