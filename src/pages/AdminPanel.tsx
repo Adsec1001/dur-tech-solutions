@@ -504,6 +504,19 @@ const AdminPanel = () => {
                         {job.deviceName && <span>• {job.deviceName}</span>}
                         <span>• {job.fee > 0 ? `${job.fee}₺` : "Ücret belirtilmedi"}</span>
                       </div>
+                      {job.fee > 0 && (
+                        <div className="mt-1">
+                          {job.paidAmount >= job.fee ? (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
+                          ) : job.paidAmount > 0 ? (
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                              Kısmi ödeme: {job.paidAmount}₺ — Kalan: {job.fee - job.paidAmount}₺
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.trackingCode}</code>
                         <Clipboard
