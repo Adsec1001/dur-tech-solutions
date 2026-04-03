@@ -45,6 +45,7 @@ interface CameraJob {
   checklist: Record<string, boolean>;
   status: CameraJobStatus;
   fee: number | null;
+  paid_amount: number | null;
   created_at: string;
   completed_at: string | null;
   postponed_to: string | null;
