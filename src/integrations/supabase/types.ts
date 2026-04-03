@@ -28,6 +28,7 @@ export type Database = {
           id: string
           job_type: string
           notes: string | null
+          paid_amount: number | null
           postponed_to: string | null
           status: string
         }
@@ -44,6 +45,7 @@ export type Database = {
           id?: string
           job_type?: string
           notes?: string | null
+          paid_amount?: number | null
           postponed_to?: string | null
           status?: string
         }
@@ -60,6 +62,7 @@ export type Database = {
           id?: string
           job_type?: string
           notes?: string | null
+          paid_amount?: number | null
           postponed_to?: string | null
           status?: string
         }
@@ -120,6 +123,7 @@ export type Database = {
           fee: number | null
           id: string
           notes: string | null
+          paid_amount: number | null
           postponed_to: string | null
           rustdesk_id: string | null
           service_type: string
@@ -139,6 +143,7 @@ export type Database = {
           fee?: number | null
           id?: string
           notes?: string | null
+          paid_amount?: number | null
           postponed_to?: string | null
           rustdesk_id?: string | null
           service_type?: string
@@ -158,6 +163,7 @@ export type Database = {
           fee?: number | null
           id?: string
           notes?: string | null
+          paid_amount?: number | null
           postponed_to?: string | null
           rustdesk_id?: string | null
           service_type?: string
