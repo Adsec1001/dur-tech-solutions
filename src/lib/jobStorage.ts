@@ -20,6 +20,7 @@ const rowToJob = (row: any): ServiceJob => ({
   postponedTo: row.postponed_to || undefined,
   completedAt: row.completed_at || undefined,
   rustdeskId: row.rustdesk_id || undefined,
+  paidAmount: Number(row.paid_amount) || 0,
 });
 
 // Convert ServiceJob to DB row
@@ -41,6 +42,7 @@ const jobToRow = (job: ServiceJob) => ({
   postponed_to: job.postponedTo || null,
   completed_at: job.completedAt || null,
   rustdesk_id: job.rustdeskId || null,
+  paid_amount: job.paidAmount || 0,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {

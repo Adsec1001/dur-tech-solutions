@@ -45,6 +45,7 @@ interface CameraJob {
   checklist: Record<string, boolean>;
   status: CameraJobStatus;
   fee: number | null;
+  paid_amount: number | null;
   created_at: string;
   completed_at: string | null;
   postponed_to: string | null;
@@ -69,6 +70,7 @@ const emptyForm = {
   dvr_model: "",
   notes: "",
   fee: "",
+  paid_amount: "",
   status: "bekliyor" as CameraJobStatus,
   checklist: Object.keys(DEFAULT_CHECKLIST).reduce((acc, k) => ({ ...acc, [k]: false }), {} as Record<string, boolean>),
 };
@@ -112,6 +114,7 @@ const CameraJobManager = () => {
       dvr_model: form.dvr_model.trim() || null,
       notes: form.notes.trim() || null,
       fee: parseFloat(form.fee) || null,
+      paid_amount: parseFloat(form.paid_amount) || 0,
       status: form.status,
       checklist: form.checklist,
     };
@@ -138,6 +141,7 @@ const CameraJobManager = () => {
       dvr_model: j.dvr_model || "",
       notes: j.notes || "",
       fee: j.fee?.toString() || "",
+      paid_amount: j.paid_amount?.toString() || "0",
       status: j.status,
       checklist: j.checklist || emptyForm.checklist,
     });
@@ -211,6 +215,10 @@ const CameraJobManager = () => {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">💰 Ücret (₺)</p>
                 <Input type="number" placeholder="Ücret" value={form.fee} onChange={e => setForm({ ...form, fee: e.target.value })} min={0} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">💳 Ödenen (₺)</p>
+                <Input type="number" placeholder="Ödenen tutar" value={form.paid_amount} onChange={e => setForm({ ...form, paid_amount: e.target.value })} min={0} />
               </div>
             </div>
 
@@ -288,6 +296,19 @@ const CameraJobManager = () => {
                       {job.fee != null && <span>• {job.fee}₺</span>}
                       <span>• ✅ {checkDone}/{checkTotal}</span>
                     </div>
+                    {job.fee != null && job.fee > 0 && (
+                      <div className="mt-1">
+                        {(job.paid_amount || 0) >= job.fee ? (
+                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
+                        ) : (job.paid_amount || 0) > 0 ? (
+                          <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                            Kısmi ödeme: {job.paid_amount}₺ — Kalan: {job.fee - (job.paid_amount || 0)}₺
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); startEdit(job); }}>

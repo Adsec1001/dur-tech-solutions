@@ -76,6 +76,7 @@ const AdminPanel = () => {
     fee: "",
     notes: "",
     rustdeskId: "",
+    paidAmount: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -152,10 +153,11 @@ const AdminPanel = () => {
       completionNotes: "",
       createdAt: new Date().toISOString(),
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
+      paidAmount: parseFloat(form.paidAmount) || 0,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -180,6 +182,7 @@ const AdminPanel = () => {
       completionNotes: job.completionNotes,
       status: job.status,
       rustdeskId: job.rustdeskId,
+      paidAmount: job.paidAmount,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -215,6 +218,7 @@ const AdminPanel = () => {
       completionNotes: editForm.completionNotes?.trim() || "",
       status: (editForm.status as JobStatus) || job.status,
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
+      paidAmount: Number((editForm as any).paidAmount) || 0,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -444,8 +448,10 @@ const AdminPanel = () => {
                   </div>
                 </>
               )}
-
-              <Input type="number" placeholder="Ücret (₺)" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} min={0} />
+              <div className="grid grid-cols-2 gap-3">
+                <Input type="number" placeholder="Ücret (₺)" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} min={0} />
+                <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
+              </div>
               <Textarea placeholder="Notlar (opsiyonel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
 
               <div className="flex gap-2 justify-end">
@@ -500,6 +506,19 @@ const AdminPanel = () => {
                         {job.deviceName && <span>• {job.deviceName}</span>}
                         <span>• {job.fee > 0 ? `${job.fee}₺` : "Ücret belirtilmedi"}</span>
                       </div>
+                      {job.fee > 0 && (
+                        <div className="mt-1">
+                          {job.paidAmount >= job.fee ? (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
+                          ) : job.paidAmount > 0 ? (
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                              Kısmi ödeme: {job.paidAmount}₺ — Kalan: {job.fee - job.paidAmount}₺
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.trackingCode}</code>
                         <Clipboard
@@ -586,7 +605,10 @@ const AdminPanel = () => {
                         </>
                       )}
 
-                      <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
+                        <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
                       <Textarea placeholder="Notlar" value={editForm.notes || ""} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} maxLength={500} rows={2} />
 
                       <div>
