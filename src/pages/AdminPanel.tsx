@@ -14,6 +14,7 @@ import CameraJobManager from "@/components/CameraJobManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const SERVICE_LABELS: Record<ServiceType, string> = {
