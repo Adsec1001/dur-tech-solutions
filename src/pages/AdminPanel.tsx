@@ -605,7 +605,10 @@ const AdminPanel = () => {
                         </>
                       )}
 
-                      <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
+                        <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
                       <Textarea placeholder="Notlar" value={editForm.notes || ""} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} maxLength={500} rows={2} />
 
                       <div>
