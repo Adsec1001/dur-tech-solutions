@@ -141,6 +141,7 @@ const CameraJobManager = () => {
       dvr_model: j.dvr_model || "",
       notes: j.notes || "",
       fee: j.fee?.toString() || "",
+      paid_amount: j.paid_amount?.toString() || "0",
       status: j.status,
       checklist: j.checklist || emptyForm.checklist,
     });
