@@ -153,6 +153,7 @@ const AdminPanel = () => {
       completionNotes: "",
       createdAt: new Date().toISOString(),
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
+      paidAmount: parseFloat(form.paidAmount) || 0,
     };
     await addJob(job);
     await refreshJobs();
