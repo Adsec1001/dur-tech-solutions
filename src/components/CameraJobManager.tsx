@@ -70,6 +70,7 @@ const emptyForm = {
   dvr_model: "",
   notes: "",
   fee: "",
+  paid_amount: "",
   status: "bekliyor" as CameraJobStatus,
   checklist: Object.keys(DEFAULT_CHECKLIST).reduce((acc, k) => ({ ...acc, [k]: false }), {} as Record<string, boolean>),
 };
