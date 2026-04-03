@@ -86,6 +86,9 @@ const AdminPanel = () => {
   const refreshJobs = useCallback(async () => {
     const data = await getJobs();
     setJobs(data);
+    // Also fetch camera jobs for dashboard
+    const { data: camData } = await (supabase as any).from("camera_jobs").select("*");
+    if (camData) setCameraJobsForDashboard(camData);
     return data;
   }, []);
 
