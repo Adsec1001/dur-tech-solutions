@@ -814,6 +814,20 @@ const AdminPanel = () => {
                         </div>
                       )}
 
+                      {job.fee > 0 && job.paidAmount < job.fee && (
+                        <div className="flex items-center gap-2 p-2 rounded-lg border border-red-500/30 bg-red-500/5">
+                          <Banknote className="h-4 w-4 text-red-400 shrink-0" />
+                          <span className="text-xs text-red-400 font-medium flex-1">
+                            {job.paidAmount > 0
+                              ? `Kalan: ${(job.fee - job.paidAmount).toLocaleString("tr-TR")}₺`
+                              : `Ödenmedi: ${job.fee.toLocaleString("tr-TR")}₺`}
+                          </span>
+                          <Button size="sm" className="gap-1 text-xs h-7 bg-green-600 hover:bg-green-700" onClick={() => handleMarkPaid(job)}>
+                            <CheckCircle2 className="h-3 w-3" /> Ödendi İşaretle
+                          </Button>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap gap-2 pt-2">
                         {job.status !== "in_progress" && job.status !== "completed" && (
                           <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleStatusChange(job, "in_progress")}>
