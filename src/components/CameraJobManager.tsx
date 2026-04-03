@@ -296,6 +296,19 @@ const CameraJobManager = () => {
                       {job.fee != null && <span>• {job.fee}₺</span>}
                       <span>• ✅ {checkDone}/{checkTotal}</span>
                     </div>
+                    {job.fee != null && job.fee > 0 && (
+                      <div className="mt-1">
+                        {(job.paid_amount || 0) >= job.fee ? (
+                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
+                        ) : (job.paid_amount || 0) > 0 ? (
+                          <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                            Kısmi ödeme: {job.paid_amount}₺ — Kalan: {job.fee - (job.paid_amount || 0)}₺
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); startEdit(job); }}>
