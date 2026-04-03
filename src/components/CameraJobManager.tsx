@@ -114,6 +114,7 @@ const CameraJobManager = () => {
       dvr_model: form.dvr_model.trim() || null,
       notes: form.notes.trim() || null,
       fee: parseFloat(form.fee) || null,
+      paid_amount: parseFloat(form.paid_amount) || 0,
       status: form.status,
       checklist: form.checklist,
     };
