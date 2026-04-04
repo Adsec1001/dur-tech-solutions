@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image } from "lucide-react";
+import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image, TrendingUp, BarChart3, AlertTriangle, Boxes } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -278,6 +278,55 @@ const ProductManager = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Product Revenue & Stock Dashboard */}
+      {(() => {
+        const activeProducts = products.filter(p => p.is_active);
+        const totalStockValue = activeProducts.reduce((s, p) => s + (p.price || 0) * p.stock, 0);
+        const totalStock = activeProducts.reduce((s, p) => s + p.stock, 0);
+        const lowStockCount = activeProducts.filter(p => p.stock > 0 && p.stock <= 2).length;
+        const outOfStockCount = activeProducts.filter(p => p.stock === 0).length;
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="border-border/50">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Stok Değeri</span>
+                </div>
+                <p className="text-lg font-bold text-foreground">{totalStockValue.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Boxes className="h-4 w-4 text-primary" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Toplam Stok</span>
+                </div>
+                <p className="text-lg font-bold text-foreground">{totalStock} adet</p>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-500/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertTriangle className="h-4 w-4 text-orange-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Azalan Stok</span>
+                </div>
+                <p className="text-lg font-bold text-orange-400">{lowStockCount} ürün</p>
+              </CardContent>
+            </Card>
+            <Card className="border-red-500/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <BarChart3 className="h-4 w-4 text-red-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Tükenen</span>
+                </div>
+                <p className="text-lg font-bold text-red-400">{outOfStockCount} ürün</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
 
       {/* Product list */}
       <div className="space-y-3">
