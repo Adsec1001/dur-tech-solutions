@@ -89,6 +89,10 @@ const AdminPanel = () => {
   const refreshJobs = useCallback(async () => {
     const data = await getJobs();
     setJobs(data);
+    const { data: camData } = await (supabase as any).from("camera_jobs").select("*");
+    if (camData) setCameraJobsForDashboard(camData);
+    const { data: prodData } = await (supabase as any).from("products").select("*").eq("is_active", true);
+    if (prodData) setProductsForDashboard(prodData);
     return data;
   }, []);
 
