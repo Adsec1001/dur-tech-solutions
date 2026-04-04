@@ -57,7 +57,7 @@ const AdminPanel = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [pin, setPin] = useState("");
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
-  const [cameraJobsForDashboard, setCameraJobsForDashboard] = useState<any[]>([]);
+  
   const [showForm, setShowForm] = useState(false);
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
   const [editingJob, setEditingJob] = useState<string | null>(null);
