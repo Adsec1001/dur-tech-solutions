@@ -267,6 +267,54 @@ const CameraJobManager = () => {
         </Card>
       )}
 
+      {/* Camera Jobs Revenue Dashboard */}
+      {(() => {
+        const camTotal = jobs.reduce((s, j) => s + (j.fee || 0), 0);
+        const camPaid = jobs.reduce((s, j) => s + (j.paid_amount || 0), 0);
+        const camRemaining = camTotal - camPaid;
+        const unpaidCount = jobs.filter(j => (j.fee || 0) > 0 && (j.paid_amount || 0) < (j.fee || 0)).length;
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="border-border/50">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Kamera Geliri</span>
+                </div>
+                <p className="text-lg font-bold text-foreground">{camTotal.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-green-500/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Banknote className="h-4 w-4 text-green-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
+                </div>
+                <p className="text-lg font-bold text-green-400">{camPaid.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-red-500/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="h-4 w-4 text-red-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
+                </div>
+                <p className="text-lg font-bold text-red-400">{camRemaining.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-500/30">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <DollarSign className="h-4 w-4 text-orange-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
+                </div>
+                <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
+
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
         {(["all", "bekliyor", "devam_ediyor", "tamamlandi", "ertelendi"] as const).map(s => (

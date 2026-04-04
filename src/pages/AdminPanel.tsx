@@ -387,26 +387,21 @@ const AdminPanel = () => {
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
 
-        {/* Revenue Dashboard */}
-        {activeTab !== "products" && (() => {
+        {/* Service Jobs Revenue Dashboard - only on jobs tab */}
+        {activeTab === "jobs" && (() => {
           const svcTotal = jobs.reduce((s, j) => s + j.fee, 0);
           const svcPaid = jobs.reduce((s, j) => s + j.paidAmount, 0);
-          const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
-          const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
-          const totalRevenue = svcTotal + camTotal;
-          const totalPaid = svcPaid + camPaid;
-          const totalRemaining = totalRevenue - totalPaid;
-          const unpaidCount = jobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).length
-            + cameraJobsForDashboard.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee).length;
+          const svcRemaining = svcTotal - svcPaid;
+          const unpaidCount = jobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).length;
           return (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               <Card className="border-border/50">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingUp className="h-4 w-4 text-primary" />
-                    <span className="text-[11px] text-muted-foreground font-medium">Toplam Gelir</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">Servis Geliri</span>
                   </div>
-                  <p className="text-lg font-bold text-foreground">{totalRevenue.toLocaleString("tr-TR")}₺</p>
+                  <p className="text-lg font-bold text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</p>
                 </CardContent>
               </Card>
               <Card className="border-green-500/30">
@@ -415,7 +410,7 @@ const AdminPanel = () => {
                     <Banknote className="h-4 w-4 text-green-400" />
                     <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
                   </div>
-                  <p className="text-lg font-bold text-green-400">{totalPaid.toLocaleString("tr-TR")}₺</p>
+                  <p className="text-lg font-bold text-green-400">{svcPaid.toLocaleString("tr-TR")}₺</p>
                 </CardContent>
               </Card>
               <Card className="border-red-500/30">
@@ -424,7 +419,7 @@ const AdminPanel = () => {
                     <AlertCircle className="h-4 w-4 text-red-400" />
                     <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
                   </div>
-                  <p className="text-lg font-bold text-red-400">{totalRemaining.toLocaleString("tr-TR")}₺</p>
+                  <p className="text-lg font-bold text-red-400">{svcRemaining.toLocaleString("tr-TR")}₺</p>
                 </CardContent>
               </Card>
               <Card className="border-orange-500/30">
