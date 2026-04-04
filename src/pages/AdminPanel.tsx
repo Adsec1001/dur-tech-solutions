@@ -387,51 +387,110 @@ const AdminPanel = () => {
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
 
-        {/* Service Jobs Revenue Dashboard - only on jobs tab */}
+        {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
           const svcTotal = jobs.reduce((s, j) => s + j.fee, 0);
           const svcPaid = jobs.reduce((s, j) => s + j.paidAmount, 0);
           const svcRemaining = svcTotal - svcPaid;
           const unpaidCount = jobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).length;
+
+          const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
+          const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
+
+          const stockValue = productsForDashboard.reduce((s: number, p: any) => s + (p.price || 0) * (p.stock || 0), 0);
+
+          const grandTotal = svcTotal + camTotal;
+          const grandPaid = svcPaid + camPaid;
+          const grandRemaining = grandTotal - grandPaid;
+
           return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              <Card className="border-border/50">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                    <span className="text-[11px] text-muted-foreground font-medium">Servis Geliri</span>
+            <>
+              {/* Genel Gelir Özeti */}
+              <Card className="mb-4 border-primary/20 bg-primary/5">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
                   </div>
-                  <p className="text-lg font-bold text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Toplam Gelir</p>
+                      <p className="text-xl font-bold text-foreground">{grandTotal.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Tahsil Edilen</p>
+                      <p className="text-xl font-bold text-green-400">{grandPaid.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Bekleyen</p>
+                      <p className="text-xl font-bold text-red-400">{grandRemaining.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Stok Değeri</p>
+                      <p className="text-xl font-bold text-foreground">{stockValue.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-xs text-muted-foreground border-t border-border/50 pt-2">
+                    <div className="flex items-center gap-1.5">
+                      <Wrench className="h-3.5 w-3.5 text-primary" />
+                      <span>Servis: <strong className="text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</strong></span>
+                      <span className="text-green-400">(+{svcPaid.toLocaleString("tr-TR")}₺)</span>
+                      {svcRemaining > 0 && <span className="text-red-400">(-{svcRemaining.toLocaleString("tr-TR")}₺)</span>}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Cctv className="h-3.5 w-3.5 text-primary" />
+                      <span>Kamera: <strong className="text-foreground">{camTotal.toLocaleString("tr-TR")}₺</strong></span>
+                      <span className="text-green-400">(+{camPaid.toLocaleString("tr-TR")}₺)</span>
+                      {camTotal - camPaid > 0 && <span className="text-red-400">(-{(camTotal - camPaid).toLocaleString("tr-TR")}₺)</span>}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Package className="h-3.5 w-3.5 text-primary" />
+                      <span>Ürün Stok: <strong className="text-foreground">{stockValue.toLocaleString("tr-TR")}₺</strong></span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-green-500/30">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Banknote className="h-4 w-4 text-green-400" />
-                    <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
-                  </div>
-                  <p className="text-lg font-bold text-green-400">{svcPaid.toLocaleString("tr-TR")}₺</p>
-                </CardContent>
-              </Card>
-              <Card className="border-red-500/30">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <AlertCircle className="h-4 w-4 text-red-400" />
-                    <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
-                  </div>
-                  <p className="text-lg font-bold text-red-400">{svcRemaining.toLocaleString("tr-TR")}₺</p>
-                </CardContent>
-              </Card>
-              <Card className="border-orange-500/30">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <DollarSign className="h-4 w-4 text-orange-400" />
-                    <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
-                  </div>
-                  <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
-                </CardContent>
-              </Card>
-            </div>
+
+              {/* Servis İşleri Özeti */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <Card className="border-border/50">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                      <span className="text-[11px] text-muted-foreground font-medium">Servis Geliri</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-green-500/30">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Banknote className="h-4 w-4 text-green-400" />
+                      <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
+                    </div>
+                    <p className="text-lg font-bold text-green-400">{svcPaid.toLocaleString("tr-TR")}₺</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-red-500/30">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertCircle className="h-4 w-4 text-red-400" />
+                      <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
+                    </div>
+                    <p className="text-lg font-bold text-red-400">{svcRemaining.toLocaleString("tr-TR")}₺</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-orange-500/30">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <DollarSign className="h-4 w-4 text-orange-400" />
+                      <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
+                    </div>
+                    <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
           );
         })()}
 
