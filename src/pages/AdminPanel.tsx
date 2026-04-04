@@ -350,6 +350,55 @@ const AdminPanel = () => {
           <AdminNotifications />
         </div>
 
+        {/* Overall Revenue Summary */}
+        {(() => {
+          const svcTotal = jobs.reduce((s, j) => s + j.fee, 0);
+          const svcPaid = jobs.reduce((s, j) => s + j.paidAmount, 0);
+          const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
+          const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
+          const grandTotal = svcTotal + camTotal;
+          const grandPaid = svcPaid + camPaid;
+          const grandRemaining = grandTotal - grandPaid;
+          return (
+            <Card className="mb-6 border-primary/20 bg-primary/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-3">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Toplam Gelir</p>
+                    <p className="text-xl font-bold text-foreground">{grandTotal.toLocaleString("tr-TR")}₺</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Tahsil Edilen</p>
+                    <p className="text-xl font-bold text-green-400">{grandPaid.toLocaleString("tr-TR")}₺</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Bekleyen</p>
+                    <p className="text-xl font-bold text-red-400">{grandRemaining.toLocaleString("tr-TR")}₺</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 text-xs text-muted-foreground border-t border-border/50 pt-2">
+                  <div className="flex items-center gap-1.5">
+                    <Wrench className="h-3.5 w-3.5 text-primary" />
+                    <span>Servis: <strong className="text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</strong></span>
+                    <span className="text-green-400">(+{svcPaid.toLocaleString("tr-TR")}₺)</span>
+                    {svcTotal - svcPaid > 0 && <span className="text-red-400">(-{(svcTotal - svcPaid).toLocaleString("tr-TR")}₺)</span>}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Cctv className="h-3.5 w-3.5 text-primary" />
+                    <span>Kamera: <strong className="text-foreground">{camTotal.toLocaleString("tr-TR")}₺</strong></span>
+                    <span className="text-green-400">(+{camPaid.toLocaleString("tr-TR")}₺)</span>
+                    {camTotal - camPaid > 0 && <span className="text-red-400">(-{(camTotal - camPaid).toLocaleString("tr-TR")}₺)</span>}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
           <button
