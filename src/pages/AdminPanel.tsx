@@ -433,7 +433,7 @@ const AdminPanel = () => {
                     <TrendingUp className="h-5 w-5 text-primary" />
                     <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-[11px] text-muted-foreground">Toplam Gelir</p>
                       <p className="text-xl font-bold text-foreground">{grandTotal.toLocaleString("tr-TR")}₺</p>
@@ -445,6 +445,16 @@ const AdminPanel = () => {
                     <div>
                       <p className="text-[11px] text-muted-foreground">Bekleyen</p>
                       <p className="text-xl font-bold text-red-400">{grandRemaining.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3 border-t border-border/50 pt-3">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Toplam Giderler</p>
+                      <p className="text-xl font-bold text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Net Kâr</p>
+                      <p className={`text-xl font-bold ${netProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{netProfit.toLocaleString("tr-TR")}₺</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Stok Değeri</p>
