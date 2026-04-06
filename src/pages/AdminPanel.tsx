@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import CameraJobManager from "@/components/CameraJobManager";
+import ExpenseManager from "@/components/ExpenseManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
@@ -69,7 +70,8 @@ const AdminPanel = () => {
   const [newStepText, setNewStepText] = useState<Record<string, string>>({});
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
+  const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const { toast } = useToast();
 
   const [form, setForm] = useState({
@@ -93,6 +95,8 @@ const AdminPanel = () => {
     if (camData) setCameraJobsForDashboard(camData);
     const { data: prodData } = await (supabase as any).from("products").select("*").eq("is_active", true);
     if (prodData) setProductsForDashboard(prodData);
+    const { data: expData } = await (supabase as any).from("expenses").select("*");
+    if (expData) setExpensesForDashboard(expData);
     return data;
   }, []);
 
@@ -386,10 +390,21 @@ const AdminPanel = () => {
           >
             <Package className="h-4 w-4" /> Ürünler
           </button>
+          <button
+            onClick={() => setActiveTab("expenses")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "expenses"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Receipt className="h-4 w-4" /> Giderler
+          </button>
         </div>
 
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
+        {activeTab === "expenses" && <ExpenseManager />}
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
@@ -402,10 +417,12 @@ const AdminPanel = () => {
           const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
 
           const stockValue = productsForDashboard.reduce((s: number, p: any) => s + (p.price || 0) * (p.stock || 0), 0);
+          const totalExpenses = expensesForDashboard.reduce((s: number, e: any) => s + (e.amount || 0), 0);
 
           const grandTotal = svcTotal + camTotal;
           const grandPaid = svcPaid + camPaid;
           const grandRemaining = grandTotal - grandPaid;
+          const netProfit = grandPaid - totalExpenses;
 
           return (
             <>
@@ -416,7 +433,7 @@ const AdminPanel = () => {
                     <TrendingUp className="h-5 w-5 text-primary" />
                     <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-[11px] text-muted-foreground">Toplam Gelir</p>
                       <p className="text-xl font-bold text-foreground">{grandTotal.toLocaleString("tr-TR")}₺</p>
@@ -428,6 +445,16 @@ const AdminPanel = () => {
                     <div>
                       <p className="text-[11px] text-muted-foreground">Bekleyen</p>
                       <p className="text-xl font-bold text-red-400">{grandRemaining.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3 border-t border-border/50 pt-3">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Toplam Giderler</p>
+                      <p className="text-xl font-bold text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Net Kâr</p>
+                      <p className={`text-xl font-bold ${netProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{netProfit.toLocaleString("tr-TR")}₺</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Stok Değeri</p>
@@ -450,6 +477,10 @@ const AdminPanel = () => {
                     <div className="flex items-center gap-1.5">
                       <Package className="h-3.5 w-3.5 text-primary" />
                       <span>Ürün Stok: <strong className="text-foreground">{stockValue.toLocaleString("tr-TR")}₺</strong></span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <TrendingDown className="h-3.5 w-3.5 text-red-400" />
+                      <span>Giderler: <strong className="text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</strong></span>
                     </div>
                   </div>
                 </CardContent>
