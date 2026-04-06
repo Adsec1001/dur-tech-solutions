@@ -95,6 +95,8 @@ const AdminPanel = () => {
     if (camData) setCameraJobsForDashboard(camData);
     const { data: prodData } = await (supabase as any).from("products").select("*").eq("is_active", true);
     if (prodData) setProductsForDashboard(prodData);
+    const { data: expData } = await (supabase as any).from("expenses").select("*");
+    if (expData) setExpensesForDashboard(expData);
     return data;
   }, []);
 
