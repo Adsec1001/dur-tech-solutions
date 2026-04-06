@@ -478,6 +478,10 @@ const AdminPanel = () => {
                       <Package className="h-3.5 w-3.5 text-primary" />
                       <span>Ürün Stok: <strong className="text-foreground">{stockValue.toLocaleString("tr-TR")}₺</strong></span>
                     </div>
+                    <div className="flex items-center gap-1.5">
+                      <TrendingDown className="h-3.5 w-3.5 text-red-400" />
+                      <span>Giderler: <strong className="text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</strong></span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
