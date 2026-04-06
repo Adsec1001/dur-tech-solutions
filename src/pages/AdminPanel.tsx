@@ -390,10 +390,21 @@ const AdminPanel = () => {
           >
             <Package className="h-4 w-4" /> Ürünler
           </button>
+          <button
+            onClick={() => setActiveTab("expenses")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "expenses"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Receipt className="h-4 w-4" /> Giderler
+          </button>
         </div>
 
         {activeTab === "products" && <ProductManager />}
         {activeTab === "camera" && <CameraJobManager />}
+        {activeTab === "expenses" && <ExpenseManager />}
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
