@@ -417,10 +417,12 @@ const AdminPanel = () => {
           const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
 
           const stockValue = productsForDashboard.reduce((s: number, p: any) => s + (p.price || 0) * (p.stock || 0), 0);
+          const totalExpenses = expensesForDashboard.reduce((s: number, e: any) => s + (e.amount || 0), 0);
 
           const grandTotal = svcTotal + camTotal;
           const grandPaid = svcPaid + camPaid;
           const grandRemaining = grandTotal - grandPaid;
+          const netProfit = grandPaid - totalExpenses;
 
           return (
             <>
