@@ -8,7 +8,7 @@ import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, Cal
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "diger";
+type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "montaj" | "malzeme_satis" | "diger";
 type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi" | "ertelendi";
 
 const JOB_TYPE_LABELS: Record<CameraJobType, string> = {
@@ -16,6 +16,8 @@ const JOB_TYPE_LABELS: Record<CameraJobType, string> = {
   kamera_ekleme: "Kamera Ekleme",
   sifir_kurulum: "Sıfır Kurulum",
   bakim: "Bakım",
+  montaj: "Montaj",
+  malzeme_satis: "Malzeme Satış",
   diger: "Diğer",
 };
 
