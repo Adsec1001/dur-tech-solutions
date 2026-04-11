@@ -198,6 +198,7 @@ const AdminPanel = () => {
       status: job.status,
       rustdeskId: job.rustdeskId,
       paidAmount: job.paidAmount,
+      promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -234,6 +235,7 @@ const AdminPanel = () => {
       status: (editForm.status as JobStatus) || job.status,
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
+      promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -608,6 +610,10 @@ const AdminPanel = () => {
               <div className="grid grid-cols-2 gap-3">
                 <Input type="number" placeholder="Ücret (₺)" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} min={0} />
                 <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
+                <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
               </div>
               <Textarea placeholder="Notlar (opsiyonel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
 
