@@ -30,6 +30,7 @@ export type Database = {
           notes: string | null
           paid_amount: number | null
           postponed_to: string | null
+          promised_payment_date: string | null
           status: string
         }
         Insert: {
@@ -47,6 +48,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
+          promised_payment_date?: string | null
           status?: string
         }
         Update: {
@@ -64,6 +66,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
+          promised_payment_date?: string | null
           status?: string
         }
         Relationships: []
@@ -155,6 +158,7 @@ export type Database = {
           notes: string | null
           paid_amount: number | null
           postponed_to: string | null
+          promised_payment_date: string | null
           rustdesk_id: string | null
           service_type: string
           status: string
@@ -175,6 +179,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
+          promised_payment_date?: string | null
           rustdesk_id?: string | null
           service_type?: string
           status?: string
@@ -195,6 +200,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
+          promised_payment_date?: string | null
           rustdesk_id?: string | null
           service_type?: string
           status?: string
