@@ -84,6 +84,7 @@ const AdminPanel = () => {
     notes: "",
     rustdeskId: "",
     paidAmount: "",
+    promisedPaymentDate: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -167,10 +168,11 @@ const AdminPanel = () => {
       createdAt: new Date().toISOString(),
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
       paidAmount: parseFloat(form.paidAmount) || 0,
+      promisedPaymentDate: form.promisedPaymentDate || undefined,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
