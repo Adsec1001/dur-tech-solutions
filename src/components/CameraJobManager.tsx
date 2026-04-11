@@ -360,6 +360,10 @@ const CameraJobManager = () => {
                       {job.fee != null && <span>• {job.fee}₺</span>}
                       <span>• ✅ {checkDone}/{checkTotal}</span>
                     </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap mt-0.5">
+                      {job.customer_phone && <span>📞 {job.customer_phone}</span>}
+                      {job.address && <span>📍 {job.address}</span>}
+                    </div>
                     {job.fee != null && job.fee > 0 && (
                       <div className="mt-1">
                         {(job.paid_amount || 0) >= job.fee ? (
