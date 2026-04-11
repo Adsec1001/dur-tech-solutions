@@ -682,6 +682,13 @@ const AdminPanel = () => {
                           )}
                         </div>
                       )}
+                      {job.promisedPaymentDate && job.paidAmount < job.fee && (
+                        <div className="mt-1">
+                          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
+                            📅 Söz verilen ödeme: {new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR")}
+                          </Badge>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.trackingCode}</code>
                         <Clipboard
