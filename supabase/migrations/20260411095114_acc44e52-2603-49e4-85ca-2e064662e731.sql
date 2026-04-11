@@ -1,0 +1,2 @@
+ALTER TABLE public.service_jobs ADD COLUMN promised_payment_date timestamp with time zone DEFAULT NULL;
+ALTER TABLE public.camera_jobs ADD COLUMN promised_payment_date timestamp with time zone DEFAULT NULL;

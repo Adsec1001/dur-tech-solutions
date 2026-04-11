@@ -34,4 +34,5 @@ export interface ServiceJob {
   completedAt?: string;
   rustdeskId?: string;
   paidAmount: number;
+  promisedPaymentDate?: string;
 }

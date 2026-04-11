@@ -84,6 +84,7 @@ const AdminPanel = () => {
     notes: "",
     rustdeskId: "",
     paidAmount: "",
+    promisedPaymentDate: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -167,10 +168,11 @@ const AdminPanel = () => {
       createdAt: new Date().toISOString(),
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
       paidAmount: parseFloat(form.paidAmount) || 0,
+      promisedPaymentDate: form.promisedPaymentDate || undefined,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -196,6 +198,7 @@ const AdminPanel = () => {
       status: job.status,
       rustdeskId: job.rustdeskId,
       paidAmount: job.paidAmount,
+      promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -232,6 +235,7 @@ const AdminPanel = () => {
       status: (editForm.status as JobStatus) || job.status,
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
+      promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -607,6 +611,10 @@ const AdminPanel = () => {
                 <Input type="number" placeholder="Ücret (₺)" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} min={0} />
                 <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
               </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
+                <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
+              </div>
               <Textarea placeholder="Notlar (opsiyonel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
 
               <div className="flex gap-2 justify-end">
@@ -672,6 +680,13 @@ const AdminPanel = () => {
                           ) : (
                             <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
                           )}
+                        </div>
+                      )}
+                      {job.promisedPaymentDate && job.paidAmount < job.fee && (
+                        <div className="mt-1">
+                          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
+                            📅 Söz verilen ödeme: {new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR")}
+                          </Badge>
                         </div>
                       )}
                       <div className="flex items-center gap-2 mt-1">
@@ -763,6 +778,10 @@ const AdminPanel = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
                         <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
+                        <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />
                       </div>
                       <Textarea placeholder="Notlar" value={editForm.notes || ""} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} maxLength={500} rows={2} />
 

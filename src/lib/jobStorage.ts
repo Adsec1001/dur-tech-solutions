@@ -21,6 +21,7 @@ const rowToJob = (row: any): ServiceJob => ({
   completedAt: row.completed_at || undefined,
   rustdeskId: row.rustdesk_id || undefined,
   paidAmount: Number(row.paid_amount) || 0,
+  promisedPaymentDate: row.promised_payment_date || undefined,
 });
 
 // Convert ServiceJob to DB row
@@ -43,6 +44,7 @@ const jobToRow = (job: ServiceJob) => ({
   completed_at: job.completedAt || null,
   rustdesk_id: job.rustdeskId || null,
   paid_amount: job.paidAmount || 0,
+  promised_payment_date: job.promisedPaymentDate || null,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {
