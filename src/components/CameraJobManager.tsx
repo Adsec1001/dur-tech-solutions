@@ -381,7 +381,6 @@ const CameraJobManager = () => {
                       </div>
                     )}
                   </div>
-                  </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); startEdit(job); }}>
                       <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
