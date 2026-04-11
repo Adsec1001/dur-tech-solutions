@@ -51,6 +51,7 @@ interface CameraJob {
   created_at: string;
   completed_at: string | null;
   postponed_to: string | null;
+  promised_payment_date: string | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -75,6 +76,7 @@ const emptyForm = {
   paid_amount: "",
   status: "bekliyor" as CameraJobStatus,
   checklist: Object.keys(DEFAULT_CHECKLIST).reduce((acc, k) => ({ ...acc, [k]: false }), {} as Record<string, boolean>),
+  promised_payment_date: "",
 };
 
 const CameraJobManager = () => {
@@ -119,6 +121,7 @@ const CameraJobManager = () => {
       paid_amount: parseFloat(form.paid_amount) || 0,
       status: form.status,
       checklist: form.checklist,
+      promised_payment_date: form.promised_payment_date || null,
     };
 
     if (editingId) {
@@ -146,6 +149,7 @@ const CameraJobManager = () => {
       paid_amount: j.paid_amount?.toString() || "0",
       status: j.status,
       checklist: j.checklist || emptyForm.checklist,
+      promised_payment_date: j.promised_payment_date ? j.promised_payment_date.slice(0, 10) : "",
     });
     setShowForm(true);
     setExpandedId(null);
