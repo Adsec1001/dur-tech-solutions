@@ -373,6 +373,14 @@ const CameraJobManager = () => {
                         )}
                       </div>
                     )}
+                    {job.promised_payment_date && (job.paid_amount || 0) < (job.fee || 0) && (
+                      <div className="mt-1">
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
+                          📅 Söz verilen ödeme: {new Date(job.promised_payment_date).toLocaleDateString("tr-TR")}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); startEdit(job); }}>
