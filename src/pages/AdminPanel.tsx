@@ -10,6 +10,7 @@ import {
   DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
+import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
 import AdminNotifications from "@/components/AdminNotifications";
@@ -406,7 +407,12 @@ const AdminPanel = () => {
           </button>
         </div>
 
-        {activeTab === "products" && <ProductManager />}
+        {activeTab === "products" && (
+          <div className="space-y-8">
+            <ProductManager />
+            <ProductSalesManager />
+          </div>
+        )}
         {activeTab === "camera" && <CameraJobManager />}
         {activeTab === "expenses" && <ExpenseManager />}
 
