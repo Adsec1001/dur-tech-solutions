@@ -361,7 +361,7 @@ const CameraJobManager = () => {
                       <span>• ✅ {checkDone}/{checkTotal}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap mt-0.5">
-                      {job.customer_phone && <span>📞 {job.customer_phone}</span>}
+                      {job.customer_phone && <a href={`tel:${job.customer_phone}`} onClick={e => e.stopPropagation()} className="hover:text-primary transition-colors">📞 {job.customer_phone}</a>}
                       {job.address && <span>📍 {job.address}</span>}
                     </div>
                     {job.fee != null && job.fee > 0 && (
