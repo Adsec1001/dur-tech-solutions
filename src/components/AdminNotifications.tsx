@@ -140,8 +140,15 @@ const AdminNotifications = () => {
   }, [checkNotifications]);
 
   const activeNotifs = notifications.filter(n => !dismissed.includes(n.id));
-  const serviceNotifs = activeNotifs.filter(n => n.category === "service");
-  const cameraNotifs = activeNotifs.filter(n => n.category === "camera");
+  // Postponed first, then payment due, then rest
+  const priorityOrder = (n: Notification) => {
+    if (n.type.startsWith("postponed")) return 0;
+    if (n.type.startsWith("payment_due")) return 1;
+    return 2;
+  };
+  const sortedNotifs = [...activeNotifs].sort((a, b) => priorityOrder(a) - priorityOrder(b));
+  const serviceNotifs = sortedNotifs.filter(n => n.category === "service");
+  const cameraNotifs = sortedNotifs.filter(n => n.category === "camera");
   const count = activeNotifs.length;
 
   const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote };

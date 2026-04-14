@@ -10,6 +10,7 @@ import {
   DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
+import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
 import AdminNotifications from "@/components/AdminNotifications";
@@ -406,7 +407,12 @@ const AdminPanel = () => {
           </button>
         </div>
 
-        {activeTab === "products" && <ProductManager />}
+        {activeTab === "products" && (
+          <div className="space-y-8">
+            <ProductManager />
+            <ProductSalesManager />
+          </div>
+        )}
         {activeTab === "camera" && <CameraJobManager />}
         {activeTab === "expenses" && <ExpenseManager />}
 
@@ -662,7 +668,7 @@ const AdminPanel = () => {
                         )}
                       </div>
                       {job.customerPhone && (
-                        <p className="text-xs text-muted-foreground mb-1">📞 {formatPhone(job.customerPhone)}</p>
+                        <a href={`tel:${job.customerPhone}`} onClick={e => e.stopPropagation()} className="text-xs text-muted-foreground mb-1 inline-flex items-center gap-1 hover:text-primary transition-colors">📞 {formatPhone(job.customerPhone)}</a>
                       )}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
