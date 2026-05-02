@@ -817,6 +817,10 @@ const AdminPanel = () => {
                         <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
                       </div>
                       <div>
+                        <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
+                        <Input type="number" placeholder="Malzeme maliyeti" value={(editForm as any).materialCost ?? ""} onChange={(e) => setEditForm({ ...editForm, materialCost: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
+                      <div>
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                         <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />
                       </div>
