@@ -35,4 +35,5 @@ export interface ServiceJob {
   rustdeskId?: string;
   paidAmount: number;
   promisedPaymentDate?: string;
+  materialCost?: number;
 }
