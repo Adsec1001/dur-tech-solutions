@@ -291,6 +291,8 @@ const CameraJobManager = () => {
         const camPaid = jobs.reduce((s, j) => s + (j.paid_amount || 0), 0);
         const camRemaining = camTotal - camPaid;
         const unpaidCount = jobs.filter(j => (j.fee || 0) > 0 && (j.paid_amount || 0) < (j.fee || 0)).length;
+        const camMaterial = jobs.reduce((s, j) => s + (Number(j.material_cost) || 0), 0);
+        const camNet = camTotal - camMaterial;
         return (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card className="border-border/50">
@@ -327,6 +329,24 @@ const CameraJobManager = () => {
                   <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
                 </div>
                 <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-500/30 col-span-2 md:col-span-2">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="h-4 w-4 text-orange-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Malzeme Gideri</span>
+                </div>
+                <p className="text-lg font-bold text-orange-400">{camMaterial.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-emerald-500/30 col-span-2 md:col-span-2">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Net Kazanç (Gelir − Malzeme)</span>
+                </div>
+                <p className="text-lg font-bold text-emerald-400">{camNet.toLocaleString("tr-TR")}₺</p>
               </CardContent>
             </Card>
           </div>
