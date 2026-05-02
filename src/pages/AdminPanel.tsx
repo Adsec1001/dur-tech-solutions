@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -73,7 +73,17 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
+  const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
   const { toast } = useToast();
+
+  const fmt = (n: number) => hideAmounts ? "•••" : `${(n || 0).toLocaleString("tr-TR")}₺`;
+  const toggleHide = () => {
+    setHideAmounts(prev => {
+      const next = !prev;
+      sessionStorage.setItem("db_hide_amounts", next ? "1" : "0");
+      return next;
+    });
+  };
 
   const [form, setForm] = useState({
     customerName: "",
@@ -86,6 +96,7 @@ const AdminPanel = () => {
     rustdeskId: "",
     paidAmount: "",
     promisedPaymentDate: "",
+    materialCost: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -170,10 +181,11 @@ const AdminPanel = () => {
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
       paidAmount: parseFloat(form.paidAmount) || 0,
       promisedPaymentDate: form.promisedPaymentDate || undefined,
+      materialCost: parseFloat(form.materialCost) || 0,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -200,6 +212,7 @@ const AdminPanel = () => {
       rustdeskId: job.rustdeskId,
       paidAmount: job.paidAmount,
       promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
+      materialCost: job.materialCost ?? 0,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -237,6 +250,7 @@ const AdminPanel = () => {
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
+      materialCost: Number((editForm as any).materialCost) || 0,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
