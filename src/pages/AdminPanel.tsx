@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -73,7 +73,17 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
+  const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
   const { toast } = useToast();
+
+  const fmt = (n: number) => hideAmounts ? "•••" : `${(n || 0).toLocaleString("tr-TR")}₺`;
+  const toggleHide = () => {
+    setHideAmounts(prev => {
+      const next = !prev;
+      sessionStorage.setItem("db_hide_amounts", next ? "1" : "0");
+      return next;
+    });
+  };
 
   const [form, setForm] = useState({
     customerName: "",
@@ -86,6 +96,7 @@ const AdminPanel = () => {
     rustdeskId: "",
     paidAmount: "",
     promisedPaymentDate: "",
+    materialCost: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -170,10 +181,11 @@ const AdminPanel = () => {
       rustdeskId: form.serviceType === "remote" ? form.rustdeskId.trim() : undefined,
       paidAmount: parseFloat(form.paidAmount) || 0,
       promisedPaymentDate: form.promisedPaymentDate || undefined,
+      materialCost: parseFloat(form.materialCost) || 0,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -200,6 +212,7 @@ const AdminPanel = () => {
       rustdeskId: job.rustdeskId,
       paidAmount: job.paidAmount,
       promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
+      materialCost: job.materialCost ?? 0,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -237,6 +250,7 @@ const AdminPanel = () => {
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
+      materialCost: Number((editForm as any).materialCost) || 0,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -429,68 +443,81 @@ const AdminPanel = () => {
           const stockValue = productsForDashboard.reduce((s: number, p: any) => s + (p.price || 0) * (p.stock || 0), 0);
           const totalExpenses = expensesForDashboard.reduce((s: number, e: any) => s + (e.amount || 0), 0);
 
+          const svcMaterial = jobs.reduce((s, j) => s + (j.materialCost || 0), 0);
+          const camMaterial = cameraJobsForDashboard.reduce((s: number, j: any) => s + (Number(j.material_cost) || 0), 0);
+          const totalMaterial = svcMaterial + camMaterial;
+
           const grandTotal = svcTotal + camTotal;
           const grandPaid = svcPaid + camPaid;
           const grandRemaining = grandTotal - grandPaid;
-          const netProfit = grandPaid - totalExpenses;
+          const netProfit = grandPaid - totalExpenses - totalMaterial;
 
           return (
             <>
               {/* Genel Gelir Özeti */}
               <Card className="mb-4 border-primary/20 bg-primary/5">
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-semibold text-foreground">Genel Gelir Özeti</span>
+                    </div>
+                    <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs" onClick={toggleHide}>
+                      {hideAmounts ? <><Eye className="h-3.5 w-3.5" /> Göster</> : <><EyeOff className="h-3.5 w-3.5" /> Gizle</>}
+                    </Button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-[11px] text-muted-foreground">Toplam Gelir</p>
-                      <p className="text-xl font-bold text-foreground">{grandTotal.toLocaleString("tr-TR")}₺</p>
+                      <p className="text-xl font-bold text-foreground">{fmt(grandTotal)}</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Tahsil Edilen</p>
-                      <p className="text-xl font-bold text-green-400">{grandPaid.toLocaleString("tr-TR")}₺</p>
+                      <p className="text-xl font-bold text-green-400">{fmt(grandPaid)}</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Bekleyen</p>
-                      <p className="text-xl font-bold text-red-400">{grandRemaining.toLocaleString("tr-TR")}₺</p>
+                      <p className="text-xl font-bold text-red-400">{fmt(grandRemaining)}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-3 border-t border-border/50 pt-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3 border-t border-border/50 pt-3">
                     <div>
                       <p className="text-[11px] text-muted-foreground">Toplam Giderler</p>
-                      <p className="text-xl font-bold text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</p>
+                      <p className="text-xl font-bold text-red-400">{fmt(totalExpenses)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Malzeme Gideri</p>
+                      <p className="text-xl font-bold text-orange-400">{fmt(totalMaterial)}</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Net Kâr</p>
-                      <p className={`text-xl font-bold ${netProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{netProfit.toLocaleString("tr-TR")}₺</p>
+                      <p className={`text-xl font-bold ${netProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{fmt(netProfit)}</p>
                     </div>
                     <div>
                       <p className="text-[11px] text-muted-foreground">Stok Değeri</p>
-                      <p className="text-xl font-bold text-foreground">{stockValue.toLocaleString("tr-TR")}₺</p>
+                      <p className="text-xl font-bold text-foreground">{fmt(stockValue)}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground border-t border-border/50 pt-2">
                     <div className="flex items-center gap-1.5">
                       <Wrench className="h-3.5 w-3.5 text-primary" />
-                      <span>Servis: <strong className="text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</strong></span>
-                      <span className="text-green-400">(+{svcPaid.toLocaleString("tr-TR")}₺)</span>
-                      {svcRemaining > 0 && <span className="text-red-400">(-{svcRemaining.toLocaleString("tr-TR")}₺)</span>}
+                      <span>Servis: <strong className="text-foreground">{fmt(svcTotal)}</strong></span>
+                      <span className="text-green-400">(+{fmt(svcPaid)})</span>
+                      {svcRemaining > 0 && <span className="text-red-400">(-{fmt(svcRemaining)})</span>}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Cctv className="h-3.5 w-3.5 text-primary" />
-                      <span>Kamera: <strong className="text-foreground">{camTotal.toLocaleString("tr-TR")}₺</strong></span>
-                      <span className="text-green-400">(+{camPaid.toLocaleString("tr-TR")}₺)</span>
-                      {camTotal - camPaid > 0 && <span className="text-red-400">(-{(camTotal - camPaid).toLocaleString("tr-TR")}₺)</span>}
+                      <span>Kamera: <strong className="text-foreground">{fmt(camTotal)}</strong></span>
+                      <span className="text-green-400">(+{fmt(camPaid)})</span>
+                      {camTotal - camPaid > 0 && <span className="text-red-400">(-{fmt(camTotal - camPaid)})</span>}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Package className="h-3.5 w-3.5 text-primary" />
-                      <span>Ürün Stok: <strong className="text-foreground">{stockValue.toLocaleString("tr-TR")}₺</strong></span>
+                      <span>Ürün Stok: <strong className="text-foreground">{fmt(stockValue)}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <TrendingDown className="h-3.5 w-3.5 text-red-400" />
-                      <span>Giderler: <strong className="text-red-400">{totalExpenses.toLocaleString("tr-TR")}₺</strong></span>
+                      <span>Giderler: <strong className="text-red-400">{fmt(totalExpenses)}</strong></span>
                     </div>
                   </div>
                 </CardContent>
@@ -504,7 +531,7 @@ const AdminPanel = () => {
                       <TrendingUp className="h-4 w-4 text-primary" />
                       <span className="text-[11px] text-muted-foreground font-medium">Servis Geliri</span>
                     </div>
-                    <p className="text-lg font-bold text-foreground">{svcTotal.toLocaleString("tr-TR")}₺</p>
+                    <p className="text-lg font-bold text-foreground">{fmt(svcTotal)}</p>
                   </CardContent>
                 </Card>
                 <Card className="border-green-500/30">
@@ -513,7 +540,7 @@ const AdminPanel = () => {
                       <Banknote className="h-4 w-4 text-green-400" />
                       <span className="text-[11px] text-muted-foreground font-medium">Tahsil Edilen</span>
                     </div>
-                    <p className="text-lg font-bold text-green-400">{svcPaid.toLocaleString("tr-TR")}₺</p>
+                    <p className="text-lg font-bold text-green-400">{fmt(svcPaid)}</p>
                   </CardContent>
                 </Card>
                 <Card className="border-red-500/30">
@@ -522,7 +549,7 @@ const AdminPanel = () => {
                       <AlertCircle className="h-4 w-4 text-red-400" />
                       <span className="text-[11px] text-muted-foreground font-medium">Bekleyen</span>
                     </div>
-                    <p className="text-lg font-bold text-red-400">{svcRemaining.toLocaleString("tr-TR")}₺</p>
+                    <p className="text-lg font-bold text-red-400">{fmt(svcRemaining)}</p>
                   </CardContent>
                 </Card>
                 <Card className="border-orange-500/30">
@@ -618,6 +645,10 @@ const AdminPanel = () => {
                 <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
               </div>
               <div>
+                <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
+                <Input type="number" placeholder="Bu iş için kullanılan malzemenin maliyeti" value={form.materialCost} onChange={(e) => setForm({ ...form, materialCost: e.target.value })} min={0} />
+              </div>
+              <div>
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
               </div>
@@ -693,6 +724,20 @@ const AdminPanel = () => {
                           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
                             📅 Söz verilen ödeme: {new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR")}
                           </Badge>
+                        </div>
+                      )}
+                      {(job.fee > 0 || (job.materialCost || 0) > 0) && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(job.materialCost || 0) > 0 && (
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                              🧰 Malzeme: {fmt(job.materialCost || 0)}
+                            </Badge>
+                          )}
+                          {job.fee > 0 && (
+                            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[11px]">
+                              💵 Net Kazanç: {fmt(job.fee - (job.materialCost || 0))}
+                            </Badge>
+                          )}
                         </div>
                       )}
                       <div className="flex items-center gap-2 mt-1">
@@ -784,6 +829,10 @@ const AdminPanel = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
                         <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
+                        <Input type="number" placeholder="Malzeme maliyeti" value={(editForm as any).materialCost ?? ""} onChange={(e) => setEditForm({ ...editForm, materialCost: parseFloat(e.target.value) || 0 } as any)} min={0} />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>

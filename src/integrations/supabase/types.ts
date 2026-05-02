@@ -27,6 +27,7 @@ export type Database = {
           fee: number | null
           id: string
           job_type: string
+          material_cost: number | null
           notes: string | null
           paid_amount: number | null
           postponed_to: string | null
@@ -45,6 +46,7 @@ export type Database = {
           fee?: number | null
           id?: string
           job_type?: string
+          material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
@@ -63,6 +65,7 @@ export type Database = {
           fee?: number | null
           id?: string
           job_type?: string
+          material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
@@ -193,6 +196,7 @@ export type Database = {
           device_name: string | null
           fee: number | null
           id: string
+          material_cost: number | null
           notes: string | null
           paid_amount: number | null
           postponed_to: string | null
@@ -214,6 +218,7 @@ export type Database = {
           device_name?: string | null
           fee?: number | null
           id?: string
+          material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null
@@ -235,6 +240,7 @@ export type Database = {
           device_name?: string | null
           fee?: number | null
           id?: string
+          material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           postponed_to?: string | null

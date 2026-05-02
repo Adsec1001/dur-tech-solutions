@@ -52,6 +52,7 @@ interface CameraJob {
   completed_at: string | null;
   postponed_to: string | null;
   promised_payment_date: string | null;
+  material_cost: number | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -77,6 +78,7 @@ const emptyForm = {
   status: "bekliyor" as CameraJobStatus,
   checklist: Object.keys(DEFAULT_CHECKLIST).reduce((acc, k) => ({ ...acc, [k]: false }), {} as Record<string, boolean>),
   promised_payment_date: "",
+  material_cost: "",
 };
 
 const CameraJobManager = () => {
@@ -122,6 +124,7 @@ const CameraJobManager = () => {
       status: form.status,
       checklist: form.checklist,
       promised_payment_date: form.promised_payment_date || null,
+      material_cost: parseFloat(form.material_cost) || 0,
     };
 
     if (editingId) {
@@ -150,6 +153,7 @@ const CameraJobManager = () => {
       status: j.status,
       checklist: j.checklist || emptyForm.checklist,
       promised_payment_date: j.promised_payment_date ? j.promised_payment_date.slice(0, 10) : "",
+      material_cost: j.material_cost?.toString() || "",
     });
     setShowForm(true);
     setExpandedId(null);
@@ -236,6 +240,10 @@ const CameraJobManager = () => {
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promised_payment_date} onChange={e => setForm({ ...form, promised_payment_date: e.target.value })} />
               </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
+                <Input type="number" placeholder="Malzeme maliyeti" value={form.material_cost} onChange={e => setForm({ ...form, material_cost: e.target.value })} min={0} />
+              </div>
             </div>
 
             <Input placeholder="DVR/NVR Modeli" value={form.dvr_model} onChange={e => setForm({ ...form, dvr_model: e.target.value })} maxLength={100} />
@@ -283,6 +291,8 @@ const CameraJobManager = () => {
         const camPaid = jobs.reduce((s, j) => s + (j.paid_amount || 0), 0);
         const camRemaining = camTotal - camPaid;
         const unpaidCount = jobs.filter(j => (j.fee || 0) > 0 && (j.paid_amount || 0) < (j.fee || 0)).length;
+        const camMaterial = jobs.reduce((s, j) => s + (Number(j.material_cost) || 0), 0);
+        const camNet = camTotal - camMaterial;
         return (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card className="border-border/50">
@@ -319,6 +329,24 @@ const CameraJobManager = () => {
                   <span className="text-[11px] text-muted-foreground font-medium">Ödenmemiş İş</span>
                 </div>
                 <p className="text-lg font-bold text-orange-400">{unpaidCount} adet</p>
+              </CardContent>
+            </Card>
+            <Card className="border-orange-500/30 col-span-2 md:col-span-2">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="h-4 w-4 text-orange-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Malzeme Gideri</span>
+                </div>
+                <p className="text-lg font-bold text-orange-400">{camMaterial.toLocaleString("tr-TR")}₺</p>
+              </CardContent>
+            </Card>
+            <Card className="border-emerald-500/30 col-span-2 md:col-span-2">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <span className="text-[11px] text-muted-foreground font-medium">Net Kazanç (Gelir − Malzeme)</span>
+                </div>
+                <p className="text-lg font-bold text-emerald-400">{camNet.toLocaleString("tr-TR")}₺</p>
               </CardContent>
             </Card>
           </div>
@@ -382,6 +410,20 @@ const CameraJobManager = () => {
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
                           📅 Söz verilen ödeme: {new Date(job.promised_payment_date).toLocaleDateString("tr-TR")}
                         </Badge>
+                      </div>
+                    )}
+                    {((job.fee || 0) > 0 || (Number(job.material_cost) || 0) > 0) && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {(Number(job.material_cost) || 0) > 0 && (
+                          <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                            🧰 Malzeme: {(Number(job.material_cost) || 0).toLocaleString("tr-TR")}₺
+                          </Badge>
+                        )}
+                        {(job.fee || 0) > 0 && (
+                          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[11px]">
+                            💵 Net Kazanç: {((job.fee || 0) - (Number(job.material_cost) || 0)).toLocaleString("tr-TR")}₺
+                          </Badge>
+                        )}
                       </div>
                     )}
                   </div>
