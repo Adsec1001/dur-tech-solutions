@@ -73,6 +73,7 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
+  const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
   const { toast } = useToast();
 
@@ -110,6 +111,8 @@ const AdminPanel = () => {
     if (prodData) setProductsForDashboard(prodData);
     const { data: expData } = await (supabase as any).from("expenses").select("*");
     if (expData) setExpensesForDashboard(expData);
+    const { data: salesData } = await (supabase as any).from("product_sales").select("*");
+    if (salesData) setProductSalesForDashboard(salesData);
     return data;
   }, []);
 
@@ -440,17 +443,20 @@ const AdminPanel = () => {
           const camTotal = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.fee || 0), 0);
           const camPaid = cameraJobsForDashboard.reduce((s: number, j: any) => s + (j.paid_amount || 0), 0);
 
-          const stockValue = productsForDashboard.reduce((s: number, p: any) => s + (p.price || 0) * (p.stock || 0), 0);
           const totalExpenses = expensesForDashboard.reduce((s: number, e: any) => s + (e.amount || 0), 0);
 
           const svcMaterial = jobs.reduce((s, j) => s + (j.materialCost || 0), 0);
           const camMaterial = cameraJobsForDashboard.reduce((s: number, j: any) => s + (Number(j.material_cost) || 0), 0);
           const totalMaterial = svcMaterial + camMaterial;
 
+          const productSalesTotal = productSalesForDashboard.reduce((s: number, x: any) => s + (Number(x.sale_price) || 0), 0);
+
           const grandTotal = svcTotal + camTotal;
           const grandPaid = svcPaid + camPaid;
           const grandRemaining = grandTotal - grandPaid;
           const netProfit = grandPaid - totalExpenses - totalMaterial;
+          // Toplam Kâr: servis net + kamera net + ürün satışları - genel giderler
+          const totalProfit = (svcPaid - svcMaterial) + (camPaid - camMaterial) + productSalesTotal - totalExpenses;
 
           return (
             <>
@@ -494,8 +500,8 @@ const AdminPanel = () => {
                       <p className={`text-xl font-bold ${netProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{fmt(netProfit)}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-muted-foreground">Stok Değeri</p>
-                      <p className="text-xl font-bold text-foreground">{fmt(stockValue)}</p>
+                      <p className="text-[11px] text-muted-foreground">Toplam Kâr</p>
+                      <p className={`text-xl font-bold ${totalProfit >= 0 ? "text-green-400" : "text-red-400"}`}>{fmt(totalProfit)}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground border-t border-border/50 pt-2">
@@ -513,7 +519,7 @@ const AdminPanel = () => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Package className="h-3.5 w-3.5 text-primary" />
-                      <span>Ürün Stok: <strong className="text-foreground">{fmt(stockValue)}</strong></span>
+                      <span>Ürün Satış: <strong className="text-foreground">{fmt(productSalesTotal)}</strong></span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <TrendingDown className="h-3.5 w-3.5 text-red-400" />
