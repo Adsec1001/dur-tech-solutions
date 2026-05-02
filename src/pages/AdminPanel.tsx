@@ -726,6 +726,20 @@ const AdminPanel = () => {
                           </Badge>
                         </div>
                       )}
+                      {(job.fee > 0 || (job.materialCost || 0) > 0) && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(job.materialCost || 0) > 0 && (
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                              🧰 Malzeme: {fmt(job.materialCost || 0)}
+                            </Badge>
+                          )}
+                          {job.fee > 0 && (
+                            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[11px]">
+                              💵 Net Kazanç: {fmt(job.fee - (job.materialCost || 0))}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.trackingCode}</code>
                         <Clipboard
