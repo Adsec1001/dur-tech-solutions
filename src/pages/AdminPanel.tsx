@@ -645,6 +645,10 @@ const AdminPanel = () => {
                 <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
               </div>
               <div>
+                <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
+                <Input type="number" placeholder="Bu iş için kullanılan malzemenin maliyeti" value={form.materialCost} onChange={(e) => setForm({ ...form, materialCost: e.target.value })} min={0} />
+              </div>
+              <div>
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
               </div>
