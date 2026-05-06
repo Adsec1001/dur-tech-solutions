@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "react-router-dom";
 import logo from "@/assets/db-logo.png";
+import { ThemeToggle } from "@/components/ThemeProvider";
 
 const Header = () => {
   const menuItems = [
@@ -47,11 +48,14 @@ const Header = () => {
             <a href="https://wa.me/905397784000?text=Merhaba%20teknik%20destek%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
               <Phone className="h-5 w-5" />
             </a>
+            <ThemeToggle className="ml-1" />
           </div>
         </nav>
 
         {/* Mobile Navigation */}
-        <Sheet>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <Sheet>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
@@ -82,6 +86,7 @@ const Header = () => {
             </nav>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
     </header>
   );
