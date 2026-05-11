@@ -988,8 +988,8 @@ const AdminPanel = () => {
                           <Banknote className="h-4 w-4 text-red-400 shrink-0" />
                           <span className="text-xs text-red-400 font-medium flex-1">
                             {job.paidAmount > 0
-                              ? `Kalan: ${(job.fee - job.paidAmount).toLocaleString("tr-TR")}₺`
-                              : `Ödenmedi: ${job.fee.toLocaleString("tr-TR")}₺`}
+                              ? `Kalan: ${fmt(job.fee - job.paidAmount)}`
+                              : `Ödenmedi: ${fmt(job.fee)}`}
                           </span>
                           <Button size="sm" className="gap-1 text-xs h-7 bg-green-600 hover:bg-green-700" onClick={() => handleMarkPaid(job)}>
                             <CheckCircle2 className="h-3 w-3" /> Ödendi İşaretle
