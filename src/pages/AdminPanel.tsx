@@ -650,6 +650,14 @@ const AdminPanel = () => {
                 <Input type="number" placeholder="Ücret (₺)" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} min={0} />
                 <Input type="number" placeholder="Ödenen Tutar (₺)" value={form.paidAmount} onChange={(e) => setForm({ ...form, paidAmount: e.target.value })} min={0} />
               </div>
+              <div className="flex gap-2">
+                <Button type="button" size="sm" variant={parseFloat(form.paidAmount || "0") >= parseFloat(form.fee || "0") && parseFloat(form.fee || "0") > 0 ? "default" : "outline"} className="flex-1" onClick={() => setForm({ ...form, paidAmount: form.fee || "0" })}>
+                  ✓ Ödendi
+                </Button>
+                <Button type="button" size="sm" variant={parseFloat(form.paidAmount || "0") === 0 ? "default" : "outline"} className="flex-1" onClick={() => setForm({ ...form, paidAmount: "0" })}>
+                  ✗ Ödenmedi
+                </Button>
+              </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                 <Input type="number" placeholder="Bu iş için kullanılan malzemenin maliyeti" value={form.materialCost} onChange={(e) => setForm({ ...form, materialCost: e.target.value })} min={0} />
@@ -835,6 +843,14 @@ const AdminPanel = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <Input type="number" placeholder="Ücret (₺)" value={editForm.fee ?? ""} onChange={(e) => setEditForm({ ...editForm, fee: parseFloat(e.target.value) || 0 })} min={0} />
                         <Input type="number" placeholder="Ödenen Tutar (₺)" value={(editForm as any).paidAmount ?? ""} onChange={(e) => setEditForm({ ...editForm, paidAmount: parseFloat(e.target.value) || 0 } as any)} min={0} />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button type="button" size="sm" variant={((editForm as any).paidAmount ?? 0) >= (editForm.fee ?? 0) && (editForm.fee ?? 0) > 0 ? "default" : "outline"} className="flex-1" onClick={() => setEditForm({ ...editForm, paidAmount: editForm.fee ?? 0 } as any)}>
+                          ✓ Ödendi
+                        </Button>
+                        <Button type="button" size="sm" variant={((editForm as any).paidAmount ?? 0) === 0 ? "default" : "outline"} className="flex-1" onClick={() => setEditForm({ ...editForm, paidAmount: 0 } as any)}>
+                          ✗ Ödenmedi
+                        </Button>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>

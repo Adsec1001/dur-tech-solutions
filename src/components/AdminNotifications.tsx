@@ -53,22 +53,23 @@ const AdminNotifications = () => {
       });
     });
 
-    // Service payment date approaching
-    serviceJobs.filter(j => j.promisedPaymentDate && j.paidAmount < j.fee).forEach(j => {
+    // Service payment date — show ALL unpaid with promised date (no 3-day cutoff)
+    serviceJobs.filter(j => j.promisedPaymentDate && j.fee > 0 && j.paidAmount < j.fee).forEach(j => {
       const payDate = new Date(j.promisedPaymentDate!);
-      if (payDate <= threeDaysLater) {
-        const isOverdue = payDate < now;
-        notifs.push({
-          id: `svc-paydate-${j.id}`,
-          type: "payment_due_service",
-          category: "service",
-          title: isOverdue
-            ? `⚠️ Ödeme Gecikti: ${j.customerName} ${j.customerSurname}`
-            : `Ödeme Yaklaşıyor: ${j.customerName} ${j.customerSurname}`,
-          description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee - j.paidAmount)}₺`,
-          icon: "calendar",
-        });
-      }
+      const isOverdue = payDate < now;
+      const soon = payDate <= threeDaysLater;
+      notifs.push({
+        id: `svc-paydate-${j.id}`,
+        type: "payment_due_service",
+        category: "service",
+        title: isOverdue
+          ? `⚠️ Ödeme Gecikti: ${j.customerName} ${j.customerSurname}`
+          : soon
+            ? `Ödeme Yaklaşıyor: ${j.customerName} ${j.customerSurname}`
+            : `Ödeme Bekleniyor: ${j.customerName} ${j.customerSurname}`,
+        description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee - j.paidAmount)}₺`,
+        icon: "calendar",
+      });
     });
 
     // 2. Camera jobs
@@ -112,22 +113,23 @@ const AdminNotifications = () => {
         });
       });
 
-      // Camera payment date approaching
-      cameraJobs.filter((j: any) => j.promised_payment_date && (j.paid_amount || 0) < (j.fee || 0)).forEach((j: any) => {
+      // Camera payment date — show ALL unpaid with promised date (no 3-day cutoff)
+      cameraJobs.filter((j: any) => j.promised_payment_date && (j.fee || 0) > 0 && (j.paid_amount || 0) < (j.fee || 0)).forEach((j: any) => {
         const payDate = new Date(j.promised_payment_date);
-        if (payDate <= threeDaysLater) {
-          const isOverdue = payDate < now;
-          notifs.push({
-            id: `cam-paydate-${j.id}`,
-            type: "payment_due_camera",
-            category: "camera",
-            title: isOverdue
-              ? `⚠️ Ödeme Gecikti: ${j.customer_name}`
-              : `Ödeme Yaklaşıyor: ${j.customer_name}`,
-            description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee || 0) - (j.paid_amount || 0)}₺`,
-            icon: "calendar",
-          });
-        }
+        const isOverdue = payDate < now;
+        const soon = payDate <= threeDaysLater;
+        notifs.push({
+          id: `cam-paydate-${j.id}`,
+          type: "payment_due_camera",
+          category: "camera",
+          title: isOverdue
+            ? `⚠️ Ödeme Gecikti: ${j.customer_name}`
+            : soon
+              ? `Ödeme Yaklaşıyor: ${j.customer_name}`
+              : `Ödeme Bekleniyor: ${j.customer_name}`,
+          description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee || 0) - (j.paid_amount || 0)}₺`,
+          icon: "calendar",
+        });
       });
     }
 

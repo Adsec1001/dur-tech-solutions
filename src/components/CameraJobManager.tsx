@@ -245,6 +245,14 @@ const CameraJobManager = () => {
                 <Input type="number" placeholder="Malzeme maliyeti" value={form.material_cost} onChange={e => setForm({ ...form, material_cost: e.target.value })} min={0} />
               </div>
             </div>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" variant={parseFloat(form.paid_amount || "0") >= parseFloat(form.fee || "0") && parseFloat(form.fee || "0") > 0 ? "default" : "outline"} className="flex-1" onClick={() => setForm({ ...form, paid_amount: form.fee || "0" })}>
+                ✓ Ödendi
+              </Button>
+              <Button type="button" size="sm" variant={parseFloat(form.paid_amount || "0") === 0 ? "default" : "outline"} className="flex-1" onClick={() => setForm({ ...form, paid_amount: "0" })}>
+                ✗ Ödenmedi
+              </Button>
+            </div>
 
             <Input placeholder="DVR/NVR Modeli" value={form.dvr_model} onChange={e => setForm({ ...form, dvr_model: e.target.value })} maxLength={100} />
             <Textarea placeholder="Notlar (detaylar, hatırlatmalar...)" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={3} />
