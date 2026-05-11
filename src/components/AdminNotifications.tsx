@@ -39,7 +39,7 @@ const AdminNotifications = () => {
       });
     });
 
-    serviceJobs.filter(j => j.fee > 0 && j.paidAmount < j.fee).forEach(j => {
+    serviceJobs.filter(j => j.fee > 0 && j.paidAmount < j.fee && !j.promisedPaymentDate).forEach(j => {
       const remaining = j.fee - j.paidAmount;
       notifs.push({
         id: `svc-unpaid-${j.id}`,
@@ -98,7 +98,7 @@ const AdminNotifications = () => {
         });
       });
 
-      cameraJobs.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee).forEach((j: any) => {
+      cameraJobs.filter((j: any) => j.fee > 0 && (j.paid_amount || 0) < j.fee && !j.promised_payment_date).forEach((j: any) => {
         const remaining = j.fee - (j.paid_amount || 0);
         notifs.push({
           id: `cam-unpaid-${j.id}`,
