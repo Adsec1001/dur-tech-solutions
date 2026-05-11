@@ -710,7 +710,7 @@ const AdminPanel = () => {
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
                         {job.deviceName && <span>• {job.deviceName}</span>}
-                        <span>• {job.fee > 0 ? `${job.fee}₺` : "Ücret belirtilmedi"}</span>
+                        <span>• {job.fee > 0 ? fmt(job.fee) : "Ücret belirtilmedi"}</span>
                       </div>
                       {job.fee > 0 && (
                         <div className="mt-1">
@@ -718,10 +718,10 @@ const AdminPanel = () => {
                             <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
                           ) : job.paidAmount > 0 ? (
                             <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
-                              Kısmi ödeme: {job.paidAmount}₺ — Kalan: {job.fee - job.paidAmount}₺
+                              Kısmi ödeme: {fmt(job.paidAmount)} — Kalan: {fmt(job.fee - job.paidAmount)}
                             </Badge>
                           ) : (
-                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {fmt(job.fee)}</Badge>
                           )}
                         </div>
                       )}
