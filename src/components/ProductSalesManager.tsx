@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ShoppingCart, TrendingUp } from "lucide-react";
+import { Plus, Trash2, ShoppingCart, TrendingUp, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +29,7 @@ const ProductSalesManager = () => {
   const [sales, setSales] = useState<ProductSale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     product_id: "",
     product_name: "",
@@ -66,17 +67,36 @@ const ProductSalesManager = () => {
       toast({ title: "Ürün adı zorunludur", variant: "destructive" });
       return;
     }
-    await (supabase as any).from("product_sales").insert({
+    const payload = {
       product_id: form.product_id || null,
       product_name: form.product_name.trim(),
       sale_price: parseFloat(form.sale_price) || 0,
       sale_date: form.sale_date || new Date().toISOString(),
       notes: form.notes.trim() || null,
-    });
-    toast({ title: "Satış kaydedildi!" });
+    };
+    if (editingId) {
+      await (supabase as any).from("product_sales").update(payload).eq("id", editingId);
+      toast({ title: "Satış güncellendi!" });
+    } else {
+      await (supabase as any).from("product_sales").insert(payload);
+      toast({ title: "Satış kaydedildi!" });
+    }
+    setEditingId(null);
     setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" });
     setShowForm(false);
     await fetchData();
+  };
+
+  const handleEdit = (sale: ProductSale) => {
+    setEditingId(sale.id);
+    setForm({
+      product_id: sale.product_id || "",
+      product_name: sale.product_name,
+      sale_price: sale.sale_price.toString(),
+      sale_date: sale.sale_date.slice(0, 10),
+      notes: sale.notes || "",
+    });
+    setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -91,7 +111,7 @@ const ProductSalesManager = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">Ürün Satışları</h2>
-        <Button size="sm" onClick={() => setShowForm(!showForm)} className="gap-1">
+        <Button size="sm" onClick={() => { setShowForm(!showForm); if (showForm) { setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" }); } }} className="gap-1">
           <Plus className="h-4 w-4" /> Satış Ekle
         </Button>
       </div>
@@ -121,7 +141,7 @@ const ProductSalesManager = () => {
       {showForm && (
         <Card className="border-primary/30 animate-fade-in">
           <CardHeader>
-            <CardTitle className="text-lg">Yeni Satış</CardTitle>
+            <CardTitle className="text-lg">{editingId ? "Satışı Düzenle" : "Yeni Satış"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -152,8 +172,8 @@ const ProductSalesManager = () => {
             </div>
             <Textarea placeholder="Notlar" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={300} rows={2} />
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowForm(false)}>İptal</Button>
-              <Button onClick={handleSave}>Kaydet</Button>
+              <Button variant="outline" onClick={() => { setShowForm(false); setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" }); }}>İptal</Button>
+              <Button onClick={handleSave}>{editingId ? "Güncelle" : "Kaydet"}</Button>
             </div>
           </CardContent>
         </Card>
@@ -179,9 +199,14 @@ const ProductSalesManager = () => {
                   </p>
                   {sale.notes && <p className="text-xs text-muted-foreground mt-0.5">📝 {sale.notes}</p>}
                 </div>
-                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDelete(sale.id)}>
-                  <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleEdit(sale)}>
+                    <Pencil className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDelete(sale.id)}>
+                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

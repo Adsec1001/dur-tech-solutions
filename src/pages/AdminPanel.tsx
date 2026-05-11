@@ -710,7 +710,7 @@ const AdminPanel = () => {
                       <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span>{SERVICE_LABELS[job.serviceType]}</span>
                         {job.deviceName && <span>• {job.deviceName}</span>}
-                        <span>• {job.fee > 0 ? `${job.fee}₺` : "Ücret belirtilmedi"}</span>
+                        <span>• {job.fee > 0 ? fmt(job.fee) : "Ücret belirtilmedi"}</span>
                       </div>
                       {job.fee > 0 && (
                         <div className="mt-1">
@@ -718,10 +718,10 @@ const AdminPanel = () => {
                             <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✓ Ödendi</Badge>
                           ) : job.paidAmount > 0 ? (
                             <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
-                              Kısmi ödeme: {job.paidAmount}₺ — Kalan: {job.fee - job.paidAmount}₺
+                              Kısmi ödeme: {fmt(job.paidAmount)} — Kalan: {fmt(job.fee - job.paidAmount)}
                             </Badge>
                           ) : (
-                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {job.fee}₺</Badge>
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[11px]">Ödenmedi — {fmt(job.fee)}</Badge>
                           )}
                         </div>
                       )}
@@ -988,8 +988,8 @@ const AdminPanel = () => {
                           <Banknote className="h-4 w-4 text-red-400 shrink-0" />
                           <span className="text-xs text-red-400 font-medium flex-1">
                             {job.paidAmount > 0
-                              ? `Kalan: ${(job.fee - job.paidAmount).toLocaleString("tr-TR")}₺`
-                              : `Ödenmedi: ${job.fee.toLocaleString("tr-TR")}₺`}
+                              ? `Kalan: ${fmt(job.fee - job.paidAmount)}`
+                              : `Ödenmedi: ${fmt(job.fee)}`}
                           </span>
                           <Button size="sm" className="gap-1 text-xs h-7 bg-green-600 hover:bg-green-700" onClick={() => handleMarkPaid(job)}>
                             <CheckCircle2 className="h-3 w-3" /> Ödendi İşaretle
