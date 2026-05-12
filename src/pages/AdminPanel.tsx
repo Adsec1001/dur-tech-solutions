@@ -156,6 +156,34 @@ const AdminPanel = () => {
     if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
   }, []);
 
+  useEffect(() => {
+    if (!authenticated) return;
+    const handler = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { category: "service" | "camera"; id: string };
+      if (!detail?.id) return;
+      if (detail.category === "service") {
+        setActiveTab("jobs");
+        setFilter("all");
+        const list = await refreshJobs();
+        const target = list.find((j) => j.id === detail.id);
+        if (target) {
+          startEditing(target);
+          setTimeout(() => {
+            const el = document.getElementById(`job-${detail.id}`);
+            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 150);
+        }
+      } else {
+        setActiveTab("camera");
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("camera:edit-job", { detail: { id: detail.id } }));
+        }, 200);
+      }
+    };
+    window.addEventListener("admin:edit-job", handler as EventListener);
+    return () => window.removeEventListener("admin:edit-job", handler as EventListener);
+  }, [authenticated, refreshJobs]);
+
   const handleAddJob = async () => {
     if (!form.customerName.trim() || !form.customerSurname.trim()) {
       toast({ title: "Ad ve soyad zorunludur", variant: "destructive" });
