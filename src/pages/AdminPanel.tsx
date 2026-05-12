@@ -728,7 +728,7 @@ const AdminPanel = () => {
             const isExpanded = expandedJob === job.id;
             const isEditing = editingJob === job.id;
             return (
-              <Card key={job.id} className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""}`}>
+              <Card id={`job-${job.id}`} key={job.id} className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""}`}>
                 <CardContent className="p-4">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
