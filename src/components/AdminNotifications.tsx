@@ -13,6 +13,7 @@ interface Notification {
   title: string;
   description: string;
   icon: "wrench" | "cctv" | "calendar" | "banknote";
+  jobId?: string;
 }
 
 const AdminNotifications = () => {
@@ -35,7 +36,7 @@ const AdminNotifications = () => {
         category: "service",
         title: `Ertelenen Servis: ${j.customerName} ${j.customerSurname}`,
         description: `Teknik servis işi yarına ertelenmiş durumda.`,
-        icon: "wrench",
+        icon: "wrench", jobId: j.id,
       });
     });
 
@@ -49,7 +50,7 @@ const AdminNotifications = () => {
         description: j.paidAmount > 0
           ? `Kısmi ödeme: ${j.paidAmount}₺ alındı, kalan ${remaining}₺`
           : `Toplam ${j.fee}₺ ödenmedi.`,
-        icon: "banknote",
+        icon: "banknote", jobId: j.id,
       });
     });
 
@@ -68,7 +69,7 @@ const AdminNotifications = () => {
             ? `Ödeme Yaklaşıyor: ${j.customerName} ${j.customerSurname}`
             : `Ödeme Bekleniyor: ${j.customerName} ${j.customerSurname}`,
         description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee - j.paidAmount)}₺`,
-        icon: "calendar",
+        icon: "calendar", jobId: j.id,
       });
     });
 
@@ -82,7 +83,7 @@ const AdminNotifications = () => {
           category: "camera",
           title: `Ertelenen Kamera İşi: ${j.customer_name}`,
           description: `Kamera işi yarına ertelenmiş durumda.`,
-          icon: "cctv",
+          icon: "cctv", jobId: j.id,
         });
       });
 
@@ -95,7 +96,7 @@ const AdminNotifications = () => {
           category: "camera",
           title: `Bakım Zamanı: ${j.customer_name}`,
           description: `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
-          icon: "calendar",
+          icon: "calendar", jobId: j.id,
         });
       });
 
@@ -109,7 +110,7 @@ const AdminNotifications = () => {
           description: (j.paid_amount || 0) > 0
             ? `Kısmi ödeme: ${j.paid_amount}₺ alındı, kalan ${remaining}₺`
             : `Toplam ${j.fee}₺ ödenmedi.`,
-          icon: "banknote",
+          icon: "banknote", jobId: j.id,
         });
       });
 
@@ -128,7 +129,7 @@ const AdminNotifications = () => {
               ? `Ödeme Yaklaşıyor: ${j.customer_name}`
               : `Ödeme Bekleniyor: ${j.customer_name}`,
           description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee || 0) - (j.paid_amount || 0)}₺`,
-          icon: "calendar",
+          icon: "calendar", jobId: j.id,
         });
       });
     }
@@ -169,13 +170,21 @@ const AdminNotifications = () => {
     notifs.map(n => {
       const Icon = IconMap[n.icon];
       return (
-        <div key={n.id} className="flex items-start gap-2 p-2 rounded-lg border border-border/50 bg-card/50">
+        <div
+          key={n.id}
+          className="flex items-start gap-2 p-2 rounded-lg border border-border/50 bg-card/50 hover:bg-accent/40 cursor-pointer transition-colors"
+          onClick={() => {
+            if (!n.jobId) return;
+            window.dispatchEvent(new CustomEvent("admin:edit-job", { detail: { category: n.category, id: n.jobId } }));
+            setOpen(false);
+          }}
+        >
           <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorMap[n.type]}`} />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground">{n.title}</p>
             <p className="text-[11px] text-muted-foreground">{n.description}</p>
           </div>
-          <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={() => setDismissed([...dismissed, n.id])}>
+          <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]); }}>
             <X className="h-3 w-3 text-muted-foreground" />
           </Button>
         </div>

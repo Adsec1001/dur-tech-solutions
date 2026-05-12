@@ -100,6 +100,25 @@ const CameraJobManager = () => {
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
 
+  useEffect(() => {
+    const handler = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { id: string };
+      if (!detail?.id) return;
+      const { data } = await (supabase as any).from("camera_jobs").select("*").order("created_at", { ascending: false });
+      if (data) setJobs(data as CameraJob[]);
+      const target = (data as CameraJob[] | null)?.find((j) => j.id === detail.id);
+      if (target) {
+        startEdit(target);
+        setTimeout(() => {
+          const el = document.getElementById(`cam-job-${detail.id}`);
+          el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 150);
+      }
+    };
+    window.addEventListener("camera:edit-job", handler as EventListener);
+    return () => window.removeEventListener("camera:edit-job", handler as EventListener);
+  }, []);
+
   const resetForm = () => {
     setForm(emptyForm);
     setEditingId(null);
@@ -379,7 +398,7 @@ const CameraJobManager = () => {
           const checkDone = Object.values(job.checklist || {}).filter(Boolean).length;
           const checkTotal = Object.keys(DEFAULT_CHECKLIST).length;
           return (
-            <Card key={job.id} className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""}`}>
+            <Card id={`cam-job-${job.id}`} key={job.id} className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
                   <div className="flex-1 min-w-0">
