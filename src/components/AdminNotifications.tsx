@@ -36,7 +36,7 @@ const AdminNotifications = () => {
         category: "service",
         title: `Ertelenen Servis: ${j.customerName} ${j.customerSurname}`,
         description: `Teknik servis işi yarına ertelenmiş durumda.`,
-        icon: "wrench",
+        icon: "wrench", jobId: j.id,
       });
     });
 
@@ -50,7 +50,7 @@ const AdminNotifications = () => {
         description: j.paidAmount > 0
           ? `Kısmi ödeme: ${j.paidAmount}₺ alındı, kalan ${remaining}₺`
           : `Toplam ${j.fee}₺ ödenmedi.`,
-        icon: "banknote",
+        icon: "banknote", jobId: j.id,
       });
     });
 
@@ -69,7 +69,7 @@ const AdminNotifications = () => {
             ? `Ödeme Yaklaşıyor: ${j.customerName} ${j.customerSurname}`
             : `Ödeme Bekleniyor: ${j.customerName} ${j.customerSurname}`,
         description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee - j.paidAmount)}₺`,
-        icon: "calendar",
+        icon: "calendar", jobId: j.id,
       });
     });
 
@@ -83,7 +83,7 @@ const AdminNotifications = () => {
           category: "camera",
           title: `Ertelenen Kamera İşi: ${j.customer_name}`,
           description: `Kamera işi yarına ertelenmiş durumda.`,
-          icon: "cctv",
+          icon: "cctv", jobId: j.id,
         });
       });
 
@@ -96,7 +96,7 @@ const AdminNotifications = () => {
           category: "camera",
           title: `Bakım Zamanı: ${j.customer_name}`,
           description: `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
-          icon: "calendar",
+          icon: "calendar", jobId: j.id,
         });
       });
 
@@ -110,7 +110,7 @@ const AdminNotifications = () => {
           description: (j.paid_amount || 0) > 0
             ? `Kısmi ödeme: ${j.paid_amount}₺ alındı, kalan ${remaining}₺`
             : `Toplam ${j.fee}₺ ödenmedi.`,
-          icon: "banknote",
+          icon: "banknote", jobId: j.id,
         });
       });
 
@@ -129,7 +129,7 @@ const AdminNotifications = () => {
               ? `Ödeme Yaklaşıyor: ${j.customer_name}`
               : `Ödeme Bekleniyor: ${j.customer_name}`,
           description: `Söz verilen tarih: ${payDate.toLocaleDateString("tr-TR")} — Kalan: ${(j.fee || 0) - (j.paid_amount || 0)}₺`,
-          icon: "calendar",
+          icon: "calendar", jobId: j.id,
         });
       });
     }
