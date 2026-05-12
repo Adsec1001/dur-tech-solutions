@@ -69,6 +69,8 @@ const AdminPanel = () => {
   const [editAccessories, setEditAccessories] = useState<Accessory[]>([]);
   const [newEditAccessory, setNewEditAccessory] = useState("");
   const [newStepText, setNewStepText] = useState<Record<string, string>>({});
+  const [editingStep, setEditingStep] = useState<{ jobId: string; stepId: string } | null>(null);
+  const [editStepText, setEditStepText] = useState("");
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
@@ -344,6 +346,34 @@ const AdminPanel = () => {
         s.id === stepId ? { ...s, completed: !s.completed, completedAt: !s.completed ? new Date().toISOString() : undefined } : s
       ),
     };
+    await updateJob(updated);
+    await refreshJobs();
+  };
+
+  const startEditStep = (job: ServiceJob, step: JobStep) => {
+    setEditingStep({ jobId: job.id, stepId: step.id });
+    setEditStepText(step.description);
+  };
+
+  const cancelEditStep = () => {
+    setEditingStep(null);
+    setEditStepText("");
+  };
+
+  const saveEditStep = async (job: ServiceJob, stepId: string) => {
+    const text = editStepText.trim();
+    if (!text) return;
+    const updated = {
+      ...job,
+      steps: job.steps.map((s) => (s.id === stepId ? { ...s, description: text } : s)),
+    };
+    await updateJob(updated);
+    await refreshJobs();
+    cancelEditStep();
+  };
+
+  const deleteStep = async (job: ServiceJob, stepId: string) => {
+    const updated = { ...job, steps: job.steps.filter((s) => s.id !== stepId) };
     await updateJob(updated);
     await refreshJobs();
   };
