@@ -170,13 +170,21 @@ const AdminNotifications = () => {
     notifs.map(n => {
       const Icon = IconMap[n.icon];
       return (
-        <div key={n.id} className="flex items-start gap-2 p-2 rounded-lg border border-border/50 bg-card/50">
+        <div
+          key={n.id}
+          className="flex items-start gap-2 p-2 rounded-lg border border-border/50 bg-card/50 hover:bg-accent/40 cursor-pointer transition-colors"
+          onClick={() => {
+            if (!n.jobId) return;
+            window.dispatchEvent(new CustomEvent("admin:edit-job", { detail: { category: n.category, id: n.jobId } }));
+            setOpen(false);
+          }}
+        >
           <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${colorMap[n.type]}`} />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground">{n.title}</p>
             <p className="text-[11px] text-muted-foreground">{n.description}</p>
           </div>
-          <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={() => setDismissed([...dismissed, n.id])}>
+          <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]); }}>
             <X className="h-3 w-3 text-muted-foreground" />
           </Button>
         </div>
