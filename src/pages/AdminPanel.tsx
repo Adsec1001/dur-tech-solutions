@@ -957,9 +957,21 @@ const AdminPanel = () => {
                               <button onClick={() => toggleStep(job, step.id)} className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
                                 {step.completed && <Check className="h-3 w-3" />}
                               </button>
-                              <span className={`text-sm ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                {i + 1}. {step.description}
-                              </span>
+                              {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
+                                <>
+                                  <Input value={editStepText} onChange={(e) => setEditStepText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveEditStep(job, step.id)} className="text-sm h-7 flex-1" maxLength={200} autoFocus />
+                                  <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => saveEditStep(job, step.id)}><Save className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={cancelEditStep}><X className="h-3 w-3" /></Button>
+                                </>
+                              ) : (
+                                <>
+                                  <span className={`text-sm flex-1 ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                                    {i + 1}. {step.description}
+                                  </span>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => startEditStep(job, step)}><Pencil className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => deleteStep(job, step.id)}><Trash2 className="h-3 w-3" /></Button>
+                                </>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -1019,9 +1031,21 @@ const AdminPanel = () => {
                               <button onClick={() => toggleStep(job, step.id)} className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
                                 {step.completed && <Check className="h-3 w-3" />}
                               </button>
-                              <span className={`text-sm ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                {i + 1}. {step.description}
-                              </span>
+                              {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
+                                <>
+                                  <Input value={editStepText} onChange={(e) => setEditStepText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveEditStep(job, step.id)} className="text-sm h-7 flex-1" maxLength={200} autoFocus />
+                                  <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => saveEditStep(job, step.id)}><Save className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={cancelEditStep}><X className="h-3 w-3" /></Button>
+                                </>
+                              ) : (
+                                <>
+                                  <span className={`text-sm flex-1 ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                                    {i + 1}. {step.description}
+                                  </span>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => startEditStep(job, step)}><Pencil className="h-3 w-3" /></Button>
+                                  <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => deleteStep(job, step.id)}><Trash2 className="h-3 w-3" /></Button>
+                                </>
+                              )}
                             </div>
                           ))}
                         </div>
