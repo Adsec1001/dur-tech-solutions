@@ -13,6 +13,7 @@ interface Notification {
   title: string;
   description: string;
   icon: "wrench" | "cctv" | "calendar" | "banknote";
+  jobId?: string;
 }
 
 const AdminNotifications = () => {
