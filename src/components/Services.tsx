@@ -1,4 +1,4 @@
-import { Camera, Key, Download, Wrench, Smartphone, BookOpen, Laptop, Settings } from "lucide-react";
+import { Camera, Key, Download, Wrench, Smartphone, BookOpen, Laptop, Settings, ShieldCheck, Network, CreditCard, HardDrive, Globe, Droplets } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -10,11 +10,38 @@ import serviceMobile from "@/assets/service-mobile.jpg";
 import serviceEducation from "@/assets/service-education.jpg";
 import serviceRemote from "@/assets/service-remote.jpg";
 import serviceTechSupport from "@/assets/service-techsupport.jpg";
+import serviceCybersecurity from "@/assets/service-cybersecurity.jpg";
+import serviceNetwork from "@/assets/service-network.jpg";
+import servicePos from "@/assets/service-pos.jpg";
+import serviceDataRecovery from "@/assets/service-data-recovery.jpg";
+import serviceHosting from "@/assets/service-hosting.jpg";
+import serviceWater from "@/assets/service-water.jpg";
 import fiverrLogo from "@/assets/fiverr-logo.png";
 import bionlukLogo from "@/assets/bionluk-logo.png";
 
 const Services = () => {
   const services = [
+    {
+      icon: ShieldCheck,
+      title: "Siber Güvenlik",
+      description: "Kullanıcı ve kurumsal sistemlerinizi siber tehditlere karşı koruma odaklı güvenlik hizmetleri.",
+      image: serviceCybersecurity,
+      features: ["Zararlı Yazılım Temizliği", "Hesap & Kimlik Koruması", "Güvenlik Açığı Taraması", "Veri Şifreleme & Yedekleme"]
+    },
+    {
+      icon: Network,
+      title: "Ağ Servisleri",
+      description: "Ev ve işyeri için profesyonel ağ kurulumu, yapılandırma ve bakım hizmetleri.",
+      image: serviceNetwork,
+      features: ["Modem & Router Kurulumu", "Kablolu / Kablosuz Ağ", "Switch & Access Point", "Ağ Optimizasyonu"]
+    },
+    {
+      icon: Laptop,
+      title: "Uzaktan Destek",
+      description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
+      image: serviceRemote,
+      features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
+    },
     {
       icon: Camera,
       title: "Güvenlik Sistemleri",
@@ -58,18 +85,39 @@ const Services = () => {
       features: ["Bilgisayar Eğitimi", "Ağ Eğitimi", "Sistem Yönetimi", "Güvenlik Eğitimi"]
     },
     {
-      icon: Laptop,
-      title: "Uzaktan Destek",
-      description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
-      image: serviceRemote,
-      features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
-    },
-    {
       icon: Settings,
       title: "Teknik Destek",
       description: "Yerinde ve uzaktan teknik destek hizmeti ile her zaman yanınızdayız.",
       image: serviceTechSupport,
       features: ["Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale", "7/24 Destek"]
+    },
+    {
+      icon: CreditCard,
+      title: "POS Hizmeti",
+      description: "İşletmeniz için POS cihazı kurulumu, ayar ve teknik destek hizmetleri.",
+      image: servicePos,
+      features: ["POS Kurulumu", "Cihaz Ayarları", "Bağlantı & Entegrasyon", "Arıza & Bakım"]
+    },
+    {
+      icon: HardDrive,
+      title: "Veri Kurtarma",
+      description: "HDD, SSD, USB ve hafıza kartlarından profesyonel veri kurtarma çözümleri.",
+      image: serviceDataRecovery,
+      features: ["HDD / SSD Kurtarma", "Silinen Dosyalar", "Bozuk Disk Çözümleri", "Hafıza Kartı & USB"]
+    },
+    {
+      icon: Globe,
+      title: "Web Hosting",
+      description: "Hızlı, güvenli ve uygun fiyatlı web hosting ve domain hizmetleri.",
+      image: serviceHosting,
+      features: ["Paylaşımlı Hosting", "Domain Tescili", "E-Posta Hesapları", "SSL Sertifikası"]
+    },
+    {
+      icon: Droplets,
+      title: "Su Arıtma Servisleri",
+      description: "Ev ve işyeri su arıtma cihazlarınız için kurulum, filtre değişimi ve bakım hizmetleri.",
+      image: serviceWater,
+      features: ["Cihaz Kurulumu", "Filtre Değişimi", "Periyodik Bakım", "Arıza & Onarım"]
     }
   ];
 
