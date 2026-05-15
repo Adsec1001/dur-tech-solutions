@@ -169,7 +169,7 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in overflow-hidden"
+              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in overflow-hidden flex flex-col h-full"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               <div className="relative h-44 overflow-hidden">
