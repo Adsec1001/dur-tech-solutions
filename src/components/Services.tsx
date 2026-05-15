@@ -26,6 +26,7 @@ const Services = () => {
       title: "Siber Güvenlik",
       description: "Kullanıcı ve kurumsal sistemlerinizi siber tehditlere karşı koruma odaklı güvenlik hizmetleri.",
       image: serviceCybersecurity,
+      whatsappMessage: "Merhaba, Siber Güvenlik hizmeti hakkında bilgi almak istiyorum.",
       features: ["Zararlı Yazılım Temizliği", "Hesap & Kimlik Koruması", "Güvenlik Açığı Taraması", "Veri Şifreleme & Yedekleme"]
     },
     {
@@ -33,6 +34,7 @@ const Services = () => {
       title: "Ağ Servisleri",
       description: "Ev ve işyeri için profesyonel ağ kurulumu, yapılandırma ve bakım hizmetleri.",
       image: serviceNetwork,
+      whatsappMessage: "Merhaba, Ağ Servisleri hakkında bilgi almak istiyorum.",
       features: ["Modem & Router Kurulumu", "Kablolu / Kablosuz Ağ", "Switch & Access Point", "Ağ Optimizasyonu"]
     },
     {
@@ -40,6 +42,7 @@ const Services = () => {
       title: "Uzaktan Destek",
       description: "İnternet üzerinden hızlı ve güvenli teknik destek hizmeti.",
       image: serviceRemote,
+      whatsappMessage: "Merhaba, Uzaktan Destek hizmeti hakkında bilgi almak istiyorum.",
       features: ["Uzak Bağlantı", "Anında Müdahale", "Sorun Çözümü", "Sistem Optimizasyonu"]
     },
     {
@@ -47,6 +50,7 @@ const Services = () => {
       title: "Güvenlik Sistemleri",
       description: "Kamera sistemleri ve alarm sistemleri ile işletmenizi ve evinizi koruyun.",
       image: serviceSecurity,
+      whatsappMessage: "Merhaba, Güvenlik Sistemleri hakkında bilgi almak istiyorum.",
       features: ["IP Kamera Kurulumu", "Alarm Sistemleri", "Kamera Bakım & Onarım", "DVR/NVR Kurulumu"]
     },
     {
@@ -54,6 +58,7 @@ const Services = () => {
       title: "Windows Lisansları",
       description: "Orijinal Windows işletim sistemi ve Office lisansları uygun fiyatlarla.",
       image: serviceWindows,
+      whatsappMessage: "Merhaba, Windows Lisansları hakkında bilgi almak istiyorum.",
       features: ["Windows 10/11 Pro", "Office 365", "Windows Server", "Toplu Lisanslama"]
     },
     {
@@ -61,6 +66,7 @@ const Services = () => {
       title: "Program & Oyun Kurulumu",
       description: "Profesyonel yazılım ve oyun kurulum hizmetleri ile sisteminizi optimize edin.",
       image: serviceSoftware,
+      whatsappMessage: "Merhaba, Program ve Oyun Kurulumu hakkında bilgi almak istiyorum.",
       features: ["Oyun Kurulumu", "Profesyonel Yazılımlar", "Sistem Optimizasyonu", "Sürücü Kurulumu"]
     },
     {
@@ -68,6 +74,7 @@ const Services = () => {
       title: "Tamir & Bakım Hizmetleri",
       description: "Bilgisayar, PlayStation ve cep telefonu tamir, bakım ve format işlemleri.",
       image: serviceRepair,
+      whatsappMessage: "Merhaba, Tamir ve Bakım Hizmetleri hakkında bilgi almak istiyorum.",
       features: ["Bilgisayar Tamiri", "PlayStation Bakım", "Format İşlemleri", "Cep Telefonu Tamiri"]
     },
     {
@@ -75,6 +82,7 @@ const Services = () => {
       title: "Yazılım & Mobil Hizmetler",
       description: "Cep telefonu yazılım yükleme, iCloud ve FRP bypass işlemleri.",
       image: serviceMobile,
+      whatsappMessage: "Merhaba, Yazılım ve Mobil Hizmetler hakkında bilgi almak istiyorum.",
       features: ["Yazılım Güncelleme", "iCloud Bypass", "FRP Bypass", "Mobil Sorun Çözümleri"]
     },
     {
@@ -82,6 +90,7 @@ const Services = () => {
       title: "Eğitim Hizmetleri",
       description: "Bilgisayar ve ağ sistemleri konusunda profesyonel eğitimler.",
       image: serviceEducation,
+      whatsappMessage: "Merhaba, Eğitim Hizmetleri hakkında bilgi almak istiyorum.",
       features: ["Bilgisayar Eğitimi", "Ağ Eğitimi", "Sistem Yönetimi", "Güvenlik Eğitimi"]
     },
     {
@@ -89,20 +98,23 @@ const Services = () => {
       title: "Teknik Destek",
       description: "Yerinde ve uzaktan teknik destek hizmeti ile her zaman yanınızdayız.",
       image: serviceTechSupport,
+      whatsappMessage: "Merhaba, Teknik Destek hizmeti hakkında bilgi almak istiyorum.",
       features: ["Yerinde Teknik Servis", "Periyodik Bakım", "Acil Müdahale", "7/24 Destek"]
     },
     {
       icon: CreditCard,
       title: "POS Hizmeti",
-      description: "İşletmeniz için POS cihazı kurulumu, ayar ve teknik destek hizmetleri.",
+      description: "Restoran, cafe, perakende ve mağazalarınız için komple POS çözümleri; dokunmatik bilgisayar, barkod/fiş yazıcıları, uyumlu yazarkasalar ve barkod okuyucular ile full entegrasyon.",
       image: servicePos,
-      features: ["POS Kurulumu", "Cihaz Ayarları", "Bağlantı & Entegrasyon", "Arıza & Bakım"]
+      whatsappMessage: "Merhaba, POS Hizmeti hakkında bilgi almak istiyorum.",
+      features: ["Dokunmatik Bilgisayar", "Fiş & Barkod Yazıcılar", "Uyumlu Yazarkasalar", "Barkod Okuyucular"]
     },
     {
       icon: HardDrive,
       title: "Veri Kurtarma",
       description: "HDD, SSD, USB ve hafıza kartlarından profesyonel veri kurtarma çözümleri.",
       image: serviceDataRecovery,
+      whatsappMessage: "Merhaba, Veri Kurtarma hizmeti hakkında bilgi almak istiyorum.",
       features: ["HDD / SSD Kurtarma", "Silinen Dosyalar", "Bozuk Disk Çözümleri", "Hafıza Kartı & USB"]
     },
     {
@@ -110,6 +122,7 @@ const Services = () => {
       title: "Web Hosting",
       description: "Hızlı, güvenli ve uygun fiyatlı web hosting ve domain hizmetleri.",
       image: serviceHosting,
+      whatsappMessage: "Merhaba, Web Hosting hizmeti hakkında bilgi almak istiyorum.",
       features: ["Paylaşımlı Hosting", "Domain Tescili", "E-Posta Hesapları", "SSL Sertifikası"]
     },
     {
@@ -117,6 +130,7 @@ const Services = () => {
       title: "Su Arıtma Servisleri",
       description: "Ev ve işyeri su arıtma cihazlarınız için kurulum, filtre değişimi ve bakım hizmetleri.",
       image: serviceWater,
+      whatsappMessage: "Merhaba, Su Arıtma Servisleri hakkında bilgi almak istiyorum.",
       features: ["Cihaz Kurulumu", "Filtre Değişimi", "Periyodik Bakım", "Arıza & Onarım"]
     }
   ];
@@ -189,7 +203,10 @@ const Services = () => {
               <CardFooter>
                 <Button 
                   className="w-full hover:scale-105 transition-transform duration-300"
-                  onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20bilgi%20almak%20istiyorum.", "_blank")}
+                  onClick={() => {
+                    const msg = encodeURIComponent(service.whatsappMessage || "Merhaba, bilgi almak istiyorum.");
+                    window.open(`https://wa.me/905397784000?text=${msg}`, "_blank");
+                  }}
                 >
                   Bilgi Al
                 </Button>
