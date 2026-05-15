@@ -104,7 +104,7 @@ const Services = () => {
     {
       icon: CreditCard,
       title: "POS Hizmeti",
-      description: "Restoran, cafe, perakende ve mağazalarınız için komple POS çözümleri; dokunmatik bilgisayar, barkod/fiş yazıcıları, uyumlu yazarkasalar ve barkod okuyucular ile full entegrasyon.",
+      description: "Restoran, cafe ve perakende için komple POS çözümleri; dokunmatik bilgisayar, yazıcı, yazarkasa ve barkod okuyucu ile entegrasyon.",
       image: servicePos,
       whatsappMessage: "Merhaba, POS Hizmeti hakkında bilgi almak istiyorum.",
       features: ["Dokunmatik Bilgisayar", "Fiş & Barkod Yazıcılar", "Uyumlu Yazarkasalar", "Barkod Okuyucular"]
@@ -169,7 +169,7 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in overflow-hidden"
+              className="border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-primary/10 animate-fade-in overflow-hidden flex flex-col h-full"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
             >
               <div className="relative h-44 overflow-hidden">
@@ -190,7 +190,7 @@ const Services = () => {
                 <CardTitle className="text-xl">{service.title}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-grow">
                 <ul className="space-y-2">
                   {service.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center text-sm text-muted-foreground">
@@ -200,7 +200,7 @@ const Services = () => {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="mt-auto">
                 <Button 
                   className="w-full hover:scale-105 transition-transform duration-300"
                   onClick={() => {
