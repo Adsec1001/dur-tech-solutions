@@ -104,7 +104,7 @@ const Services = () => {
     {
       icon: CreditCard,
       title: "POS Hizmeti",
-      description: "Restoran, cafe, perakende ve mağazalarınız için komple POS çözümleri; dokunmatik bilgisayar, barkod/fiş yazıcıları, uyumlu yazarkasalar ve barkod okuyucular ile full entegrasyon.",
+      description: "Restoran, cafe ve perakende için komple POS çözümleri; dokunmatik bilgisayar, yazıcı, yazarkasa ve barkod okuyucu ile entegrasyon.",
       image: servicePos,
       whatsappMessage: "Merhaba, POS Hizmeti hakkında bilgi almak istiyorum.",
       features: ["Dokunmatik Bilgisayar", "Fiş & Barkod Yazıcılar", "Uyumlu Yazarkasalar", "Barkod Okuyucular"]
