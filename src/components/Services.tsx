@@ -200,7 +200,7 @@ const Services = () => {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="mt-auto">
                 <Button 
                   className="w-full hover:scale-105 transition-transform duration-300"
                   onClick={() => {
