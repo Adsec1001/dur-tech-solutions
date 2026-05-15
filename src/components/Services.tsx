@@ -203,7 +203,10 @@ const Services = () => {
               <CardFooter>
                 <Button 
                   className="w-full hover:scale-105 transition-transform duration-300"
-                  onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20bilgi%20almak%20istiyorum.", "_blank")}
+                  onClick={() => {
+                    const msg = encodeURIComponent(service.whatsappMessage || "Merhaba, bilgi almak istiyorum.");
+                    window.open(`https://wa.me/905397784000?text=${msg}`, "_blank");
+                  }}
                 >
                   Bilgi Al
                 </Button>
