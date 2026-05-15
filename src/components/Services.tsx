@@ -190,7 +190,7 @@ const Services = () => {
                 <CardTitle className="text-xl">{service.title}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-grow">
                 <ul className="space-y-2">
                   {service.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center text-sm text-muted-foreground">
