@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Pencil, Save, X, Receipt, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import { PaymentMethod } from "@/types/serviceJob";
 
 interface Expense {
   id: string;
@@ -34,7 +36,7 @@ const ExpenseManager = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0] });
+  const [form, setForm] = useState({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0], payment_method: "nakit" as PaymentMethod, installments: 1 });
   const { toast } = useToast();
 
   const fetchExpenses = useCallback(async () => {
@@ -45,7 +47,7 @@ const ExpenseManager = () => {
   useEffect(() => { fetchExpenses(); }, [fetchExpenses]);
 
   const resetForm = () => {
-    setForm({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0] });
+    setForm({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0], payment_method: "nakit", installments: 1 });
     setShowForm(false);
     setEditingId(null);
   };
@@ -67,6 +69,8 @@ const ExpenseManager = () => {
       category: form.category,
       notes: form.notes.trim(),
       expense_date: new Date(form.expense_date).toISOString(),
+      payment_method: form.payment_method,
+      installments: form.installments,
     };
 
     if (editingId) {
@@ -88,6 +92,8 @@ const ExpenseManager = () => {
       category: e.category,
       notes: e.notes || "",
       expense_date: new Date(e.expense_date).toISOString().split("T")[0],
+      payment_method: ((e as any).payment_method as PaymentMethod) || "nakit",
+      installments: (e as any).installments || 1,
     });
     setShowForm(true);
   };
@@ -153,6 +159,13 @@ const ExpenseManager = () => {
             </select>
             <Input type="date" value={form.expense_date} onChange={e => setForm({ ...form, expense_date: e.target.value })} />
             <Textarea placeholder="Notlar (isteğe bağlı)" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} />
+            <PaymentMethodSelector
+              method={form.payment_method}
+              installments={form.installments}
+              onChange={(method, installments) => setForm({ ...form, payment_method: method, installments })}
+              fee={parseFloat(form.amount) || 0}
+              paid={0}
+            />
             <Button onClick={handleSave} className="w-full">
               <Save className="h-4 w-4 mr-1" /> {editingId ? "Güncelle" : "Kaydet"}
             </Button>
