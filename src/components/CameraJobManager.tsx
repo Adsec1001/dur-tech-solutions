@@ -283,6 +283,14 @@ const CameraJobManager = () => {
               </Button>
             </div>
 
+            <PaymentMethodSelector
+              method={form.payment_method}
+              installments={form.installments}
+              onChange={(method, installments) => setForm({ ...form, payment_method: method, installments })}
+              fee={parseFloat(form.fee) || 0}
+              paid={parseFloat(form.paid_amount) || 0}
+            />
+
             <Input placeholder="DVR/NVR Modeli" value={form.dvr_model} onChange={e => setForm({ ...form, dvr_model: e.target.value })} maxLength={100} />
             <Textarea placeholder="Notlar (detaylar, hatırlatmalar...)" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={3} />
 
