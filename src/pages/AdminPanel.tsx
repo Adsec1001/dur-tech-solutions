@@ -14,7 +14,8 @@ import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
 import AdminNotifications from "@/components/AdminNotifications";
-import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
+import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -100,6 +101,8 @@ const AdminPanel = () => {
     paidAmount: "",
     promisedPaymentDate: "",
     materialCost: "",
+    paymentMethod: "nakit" as PaymentMethod,
+    installments: 1,
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -215,10 +218,12 @@ const AdminPanel = () => {
       paidAmount: parseFloat(form.paidAmount) || 0,
       promisedPaymentDate: form.promisedPaymentDate || undefined,
       materialCost: parseFloat(form.materialCost) || 0,
+      paymentMethod: form.paymentMethod,
+      installments: form.installments,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1 });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -246,6 +251,8 @@ const AdminPanel = () => {
       paidAmount: job.paidAmount,
       promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
       materialCost: job.materialCost ?? 0,
+      paymentMethod: job.paymentMethod || "nakit",
+      installments: job.installments || 1,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -284,6 +291,8 @@ const AdminPanel = () => {
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
       materialCost: Number((editForm as any).materialCost) || 0,
+      paymentMethod: ((editForm as any).paymentMethod as PaymentMethod) || job.paymentMethod || "nakit",
+      installments: Number((editForm as any).installments) || 1,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
