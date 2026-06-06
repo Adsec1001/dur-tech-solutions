@@ -729,6 +729,13 @@ const AdminPanel = () => {
                 <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                 <Input type="number" placeholder="Bu iş için kullanılan malzemenin maliyeti" value={form.materialCost} onChange={(e) => setForm({ ...form, materialCost: e.target.value })} min={0} />
               </div>
+              <PaymentMethodSelector
+                method={form.paymentMethod}
+                installments={form.installments}
+                onChange={(method, installments) => setForm({ ...form, paymentMethod: method, installments })}
+                fee={parseFloat(form.fee) || 0}
+                paid={parseFloat(form.paidAmount) || 0}
+              />
               <div>
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
@@ -923,6 +930,13 @@ const AdminPanel = () => {
                         <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                         <Input type="number" placeholder="Malzeme maliyeti" value={(editForm as any).materialCost ?? ""} onChange={(e) => setEditForm({ ...editForm, materialCost: parseFloat(e.target.value) || 0 } as any)} min={0} />
                       </div>
+                      <PaymentMethodSelector
+                        method={((editForm as any).paymentMethod as PaymentMethod) || "nakit"}
+                        installments={Number((editForm as any).installments) || 1}
+                        onChange={(method, installments) => setEditForm({ ...editForm, paymentMethod: method, installments } as any)}
+                        fee={Number(editForm.fee) || 0}
+                        paid={Number((editForm as any).paidAmount) || 0}
+                      />
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                         <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />
