@@ -14,7 +14,8 @@ import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
 import AdminNotifications from "@/components/AdminNotifications";
-import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory } from "@/types/serviceJob";
+import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -100,6 +101,8 @@ const AdminPanel = () => {
     paidAmount: "",
     promisedPaymentDate: "",
     materialCost: "",
+    paymentMethod: "nakit" as PaymentMethod,
+    installments: 1,
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -215,10 +218,12 @@ const AdminPanel = () => {
       paidAmount: parseFloat(form.paidAmount) || 0,
       promisedPaymentDate: form.promisedPaymentDate || undefined,
       materialCost: parseFloat(form.materialCost) || 0,
+      paymentMethod: form.paymentMethod,
+      installments: form.installments,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1 });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -246,6 +251,8 @@ const AdminPanel = () => {
       paidAmount: job.paidAmount,
       promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
       materialCost: job.materialCost ?? 0,
+      paymentMethod: job.paymentMethod || "nakit",
+      installments: job.installments || 1,
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -284,6 +291,8 @@ const AdminPanel = () => {
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
       materialCost: Number((editForm as any).materialCost) || 0,
+      paymentMethod: ((editForm as any).paymentMethod as PaymentMethod) || job.paymentMethod || "nakit",
+      installments: Number((editForm as any).installments) || 1,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -720,6 +729,13 @@ const AdminPanel = () => {
                 <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                 <Input type="number" placeholder="Bu iş için kullanılan malzemenin maliyeti" value={form.materialCost} onChange={(e) => setForm({ ...form, materialCost: e.target.value })} min={0} />
               </div>
+              <PaymentMethodSelector
+                method={form.paymentMethod}
+                installments={form.installments}
+                onChange={(method, installments) => setForm({ ...form, paymentMethod: method, installments })}
+                fee={parseFloat(form.fee) || 0}
+                paid={parseFloat(form.paidAmount) || 0}
+              />
               <div>
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
@@ -914,6 +930,13 @@ const AdminPanel = () => {
                         <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                         <Input type="number" placeholder="Malzeme maliyeti" value={(editForm as any).materialCost ?? ""} onChange={(e) => setEditForm({ ...editForm, materialCost: parseFloat(e.target.value) || 0 } as any)} min={0} />
                       </div>
+                      <PaymentMethodSelector
+                        method={((editForm as any).paymentMethod as PaymentMethod) || "nakit"}
+                        installments={Number((editForm as any).installments) || 1}
+                        onChange={(method, installments) => setEditForm({ ...editForm, paymentMethod: method, installments } as any)}
+                        fee={Number(editForm.fee) || 0}
+                        paid={Number((editForm as any).paidAmount) || 0}
+                      />
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                         <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />

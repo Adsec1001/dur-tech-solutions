@@ -26,10 +26,12 @@ export type Database = {
           dvr_model: string | null
           fee: number | null
           id: string
+          installments: number | null
           job_type: string
           material_cost: number | null
           notes: string | null
           paid_amount: number | null
+          payment_method: string | null
           postponed_to: string | null
           promised_payment_date: string | null
           status: string
@@ -45,10 +47,12 @@ export type Database = {
           dvr_model?: string | null
           fee?: number | null
           id?: string
+          installments?: number | null
           job_type?: string
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
+          payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
           status?: string
@@ -64,10 +68,12 @@ export type Database = {
           dvr_model?: string | null
           fee?: number | null
           id?: string
+          installments?: number | null
           job_type?: string
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
+          payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
           status?: string
@@ -82,7 +88,9 @@ export type Database = {
           description: string
           expense_date: string
           id: string
+          installments: number | null
           notes: string | null
+          payment_method: string | null
         }
         Insert: {
           amount?: number
@@ -91,7 +99,9 @@ export type Database = {
           description: string
           expense_date?: string
           id?: string
+          installments?: number | null
           notes?: string | null
+          payment_method?: string | null
         }
         Update: {
           amount?: number
@@ -100,7 +110,9 @@ export type Database = {
           description?: string
           expense_date?: string
           id?: string
+          installments?: number | null
           notes?: string | null
+          payment_method?: string | null
         }
         Relationships: []
       }
@@ -108,7 +120,9 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          installments: number | null
           notes: string | null
+          payment_method: string | null
           product_id: string | null
           product_name: string
           sale_date: string
@@ -117,7 +131,9 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          installments?: number | null
           notes?: string | null
+          payment_method?: string | null
           product_id?: string | null
           product_name: string
           sale_date?: string
@@ -126,7 +142,9 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          installments?: number | null
           notes?: string | null
+          payment_method?: string | null
           product_id?: string | null
           product_name?: string
           sale_date?: string
@@ -196,9 +214,11 @@ export type Database = {
           device_name: string | null
           fee: number | null
           id: string
+          installments: number | null
           material_cost: number | null
           notes: string | null
           paid_amount: number | null
+          payment_method: string | null
           postponed_to: string | null
           promised_payment_date: string | null
           rustdesk_id: string | null
@@ -218,9 +238,11 @@ export type Database = {
           device_name?: string | null
           fee?: number | null
           id?: string
+          installments?: number | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
+          payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
           rustdesk_id?: string | null
@@ -240,9 +262,11 @@ export type Database = {
           device_name?: string | null
           fee?: number | null
           id?: string
+          installments?: number | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
+          payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
           rustdesk_id?: string | null

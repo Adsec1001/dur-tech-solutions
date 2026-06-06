@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import { PaymentMethod } from "@/types/serviceJob";
 
 type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "montaj" | "malzeme_satis" | "diger";
 type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi" | "ertelendi";
@@ -53,6 +55,8 @@ interface CameraJob {
   postponed_to: string | null;
   promised_payment_date: string | null;
   material_cost: number | null;
+  payment_method?: string | null;
+  installments?: number | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -79,6 +83,8 @@ const emptyForm = {
   checklist: Object.keys(DEFAULT_CHECKLIST).reduce((acc, k) => ({ ...acc, [k]: false }), {} as Record<string, boolean>),
   promised_payment_date: "",
   material_cost: "",
+  payment_method: "nakit" as PaymentMethod,
+  installments: 1,
 };
 
 const CameraJobManager = () => {
@@ -144,6 +150,8 @@ const CameraJobManager = () => {
       checklist: form.checklist,
       promised_payment_date: form.promised_payment_date || null,
       material_cost: parseFloat(form.material_cost) || 0,
+      payment_method: form.payment_method,
+      installments: form.installments,
     };
 
     if (editingId) {
@@ -173,6 +181,8 @@ const CameraJobManager = () => {
       checklist: j.checklist || emptyForm.checklist,
       promised_payment_date: j.promised_payment_date ? j.promised_payment_date.slice(0, 10) : "",
       material_cost: j.material_cost?.toString() || "",
+      payment_method: (j.payment_method as PaymentMethod) || "nakit",
+      installments: j.installments || 1,
     });
     setShowForm(true);
     setExpandedId(null);
@@ -272,6 +282,14 @@ const CameraJobManager = () => {
                 ✗ Ödenmedi
               </Button>
             </div>
+
+            <PaymentMethodSelector
+              method={form.payment_method}
+              installments={form.installments}
+              onChange={(method, installments) => setForm({ ...form, payment_method: method, installments })}
+              fee={parseFloat(form.fee) || 0}
+              paid={parseFloat(form.paid_amount) || 0}
+            />
 
             <Input placeholder="DVR/NVR Modeli" value={form.dvr_model} onChange={e => setForm({ ...form, dvr_model: e.target.value })} maxLength={100} />
             <Textarea placeholder="Notlar (detaylar, hatırlatmalar...)" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={3} />

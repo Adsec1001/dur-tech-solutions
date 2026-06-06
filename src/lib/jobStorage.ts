@@ -23,6 +23,8 @@ const rowToJob = (row: any): ServiceJob => ({
   paidAmount: Number(row.paid_amount) || 0,
   promisedPaymentDate: row.promised_payment_date || undefined,
   materialCost: Number(row.material_cost) || 0,
+  paymentMethod: (row.payment_method as any) || "nakit",
+  installments: Number(row.installments) || 1,
 });
 
 // Convert ServiceJob to DB row
@@ -47,6 +49,8 @@ const jobToRow = (job: ServiceJob) => ({
   paid_amount: job.paidAmount || 0,
   promised_payment_date: job.promisedPaymentDate || null,
   material_cost: job.materialCost || 0,
+  payment_method: job.paymentMethod || "nakit",
+  installments: job.installments || 1,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {

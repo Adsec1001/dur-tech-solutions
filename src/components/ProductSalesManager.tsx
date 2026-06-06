@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, ShoppingCart, TrendingUp, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import { PaymentMethod } from "@/types/serviceJob";
 
 interface Product {
   id: string;
@@ -36,6 +38,8 @@ const ProductSalesManager = () => {
     sale_price: "",
     sale_date: new Date().toISOString().slice(0, 10),
     notes: "",
+    payment_method: "nakit" as PaymentMethod,
+    installments: 1,
   });
   const { toast } = useToast();
 
@@ -73,6 +77,8 @@ const ProductSalesManager = () => {
       sale_price: parseFloat(form.sale_price) || 0,
       sale_date: form.sale_date || new Date().toISOString(),
       notes: form.notes.trim() || null,
+      payment_method: form.payment_method,
+      installments: form.installments,
     };
     if (editingId) {
       await (supabase as any).from("product_sales").update(payload).eq("id", editingId);
@@ -82,7 +88,7 @@ const ProductSalesManager = () => {
       toast({ title: "Satış kaydedildi!" });
     }
     setEditingId(null);
-    setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" });
+    setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "", payment_method: "nakit", installments: 1 });
     setShowForm(false);
     await fetchData();
   };
@@ -95,6 +101,8 @@ const ProductSalesManager = () => {
       sale_price: sale.sale_price.toString(),
       sale_date: sale.sale_date.slice(0, 10),
       notes: sale.notes || "",
+      payment_method: ((sale as any).payment_method as PaymentMethod) || "nakit",
+      installments: (sale as any).installments || 1,
     });
     setShowForm(true);
   };
@@ -111,7 +119,7 @@ const ProductSalesManager = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">Ürün Satışları</h2>
-        <Button size="sm" onClick={() => { setShowForm(!showForm); if (showForm) { setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" }); } }} className="gap-1">
+        <Button size="sm" onClick={() => { setShowForm(!showForm); if (showForm) { setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "", payment_method: "nakit", installments: 1 }); } }} className="gap-1">
           <Plus className="h-4 w-4" /> Satış Ekle
         </Button>
       </div>
@@ -171,8 +179,15 @@ const ProductSalesManager = () => {
               </div>
             </div>
             <Textarea placeholder="Notlar" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={300} rows={2} />
+            <PaymentMethodSelector
+              method={form.payment_method}
+              installments={form.installments}
+              onChange={(method, installments) => setForm({ ...form, payment_method: method, installments })}
+              fee={parseFloat(form.sale_price) || 0}
+              paid={0}
+            />
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setShowForm(false); setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "" }); }}>İptal</Button>
+              <Button variant="outline" onClick={() => { setShowForm(false); setEditingId(null); setForm({ product_id: "", product_name: "", sale_price: "", sale_date: new Date().toISOString().slice(0, 10), notes: "", payment_method: "nakit", installments: 1 }); }}>İptal</Button>
               <Button onClick={handleSave}>{editingId ? "Güncelle" : "Kaydet"}</Button>
             </div>
           </CardContent>

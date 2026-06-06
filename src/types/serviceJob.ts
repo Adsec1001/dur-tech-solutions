@@ -2,6 +2,8 @@ export type ServiceType = "remote" | "freelance" | "device";
 
 export type JobStatus = "pending" | "in_progress" | "completed" | "postponed";
 
+export type PaymentMethod = "nakit" | "kart" | "taksit";
+
 export interface JobStep {
   id: string;
   description: string;
@@ -36,4 +38,6 @@ export interface ServiceJob {
   paidAmount: number;
   promisedPaymentDate?: string;
   materialCost?: number;
+  paymentMethod?: PaymentMethod;
+  installments?: number;
 }
