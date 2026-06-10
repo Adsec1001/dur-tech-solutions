@@ -826,6 +826,15 @@ const AdminPanel = () => {
                               💵 Net Kazanç: {fmt(job.fee - (job.materialCost || 0))}
                             </Badge>
                           )}
+                          {job.fee > 0 && (job.paymentMethod === "kart" || job.paymentMethod === "taksit") && (
+                            <Badge className="bg-primary/20 text-primary border-primary/30 text-[11px]">
+                              {job.paymentMethod === "kart" ? "💳 Kart" : `📅 ${job.installments || 1} Taksit`} • KDV Dahil: {fmt(+(job.fee * 1.20).toFixed(2))}
+                              {job.paymentMethod === "taksit" && (job.installments || 1) > 1 && ` • ${fmt(+((job.fee * 1.20) / (job.installments || 1)).toFixed(2))}/ay`}
+                            </Badge>
+                          )}
+                          {job.fee > 0 && job.paymentMethod === "nakit" && (
+                            <Badge className="bg-muted text-muted-foreground border-border text-[11px]">💵 Nakit</Badge>
+                          )}
                         </div>
                       )}
                       <div className="flex items-center gap-2 mt-1">

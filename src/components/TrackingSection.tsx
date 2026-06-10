@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2 } from "lucide-react";
+import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2, Users } from "lucide-react";
 import { ServiceJob, JobStatus } from "@/types/serviceJob";
 import { findByTrackingCode } from "@/lib/jobStorage";
+import { supabase } from "@/integrations/supabase/client";
 
 const STATUS_LABELS: Record<JobStatus, string> = {
   pending: "Bekliyor",
@@ -32,6 +33,7 @@ const TrackingSection = () => {
   const [job, setJob] = useState<ServiceJob | null>(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
   const handleSearch = async () => {
     if (!code.trim()) return;
@@ -39,6 +41,18 @@ const TrackingSection = () => {
     const found = await findByTrackingCode(code.trim());
     setJob(found || null);
     setSearched(true);
+    setQueuePosition(null);
+    if (found && found.status !== "completed") {
+      const [svc, cam] = await Promise.all([
+        supabase.from("service_jobs").select("id", { count: "exact", head: true })
+          .in("status", ["pending", "in_progress", "postponed"])
+          .lt("created_at", found.createdAt),
+        (supabase as any).from("camera_jobs").select("id", { count: "exact", head: true })
+          .in("status", ["bekliyor", "devam_ediyor", "ertelendi"])
+          .lt("created_at", found.createdAt),
+      ]);
+      setQueuePosition((svc.count || 0) + (cam.count || 0));
+    }
     setLoading(false);
   };
 
@@ -110,6 +124,19 @@ const TrackingSection = () => {
                     {job.serviceType === "remote" ? "Uzaktan Destek" : job.serviceType === "freelance" ? "Freelance" : "Cihaz Servisi"}
                   </p>
                 </div>
+
+                {job.status !== "completed" && queuePosition !== null && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                    <Users className="h-5 w-5 text-primary shrink-0" />
+                    <div className="flex-1 text-sm">
+                      {queuePosition === 0 ? (
+                        <span className="text-primary font-semibold">🎯 Sıradaki işlemsiniz! Önünüzde başka iş yok.</span>
+                      ) : (
+                        <span>Önünüzde <strong className="text-primary">{queuePosition}</strong> iş bulunmaktadır.</span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {job.deviceName && (
                   <div className="text-sm">

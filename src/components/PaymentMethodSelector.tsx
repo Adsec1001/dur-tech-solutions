@@ -19,8 +19,11 @@ export const calcKdv = (amount: number) => {
 
 const PaymentMethodSelector = ({ method, installments, onChange, fee = 0, paid = 0 }: Props) => {
   const remaining = Math.max(0, (fee || 0) - (paid || 0));
-  const { kdv, withKdv } = calcKdv(remaining);
+  // For card/installment, KDV is always calculated on the full entered fee (price + 20% VAT on top)
+  const kdvBase = method === "nakit" ? remaining : (fee || 0);
+  const { kdv, withKdv } = calcKdv(kdvBase);
   const perInstallment = method === "taksit" && installments > 0 ? +(withKdv / installments).toFixed(2) : 0;
+  const showBreakdown = (method === "nakit" && remaining > 0) || ((method === "kart" || method === "taksit") && (fee || 0) > 0);
 
   return (
     <div className="space-y-2">
@@ -47,9 +50,9 @@ const PaymentMethodSelector = ({ method, installments, onChange, fee = 0, paid =
           </div>
         )}
       </div>
-      {remaining > 0 && (
+      {showBreakdown && (
         <div className="rounded-lg border border-border/50 bg-muted/30 p-2 text-xs space-y-0.5">
-          <div className="flex justify-between"><span className="text-muted-foreground">Kalan:</span><span className="font-medium text-foreground">{remaining.toLocaleString("tr-TR")}₺</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">{method === "nakit" ? "Kalan:" : "Tutar:"}</span><span className="font-medium text-foreground">{kdvBase.toLocaleString("tr-TR")}₺</span></div>
           <div className="flex justify-between"><span className="text-muted-foreground">KDV (%20):</span><span className="font-medium text-orange-400">{kdv.toLocaleString("tr-TR")}₺</span></div>
           <div className="flex justify-between border-t border-border/40 pt-0.5"><span className="text-muted-foreground">KDV Dahil Toplam:</span><span className="font-bold text-primary">{withKdv.toLocaleString("tr-TR")}₺</span></div>
           {method === "taksit" && perInstallment > 0 && (
