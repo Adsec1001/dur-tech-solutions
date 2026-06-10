@@ -43,15 +43,10 @@ const TrackingSection = () => {
     setSearched(true);
     setQueuePosition(null);
     if (found && found.status !== "completed") {
-      const [svc, cam] = await Promise.all([
-        supabase.from("service_jobs").select("id", { count: "exact", head: true })
-          .in("status", ["pending", "in_progress", "postponed"])
-          .lt("created_at", found.createdAt),
-        (supabase as any).from("camera_jobs").select("id", { count: "exact", head: true })
-          .in("status", ["bekliyor", "devam_ediyor", "ertelendi"])
-          .lt("created_at", found.createdAt),
-      ]);
-      setQueuePosition((svc.count || 0) + (cam.count || 0));
+      const svc = await supabase.from("service_jobs").select("id", { count: "exact", head: true })
+        .in("status", ["pending", "in_progress", "postponed"])
+        .lt("created_at", found.createdAt);
+      setQueuePosition(svc.count || 0);
     }
     setLoading(false);
   };
