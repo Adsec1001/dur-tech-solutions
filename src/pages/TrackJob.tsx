@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2, ArrowLef
 import { ServiceJob, JobStatus } from "@/types/serviceJob";
 import { findByTrackingCode } from "@/lib/jobStorage";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const STATUS_LABELS: Record<JobStatus, string> = {
   pending: "Bekliyor",
@@ -30,16 +30,18 @@ const STATUS_COLORS: Record<JobStatus, string> = {
 };
 
 const TrackJob = () => {
+  const [searchParams] = useSearchParams();
   const [code, setCode] = useState("");
   const [job, setJob] = useState<ServiceJob | null>(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
-  const handleSearch = async () => {
-    if (!code.trim()) return;
+  const handleSearch = async (override?: string) => {
+    const q = (override ?? code).trim();
+    if (!q) return;
     setLoading(true);
-    const found = await findByTrackingCode(code.trim());
+    const found = await findByTrackingCode(q);
     setJob(found || null);
     setSearched(true);
     setQueuePosition(null);
@@ -57,6 +59,18 @@ const TrackJob = () => {
     }
     setLoading(false);
   };
+
+  const autoRan = useRef(false);
+  useEffect(() => {
+    if (autoRan.current) return;
+    const k = (searchParams.get("kod") || searchParams.get("code") || "").trim().toUpperCase();
+    if (k) {
+      autoRan.current = true;
+      setCode(k);
+      handleSearch(k);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const completedSteps = job ? job.steps.filter((s) => s.completed).length : 0;
   const totalSteps = job ? job.steps.length : 0;
@@ -78,7 +92,7 @@ const TrackJob = () => {
             maxLength={10}
             className="font-mono text-center tracking-wider"
           />
-          <Button onClick={handleSearch} disabled={loading}><Search className="h-4 w-4" /></Button>
+          <Button onClick={() => handleSearch()} disabled={loading}><Search className="h-4 w-4" /></Button>
         </div>
 
         {searched && !job && !loading && (

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -845,6 +845,15 @@ const AdminPanel = () => {
                             e.stopPropagation();
                             navigator.clipboard.writeText(job.trackingCode);
                             toast({ title: "Takip kodu kopyalandı!" });
+                          }}
+                        />
+                        <Link2
+                          className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const url = `${window.location.origin}/takip?kod=${encodeURIComponent(job.trackingCode)}`;
+                            navigator.clipboard.writeText(url);
+                            toast({ title: "Takip bağlantısı kopyalandı!", description: "Müşteriye iletebilirsiniz." });
                           }}
                         />
                       </div>
