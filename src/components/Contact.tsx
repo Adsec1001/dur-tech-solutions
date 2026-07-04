@@ -113,7 +113,7 @@ const Contact = () => {
                       Duyuru Kanalı
                     </a>
                     <a
-                      href="https://whatsapp.com/channel/0029Vb7z2u11CYoYe8LSqc2F"
+                      href="https://whatsapp.com/channel/0029Vb7VeJC5Ejxzch96hz30"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-primary text-primary font-medium text-sm hover:bg-primary/10 transition-colors shadow-neon-sm hover:shadow-neon"
