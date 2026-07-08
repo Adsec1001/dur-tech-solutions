@@ -116,6 +116,86 @@ export type Database = {
         }
         Relationships: []
       }
+      material_movements: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          movement_type: string
+          notes: string | null
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          movement_type: string
+          notes?: string | null
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          movement_type?: string
+          notes?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_movements_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials: {
+        Row: {
+          category: string | null
+          created_at: string
+          current_stock: number
+          id: string
+          location: string | null
+          min_stock: number
+          name: string
+          notes: string | null
+          supplier: string | null
+          unit: string
+          unit_cost: number | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          location?: string | null
+          min_stock?: number
+          name: string
+          notes?: string | null
+          supplier?: string | null
+          unit?: string
+          unit_cost?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          location?: string | null
+          min_stock?: number
+          name?: string
+          notes?: string | null
+          supplier?: string | null
+          unit?: string
+          unit_cost?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_sales: {
         Row: {
           created_at: string
@@ -276,6 +356,62 @@ export type Database = {
           tracking_code?: string
         }
         Relationships: []
+      }
+      shopping_list: {
+        Row: {
+          created_at: string
+          estimated_cost: number | null
+          id: string
+          is_purchased: boolean
+          item_name: string
+          material_id: string | null
+          notes: string | null
+          priority: string
+          purchased_at: string | null
+          quantity: number
+          supplier: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          is_purchased?: boolean
+          item_name: string
+          material_id?: string | null
+          notes?: string | null
+          priority?: string
+          purchased_at?: string | null
+          quantity?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          is_purchased?: boolean
+          item_name?: string
+          material_id?: string | null
+          notes?: string | null
+          priority?: string
+          purchased_at?: string | null
+          quantity?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_list_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

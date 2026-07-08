@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
+import MaterialsManager from "@/components/MaterialsManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
@@ -74,7 +75,7 @@ const AdminPanel = () => {
   const [editStepText, setEditStepText] = useState("");
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "expenses">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "materials" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
@@ -480,6 +481,16 @@ const AdminPanel = () => {
             <Package className="h-4 w-4" /> Ürünler
           </button>
           <button
+            onClick={() => setActiveTab("materials")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "materials"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Boxes className="h-4 w-4" /> Malzeme Takibi
+          </button>
+          <button
             onClick={() => setActiveTab("expenses")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               activeTab === "expenses"
@@ -498,6 +509,7 @@ const AdminPanel = () => {
           </div>
         )}
         {activeTab === "camera" && <CameraJobManager />}
+        {activeTab === "materials" && <MaterialsManager />}
         {activeTab === "expenses" && <ExpenseManager />}
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
