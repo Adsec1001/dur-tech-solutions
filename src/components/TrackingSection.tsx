@@ -169,7 +169,7 @@ const TrackingSection = () => {
                           }`}>
                             {step.completed ? <Check className="h-3 w-3" /> : <span className="text-[10px]">{i + 1}</span>}
                           </div>
-                          <span className={`text-sm ${step.completed ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                          <span className={`text-sm ${step.completed ? "text-muted-foreground" : "text-foreground"}`}>
                             {step.description}
                           </span>
                         </div>
