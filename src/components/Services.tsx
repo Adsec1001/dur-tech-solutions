@@ -146,13 +146,13 @@ const Services = () => {
             </p>
             <h4 className="text-base font-medium text-foreground mb-3">İletişime Geçebileceğiniz Platformlar</h4>
             <div className="flex items-center justify-center gap-6">
-              <a href="https://www.fiverr.com/adsec_" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-                <img src={fiverrLogo} alt="Fiverr" className="h-7 w-7 rounded-full" />
-                <span className="text-sm font-medium">Fiverr</span>
-              </a>
               <a href="https://bionluk.com/adsec" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
                 <img src={bionlukLogo} alt="Bionluk" className="h-7 w-7 rounded-full" />
                 <span className="text-sm font-medium">Bionluk</span>
+              </a>
+              <a href="https://www.fiverr.com/adsec_" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                <img src={fiverrLogo} alt="Fiverr" className="h-7 w-7 rounded-full" />
+                <span className="text-sm font-medium">Fiverr</span>
               </a>
             </div>
           </div>
