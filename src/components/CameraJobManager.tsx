@@ -417,11 +417,29 @@ const CameraJobManager = () => {
       })()}
 
       {/* Filters */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">Ay:</span>
+        <button
+          onClick={() => setMonthFilter("all")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${monthFilter === "all" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+        >
+          Tüm Aylar
+        </button>
+        {availableMonths.map((mk) => (
+          <button
+            key={mk}
+            onClick={() => setMonthFilter(mk)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${monthFilter === mk ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+          >
+            {formatMonth(mk)}
+          </button>
+        ))}
+      </div>
       <div className="flex gap-2 flex-wrap">
         {(["all", "bekliyor", "devam_ediyor", "tamamlandi", "ertelendi"] as const).map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${filter === s ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}>
-            {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? jobs.length : jobs.filter(j => j.status === s).length})
+            {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? monthFiltered.length : monthFiltered.filter(j => j.status === s).length})
           </button>
         ))}
       </div>
