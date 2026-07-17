@@ -76,6 +76,7 @@ const AdminPanel = () => {
   const [editStepText, setEditStepText] = useState("");
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
+  const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "materials" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
@@ -403,7 +404,26 @@ const AdminPanel = () => {
     toast({ title: "İş silindi" });
   };
 
-  const filtered = filter === "all" ? jobs : jobs.filter((j) => j.status === filter);
+  const monthFiltered = monthFilter === "all"
+    ? jobs
+    : jobs.filter((j) => {
+        if (!j.createdAt) return false;
+        const d = new Date(j.createdAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return key === monthFilter;
+      });
+  const filtered = filter === "all" ? monthFiltered : monthFiltered.filter((j) => j.status === filter);
+
+  // Available months from jobs (desc)
+  const availableMonths = Array.from(new Set(jobs.map(j => {
+    const d = new Date(j.createdAt);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }))).sort().reverse();
+  const MONTH_NAMES = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  const formatMonth = (key: string) => {
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+  };
 
   if (!authenticated) {
     return (
@@ -770,6 +790,28 @@ const AdminPanel = () => {
         )}
 
         {/* Filters */}
+        <div className="flex items-center gap-2 flex-wrap mb-2">
+          <span className="text-xs text-muted-foreground">Ay:</span>
+          <button
+            onClick={() => setMonthFilter("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              monthFilter === "all" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            Tüm Aylar
+          </button>
+          {availableMonths.map((mk) => (
+            <button
+              key={mk}
+              onClick={() => setMonthFilter(mk)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                monthFilter === mk ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {formatMonth(mk)}
+            </button>
+          ))}
+        </div>
         <div className="flex gap-2 flex-wrap mb-4">
           {(["all", "pending", "in_progress", "completed", "postponed"] as const).map((s) => (
             <button
@@ -779,7 +821,7 @@ const AdminPanel = () => {
                 filter === s ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"
               }`}
             >
-              {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? jobs.length : jobs.filter((j) => j.status === s).length})
+              {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? monthFiltered.length : monthFiltered.filter((j) => j.status === s).length})
             </button>
           ))}
         </div>

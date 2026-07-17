@@ -94,6 +94,7 @@ const CameraJobManager = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [filter, setFilter] = useState<CameraJobStatus | "all">("all");
+  const [monthFilter, setMonthFilter] = useState<string>("all");
   const { toast } = useToast();
 
   const fetchJobs = useCallback(async () => {
@@ -219,7 +220,24 @@ const CameraJobManager = () => {
     await fetchJobs();
   };
 
-  const filtered = filter === "all" ? jobs : jobs.filter(j => j.status === filter);
+  const monthFiltered = monthFilter === "all"
+    ? jobs
+    : jobs.filter(j => {
+        if (!j.created_at) return false;
+        const d = new Date(j.created_at);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return key === monthFilter;
+      });
+  const filtered = filter === "all" ? monthFiltered : monthFiltered.filter(j => j.status === filter);
+  const availableMonths = Array.from(new Set(jobs.map(j => {
+    const d = new Date(j.created_at);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }))).sort().reverse();
+  const MONTH_NAMES = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  const formatMonth = (key: string) => {
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+  };
 
   return (
     <div className="space-y-4">
@@ -399,11 +417,29 @@ const CameraJobManager = () => {
       })()}
 
       {/* Filters */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">Ay:</span>
+        <button
+          onClick={() => setMonthFilter("all")}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${monthFilter === "all" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+        >
+          Tüm Aylar
+        </button>
+        {availableMonths.map((mk) => (
+          <button
+            key={mk}
+            onClick={() => setMonthFilter(mk)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${monthFilter === mk ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+          >
+            {formatMonth(mk)}
+          </button>
+        ))}
+      </div>
       <div className="flex gap-2 flex-wrap">
         {(["all", "bekliyor", "devam_ediyor", "tamamlandi", "ertelendi"] as const).map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${filter === s ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}>
-            {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? jobs.length : jobs.filter(j => j.status === s).length})
+            {s === "all" ? "Tümü" : STATUS_LABELS[s]} ({s === "all" ? monthFiltered.length : monthFiltered.filter(j => j.status === s).length})
           </button>
         ))}
       </div>
