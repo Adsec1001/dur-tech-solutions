@@ -13,6 +13,7 @@ import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
 import ExpenseManager from "@/components/ExpenseManager";
+import MonthlyProfitPanel from "@/components/MonthlyProfitPanel";
 import MaterialsManager from "@/components/MaterialsManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
@@ -499,6 +500,7 @@ const AdminPanel = () => {
             }`}
           >
             <Receipt className="h-4 w-4" /> Giderler
+            <span className="ml-1 text-[10px] opacity-70">/ Kâr</span>
           </button>
         </div>
 
@@ -510,7 +512,12 @@ const AdminPanel = () => {
         )}
         {activeTab === "camera" && <CameraJobManager />}
         {activeTab === "materials" && <MaterialsManager />}
-        {activeTab === "expenses" && <ExpenseManager />}
+        {activeTab === "expenses" && (
+          <div className="space-y-6">
+            <MonthlyProfitPanel />
+            <ExpenseManager />
+          </div>
+        )}
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
