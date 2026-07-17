@@ -76,6 +76,7 @@ const AdminPanel = () => {
   const [editStepText, setEditStepText] = useState("");
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
+  const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "materials" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
@@ -403,7 +404,26 @@ const AdminPanel = () => {
     toast({ title: "İş silindi" });
   };
 
-  const filtered = filter === "all" ? jobs : jobs.filter((j) => j.status === filter);
+  const monthFiltered = monthFilter === "all"
+    ? jobs
+    : jobs.filter((j) => {
+        if (!j.createdAt) return false;
+        const d = new Date(j.createdAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return key === monthFilter;
+      });
+  const filtered = filter === "all" ? monthFiltered : monthFiltered.filter((j) => j.status === filter);
+
+  // Available months from jobs (desc)
+  const availableMonths = Array.from(new Set(jobs.map(j => {
+    const d = new Date(j.createdAt);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }))).sort().reverse();
+  const MONTH_NAMES = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  const formatMonth = (key: string) => {
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
+  };
 
   if (!authenticated) {
     return (
