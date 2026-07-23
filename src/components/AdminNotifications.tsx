@@ -8,7 +8,7 @@ import { getJobs } from "@/lib/jobStorage";
 
 interface Notification {
   id: string;
-  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera";
+  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera" | "scheduled_service" | "scheduled_camera";
   category: "service" | "camera";
   title: string;
   description: string;
@@ -37,6 +37,29 @@ const AdminNotifications = () => {
         title: `Ertelenen Servis: ${j.customerName} ${j.customerSurname}`,
         description: `Teknik servis işi yarına ertelenmiş durumda.`,
         icon: "wrench", jobId: j.id,
+      });
+    });
+
+    // Scheduled service jobs (future or today) — not completed
+    serviceJobs.filter(j => j.scheduledAt && j.status !== "completed").forEach(j => {
+      const d = new Date(j.scheduledAt!);
+      const isToday = d.toDateString() === now.toDateString();
+      const isOverdue = d < now && !isToday;
+      const soon = d <= threeDaysLater;
+      const dateStr = d.toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
+      notifs.push({
+        id: `svc-scheduled-${j.id}`,
+        type: "scheduled_service",
+        category: "service",
+        title: isToday
+          ? `📌 Bugün Yapılacak: ${j.customerName} ${j.customerSurname}`
+          : isOverdue
+            ? `⚠️ Gecikmiş İş: ${j.customerName} ${j.customerSurname}`
+            : soon
+              ? `🗓️ Yaklaşan İş: ${j.customerName} ${j.customerSurname}`
+              : `🗓️ Planlı İş: ${j.customerName} ${j.customerSurname}`,
+        description: `Planlanan: ${dateStr}`,
+        icon: "calendar", jobId: j.id,
       });
     });
 
@@ -84,6 +107,28 @@ const AdminNotifications = () => {
           title: `Ertelenen Kamera İşi: ${j.customer_name}`,
           description: `Kamera işi yarına ertelenmiş durumda.`,
           icon: "cctv", jobId: j.id,
+        });
+      });
+
+      cameraJobs.filter((j: any) => j.scheduled_at && j.status !== "tamamlandi").forEach((j: any) => {
+        const d = new Date(j.scheduled_at);
+        const isToday = d.toDateString() === now.toDateString();
+        const isOverdue = d < now && !isToday;
+        const soon = d <= threeDaysLater;
+        const dateStr = d.toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
+        notifs.push({
+          id: `cam-scheduled-${j.id}`,
+          type: "scheduled_camera",
+          category: "camera",
+          title: isToday
+            ? `📌 Bugün Yapılacak: ${j.customer_name}`
+            : isOverdue
+              ? `⚠️ Gecikmiş İş: ${j.customer_name}`
+              : soon
+                ? `🗓️ Yaklaşan İş: ${j.customer_name}`
+                : `🗓️ Planlı İş: ${j.customer_name}`,
+          description: `Planlanan: ${dateStr}`,
+          icon: "calendar", jobId: j.id,
         });
       });
 
@@ -146,8 +191,9 @@ const AdminNotifications = () => {
   // Postponed first, then payment due, then rest
   const priorityOrder = (n: Notification) => {
     if (n.type.startsWith("postponed")) return 0;
-    if (n.type.startsWith("payment_due")) return 1;
-    return 2;
+    if (n.type.startsWith("scheduled")) return 1;
+    if (n.type.startsWith("payment_due")) return 2;
+    return 3;
   };
   const sortedNotifs = [...activeNotifs].sort((a, b) => priorityOrder(a) - priorityOrder(b));
   const serviceNotifs = sortedNotifs.filter(n => n.category === "service");
@@ -164,6 +210,8 @@ const AdminNotifications = () => {
     unpaid_camera: "text-red-400",
     payment_due_service: "text-blue-400",
     payment_due_camera: "text-blue-400",
+    scheduled_service: "text-purple-400",
+    scheduled_camera: "text-purple-400",
   };
 
   const renderNotifList = (notifs: Notification[]) => (
