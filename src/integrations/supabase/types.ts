@@ -34,6 +34,7 @@ export type Database = {
           payment_method: string | null
           postponed_to: string | null
           promised_payment_date: string | null
+          scheduled_at: string | null
           status: string
         }
         Insert: {
@@ -55,6 +56,7 @@ export type Database = {
           payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
+          scheduled_at?: string | null
           status?: string
         }
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
+          scheduled_at?: string | null
           status?: string
         }
         Relationships: []
@@ -302,6 +305,7 @@ export type Database = {
           postponed_to: string | null
           promised_payment_date: string | null
           rustdesk_id: string | null
+          scheduled_at: string | null
           service_type: string
           status: string
           steps: Json | null
@@ -326,6 +330,7 @@ export type Database = {
           postponed_to?: string | null
           promised_payment_date?: string | null
           rustdesk_id?: string | null
+          scheduled_at?: string | null
           service_type?: string
           status?: string
           steps?: Json | null
@@ -350,6 +355,7 @@ export type Database = {
           postponed_to?: string | null
           promised_payment_date?: string | null
           rustdesk_id?: string | null
+          scheduled_at?: string | null
           service_type?: string
           status?: string
           steps?: Json | null

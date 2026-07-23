@@ -57,6 +57,7 @@ interface CameraJob {
   material_cost: number | null;
   payment_method?: string | null;
   installments?: number | null;
+  scheduled_at?: string | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -85,6 +86,7 @@ const emptyForm = {
   material_cost: "",
   payment_method: "nakit" as PaymentMethod,
   installments: 1,
+  scheduled_at: "",
 };
 
 const CameraJobManager = () => {
@@ -153,6 +155,7 @@ const CameraJobManager = () => {
       material_cost: parseFloat(form.material_cost) || 0,
       payment_method: form.payment_method,
       installments: form.installments,
+      scheduled_at: form.scheduled_at ? new Date(form.scheduled_at).toISOString() : null,
     };
 
     if (editingId) {
@@ -184,6 +187,7 @@ const CameraJobManager = () => {
       material_cost: j.material_cost?.toString() || "",
       payment_method: (j.payment_method as PaymentMethod) || "nakit",
       installments: j.installments || 1,
+      scheduled_at: j.scheduled_at ? j.scheduled_at.slice(0, 16) : "",
     });
     setShowForm(true);
     setExpandedId(null);
@@ -290,6 +294,10 @@ const CameraJobManager = () => {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">🧰 Malzeme Gideri (₺)</p>
                 <Input type="number" placeholder="Malzeme maliyeti" value={form.material_cost} onChange={e => setForm({ ...form, material_cost: e.target.value })} min={0} />
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
+                <Input type="datetime-local" value={form.scheduled_at} onChange={e => setForm({ ...form, scheduled_at: e.target.value })} />
               </div>
             </div>
             <div className="flex gap-2">
@@ -490,6 +498,13 @@ const CameraJobManager = () => {
                       <div className="mt-1">
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
                           📅 Söz verilen ödeme: {new Date(job.promised_payment_date).toLocaleDateString("tr-TR")}
+                        </Badge>
+                      </div>
+                    )}
+                    {job.scheduled_at && (
+                      <div className="mt-1">
+                        <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[11px]">
+                          🗓️ Yapılacak: {new Date(job.scheduled_at).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}
                         </Badge>
                       </div>
                     )}
