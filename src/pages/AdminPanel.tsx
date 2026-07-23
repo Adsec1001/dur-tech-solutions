@@ -106,6 +106,7 @@ const AdminPanel = () => {
     materialCost: "",
     paymentMethod: "nakit" as PaymentMethod,
     installments: 1,
+    scheduledAt: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -223,10 +224,11 @@ const AdminPanel = () => {
       materialCost: parseFloat(form.materialCost) || 0,
       paymentMethod: form.paymentMethod,
       installments: form.installments,
+      scheduledAt: form.scheduledAt || undefined,
     };
     await addJob(job);
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1 });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1, scheduledAt: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -256,6 +258,7 @@ const AdminPanel = () => {
       materialCost: job.materialCost ?? 0,
       paymentMethod: job.paymentMethod || "nakit",
       installments: job.installments || 1,
+      scheduledAt: job.scheduledAt ? job.scheduledAt.slice(0, 16) : "",
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -296,6 +299,7 @@ const AdminPanel = () => {
       materialCost: Number((editForm as any).materialCost) || 0,
       paymentMethod: ((editForm as any).paymentMethod as PaymentMethod) || job.paymentMethod || "nakit",
       installments: Number((editForm as any).installments) || 1,
+      scheduledAt: (editForm as any).scheduledAt ? new Date((editForm as any).scheduledAt).toISOString() : undefined,
     };
     if (editForm.status === "postponed" && job.status !== "postponed") {
       const tomorrow = new Date();
@@ -779,6 +783,10 @@ const AdminPanel = () => {
                 <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                 <Input type="date" value={form.promisedPaymentDate} onChange={(e) => setForm({ ...form, promisedPaymentDate: e.target.value })} />
               </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
+                <Input type="datetime-local" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} />
+              </div>
               <Textarea placeholder="Notlar (opsiyonel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
 
               <div className="flex gap-2 justify-end">
@@ -872,6 +880,13 @@ const AdminPanel = () => {
                         <div className="mt-1">
                           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">
                             📅 Söz verilen ödeme: {new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR")}
+                          </Badge>
+                        </div>
+                      )}
+                      {job.scheduledAt && (
+                        <div className="mt-1">
+                          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[11px]">
+                            🗓️ Yapılacak: {new Date(job.scheduledAt).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}
                           </Badge>
                         </div>
                       )}
@@ -1019,6 +1034,10 @@ const AdminPanel = () => {
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                         <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
+                        <Input type="datetime-local" value={(editForm as any).scheduledAt || ""} onChange={(e) => setEditForm({ ...editForm, scheduledAt: e.target.value } as any)} />
                       </div>
                       <Textarea placeholder="Notlar" value={editForm.notes || ""} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} maxLength={500} rows={2} />
 
