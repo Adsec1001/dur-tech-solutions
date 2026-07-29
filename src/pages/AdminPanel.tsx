@@ -78,7 +78,7 @@ const AdminPanel = () => {
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "materials" | "expenses">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
