@@ -507,6 +507,16 @@ const AdminPanel = () => {
             <Package className="h-4 w-4" /> Ürünler
           </button>
           <button
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "security"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4" /> Güvenlik Fiyat Listesi
+          </button>
+          <button
             onClick={() => setActiveTab("materials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               activeTab === "materials"
@@ -536,6 +546,7 @@ const AdminPanel = () => {
           </div>
         )}
         {activeTab === "camera" && <CameraJobManager />}
+        {activeTab === "security" && <SecurityProductsManager />}
         {activeTab === "materials" && <MaterialsManager />}
         {activeTab === "expenses" && (
           <div className="space-y-6">
