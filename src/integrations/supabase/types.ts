@@ -285,6 +285,63 @@ export type Database = {
         }
         Relationships: []
       }
+      security_products: {
+        Row: {
+          brand: string | null
+          category: string
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          model: string | null
+          name: string
+          notes: string | null
+          price: number
+          sort_order: number
+          specs: string | null
+          stock: number
+          supplier: string | null
+          updated_at: string
+          variation: string | null
+        }
+        Insert: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          name: string
+          notes?: string | null
+          price?: number
+          sort_order?: number
+          specs?: string | null
+          stock?: number
+          supplier?: string | null
+          updated_at?: string
+          variation?: string | null
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          name?: string
+          notes?: string | null
+          price?: number
+          sort_order?: number
+          specs?: string | null
+          stock?: number
+          supplier?: string | null
+          updated_at?: string
+          variation?: string | null
+        }
+        Relationships: []
+      }
       service_jobs: {
         Row: {
           accessories: Json | null
