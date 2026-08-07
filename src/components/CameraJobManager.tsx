@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
+import { AlarmClock } from "lucide-react";
+import { formatSchedule, downloadAlarm } from "@/lib/scheduleUtils";
 
 type CameraJobType = "ariza" | "kamera_ekleme" | "sifir_kurulum" | "bakim" | "montaj" | "malzeme_satis" | "diger";
 type CameraJobStatus = "bekliyor" | "devam_ediyor" | "tamamlandi" | "ertelendi";
@@ -502,9 +504,31 @@ const CameraJobManager = () => {
                       </div>
                     )}
                     {job.scheduled_at && (
-                      <div className="mt-1">
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
                         <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[11px]">
-                          🗓️ Yapılacak: {new Date(job.scheduled_at).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}
+                          🗓️ Yapılacak: {formatSchedule(job.scheduled_at)}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-[11px] gap-1"
+                          onClick={e => {
+                            e.stopPropagation();
+                            downloadAlarm(
+                              job.scheduled_at!,
+                              `Kamera İşi: ${job.customer_name}`,
+                              `${job.address || ""} ${job.notes || ""}`.trim(),
+                            );
+                          }}
+                        >
+                          <AlarmClock className="h-3 w-3" /> Alarm kur
+                        </Button>
+                      </div>
+                    )}
+                    {job.status === "ertelendi" && job.postponed_to && (
+                      <div className="mt-1">
+                        <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                          ⏰ Ertelendi: {formatSchedule(job.postponed_to)}
                         </Badge>
                       </div>
                     )}
