@@ -5,6 +5,7 @@ import { Bell, Cctv, CalendarClock, Wrench, X, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getJobs } from "@/lib/jobStorage";
+import { formatSchedule } from "@/lib/scheduleUtils";
 
 interface Notification {
   id: string;
@@ -46,7 +47,7 @@ const AdminNotifications = () => {
       const isToday = d.toDateString() === now.toDateString();
       const isOverdue = d < now && !isToday;
       const soon = d <= threeDaysLater;
-      const dateStr = d.toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
+        const dateStr = formatSchedule(j.scheduledAt!);
       notifs.push({
         id: `svc-scheduled-${j.id}`,
         type: "scheduled_service",
@@ -115,7 +116,7 @@ const AdminNotifications = () => {
         const isToday = d.toDateString() === now.toDateString();
         const isOverdue = d < now && !isToday;
         const soon = d <= threeDaysLater;
-        const dateStr = d.toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
+        const dateStr = formatSchedule(j.scheduled_at);
         notifs.push({
           id: `cam-scheduled-${j.id}`,
           type: "scheduled_camera",
