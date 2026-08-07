@@ -896,9 +896,31 @@ const AdminPanel = () => {
                         </div>
                       )}
                       {job.scheduledAt && (
-                        <div className="mt-1">
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
                           <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[11px]">
-                            🗓️ Yapılacak: {new Date(job.scheduledAt).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}
+                            🗓️ Yapılacak: {formatSchedule(job.scheduledAt)}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 px-2 text-[11px] gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadAlarm(
+                                job.scheduledAt!,
+                                `İş: ${job.customerName} ${job.customerSurname}`,
+                                `${job.deviceName || ""} ${job.notes || ""}`.trim(),
+                              );
+                            }}
+                          >
+                            <AlarmClock className="h-3 w-3" /> Alarm kur
+                          </Button>
+                        </div>
+                      )}
+                      {job.status === "postponed" && job.postponedTo && (
+                        <div className="mt-1">
+                          <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[11px]">
+                            ⏰ Ertelendi: {formatSchedule(job.postponedTo)}
                           </Badge>
                         </div>
                       )}
