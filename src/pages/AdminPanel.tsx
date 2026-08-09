@@ -885,10 +885,20 @@ const AdminPanel = () => {
             const isExpanded = expandedJob === job.id;
             const isEditing = editingJob === job.id;
             return (
-              <Card id={`job-${job.id}`} key={job.id} className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""}`}>
+              <Card
+                id={`job-${job.id}`}
+                key={job.id}
+                draggable={!isEditing}
+                onDragStart={() => setDragJobId(job.id)}
+                onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
+                onDragOver={(e) => { e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
+                onDrop={(e) => { e.preventDefault(); handleJobDrop(job.id); }}
+                className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""} ${dragJobId === job.id ? "opacity-50" : ""} ${dragOverJobId === job.id && dragJobId && dragJobId !== job.id ? "ring-2 ring-primary" : ""}`}
+              >
                 <CardContent className="p-4">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
+                    <GripVertical className="h-4 w-4 mt-1 shrink-0 text-muted-foreground/60 cursor-grab active:cursor-grabbing" title="Sıralamak için sürükleyin" />
                     <div className="flex-1 min-w-0" onClick={() => { if (!isEditing) setExpandedJob(isExpanded ? null : job.id); }} style={{ cursor: isEditing ? "default" : "pointer" }}>
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-foreground">{job.customerName} {job.customerSurname}</span>
