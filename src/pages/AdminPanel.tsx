@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -113,6 +113,8 @@ const AdminPanel = () => {
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
+  const [dragJobId, setDragJobId] = useState<string | null>(null);
+  const [dragOverJobId, setDragOverJobId] = useState<string | null>(null);
 
   const refreshJobs = useCallback(async () => {
     const data = await getJobs();
