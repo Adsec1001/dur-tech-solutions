@@ -35,7 +35,9 @@ export type Database = {
           postponed_to: string | null
           promised_payment_date: string | null
           scheduled_at: string | null
+          sort_order: number
           status: string
+          steps: Json
         }
         Insert: {
           address?: string | null
@@ -57,7 +59,9 @@ export type Database = {
           postponed_to?: string | null
           promised_payment_date?: string | null
           scheduled_at?: string | null
+          sort_order?: number
           status?: string
+          steps?: Json
         }
         Update: {
           address?: string | null
@@ -79,7 +83,9 @@ export type Database = {
           postponed_to?: string | null
           promised_payment_date?: string | null
           scheduled_at?: string | null
+          sort_order?: number
           status?: string
+          steps?: Json
         }
         Relationships: []
       }
@@ -364,6 +370,7 @@ export type Database = {
           rustdesk_id: string | null
           scheduled_at: string | null
           service_type: string
+          sort_order: number
           status: string
           steps: Json | null
           tracking_code: string
@@ -389,6 +396,7 @@ export type Database = {
           rustdesk_id?: string | null
           scheduled_at?: string | null
           service_type?: string
+          sort_order?: number
           status?: string
           steps?: Json | null
           tracking_code: string
@@ -414,6 +422,7 @@ export type Database = {
           rustdesk_id?: string | null
           scheduled_at?: string | null
           service_type?: string
+          sort_order?: number
           status?: string
           steps?: Json | null
           tracking_code?: string
