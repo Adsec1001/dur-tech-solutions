@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign, GripVertical, ArrowRight } from "lucide-react";
+import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign, GripVertical, ArrowRight, Clipboard, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod, JobStep } from "@/types/serviceJob";
+import { generateTrackingCode } from "@/lib/jobStorage";
 import { AlarmClock } from "lucide-react";
 import { formatSchedule, downloadAlarm } from "@/lib/scheduleUtils";
 
@@ -50,6 +51,7 @@ interface CameraJob {
   notes: string | null;
   checklist: Record<string, boolean>;
   steps?: JobStep[];
+  tracking_code?: string | null;
   sort_order?: number;
   status: CameraJobStatus;
   fee: number | null;
@@ -172,7 +174,7 @@ const CameraJobManager = () => {
       await (supabase as any).from("camera_jobs").update(payload).eq("id", editingId);
       toast({ title: "İş güncellendi!" });
     } else {
-      await (supabase as any).from("camera_jobs").insert(payload);
+      await (supabase as any).from("camera_jobs").insert({ ...payload, tracking_code: generateTrackingCode(), steps: [] });
       toast({ title: "Kamera işi eklendi!" });
     }
     resetForm();
@@ -200,7 +202,7 @@ const CameraJobManager = () => {
       scheduled_at: j.scheduled_at ? j.scheduled_at.slice(0, 16) : "",
     });
     setShowForm(true);
-    setExpandedId(null);
+    setExpandedId(j.id);
   };
 
   const toggleChecklist = async (job: CameraJob, key: string) => {
