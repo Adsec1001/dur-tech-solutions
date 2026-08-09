@@ -898,7 +898,9 @@ const AdminPanel = () => {
                 <CardContent className="p-4">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
-                    <GripVertical className="h-4 w-4 mt-1 shrink-0 text-muted-foreground/60 cursor-grab active:cursor-grabbing" title="Sıralamak için sürükleyin" />
+                    <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing">
+                      <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                    </span>
                     <div className="flex-1 min-w-0" onClick={() => { if (!isEditing) setExpandedJob(isExpanded ? null : job.id); }} style={{ cursor: isEditing ? "default" : "pointer" }}>
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-foreground">{job.customerName} {job.customerSurname}</span>
