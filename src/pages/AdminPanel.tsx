@@ -413,6 +413,32 @@ const AdminPanel = () => {
     toast({ title: "İş silindi" });
   };
 
+  // ---- Drag & drop ordering (persisted) ----
+  const persistOrder = async (ordered: ServiceJob[]) => {
+    const withOrder = ordered.map((j, i) => ({ ...j, sortOrder: i }));
+    setJobs(withOrder);
+    await Promise.all(
+      withOrder.map((j) =>
+        (supabase as any).from("service_jobs").update({ sort_order: j.sortOrder }).eq("id", j.id)
+      )
+    );
+  };
+
+  const handleJobDrop = async (targetId: string) => {
+    const sourceId = dragJobId;
+    setDragJobId(null);
+    setDragOverJobId(null);
+    if (!sourceId || sourceId === targetId) return;
+    const ordered = [...jobs];
+    const from = ordered.findIndex((j) => j.id === sourceId);
+    const to = ordered.findIndex((j) => j.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ordered.splice(from, 1);
+    ordered.splice(to, 0, moved);
+    await persistOrder(ordered);
+    toast({ title: "Sıralama kaydedildi" });
+  };
+
   const monthFiltered = monthFilter === "all"
     ? jobs
     : jobs.filter((j) => {
