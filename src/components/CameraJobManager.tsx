@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign } from "lucide-react";
+import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign, GripVertical, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
-import { PaymentMethod } from "@/types/serviceJob";
+import { PaymentMethod, JobStep } from "@/types/serviceJob";
 import { AlarmClock } from "lucide-react";
 import { formatSchedule, downloadAlarm } from "@/lib/scheduleUtils";
 
@@ -49,6 +49,8 @@ interface CameraJob {
   dvr_model: string | null;
   notes: string | null;
   checklist: Record<string, boolean>;
+  steps?: JobStep[];
+  sort_order?: number;
   status: CameraJobStatus;
   fee: number | null;
   paid_amount: number | null;
@@ -99,12 +101,18 @@ const CameraJobManager = () => {
   const [form, setForm] = useState(emptyForm);
   const [filter, setFilter] = useState<CameraJobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all");
+  const [newStepText, setNewStepText] = useState<Record<string, string>>({});
+  const [editingStep, setEditingStep] = useState<{ jobId: string; stepId: string } | null>(null);
+  const [editStepText, setEditStepText] = useState("");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchJobs = useCallback(async () => {
     const { data } = await (supabase as any)
       .from("camera_jobs")
       .select("*")
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (data) setJobs(data as CameraJob[]);
   }, []);
@@ -199,6 +207,58 @@ const CameraJobManager = () => {
     const updated = { ...job.checklist, [key]: !job.checklist[key] };
     await (supabase as any).from("camera_jobs").update({ checklist: updated }).eq("id", job.id);
     await fetchJobs();
+  };
+
+  // ---- İş adımları ----
+  const saveSteps = async (job: CameraJob, steps: JobStep[]) => {
+    await (supabase as any).from("camera_jobs").update({ steps }).eq("id", job.id);
+    await fetchJobs();
+  };
+
+  const handleAddStep = async (job: CameraJob) => {
+    const text = newStepText[job.id]?.trim();
+    if (!text) return;
+    const step: JobStep = { id: crypto.randomUUID(), description: text, completed: false, createdAt: new Date().toISOString() };
+    await saveSteps(job, [...(job.steps || []), step]);
+    setNewStepText({ ...newStepText, [job.id]: "" });
+  };
+
+  const toggleStep = async (job: CameraJob, stepId: string) => {
+    const steps = (job.steps || []).map(s =>
+      s.id === stepId ? { ...s, completed: !s.completed, completedAt: !s.completed ? new Date().toISOString() : undefined } : s
+    );
+    await saveSteps(job, steps);
+  };
+
+  const saveEditStep = async (job: CameraJob, stepId: string) => {
+    const text = editStepText.trim();
+    if (!text) return;
+    const steps = (job.steps || []).map(s => (s.id === stepId ? { ...s, description: text } : s));
+    setEditingStep(null);
+    setEditStepText("");
+    await saveSteps(job, steps);
+  };
+
+  const deleteStep = async (job: CameraJob, stepId: string) => {
+    await saveSteps(job, (job.steps || []).filter(s => s.id !== stepId));
+  };
+
+  // ---- Sürükle-bırak sıralama (kalıcı) ----
+  const handleDropOn = async (targetId: string) => {
+    const sourceId = dragId;
+    setDragId(null);
+    setDragOverId(null);
+    if (!sourceId || sourceId === targetId) return;
+    const ordered = [...jobs];
+    const from = ordered.findIndex(j => j.id === sourceId);
+    const to = ordered.findIndex(j => j.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ordered.splice(from, 1);
+    ordered.splice(to, 0, moved);
+    const withOrder = ordered.map((j, i) => ({ ...j, sort_order: i }));
+    setJobs(withOrder);
+    await Promise.all(withOrder.map(j => (supabase as any).from("camera_jobs").update({ sort_order: j.sort_order }).eq("id", j.id)));
+    toast({ title: "Sıralama kaydedildi" });
   };
 
   const handleMarkPaid = async (job: CameraJob) => {
@@ -462,9 +522,21 @@ const CameraJobManager = () => {
           const checkDone = Object.values(job.checklist || {}).filter(Boolean).length;
           const checkTotal = Object.keys(DEFAULT_CHECKLIST).length;
           return (
-            <Card id={`cam-job-${job.id}`} key={job.id} className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""}`}>
+            <Card
+              id={`cam-job-${job.id}`}
+              key={job.id}
+              draggable
+              onDragStart={() => setDragId(job.id)}
+              onDragEnd={() => { setDragId(null); setDragOverId(null); }}
+              onDragOver={e => { e.preventDefault(); if (dragOverId !== job.id) setDragOverId(job.id); }}
+              onDrop={e => { e.preventDefault(); handleDropOn(job.id); }}
+              className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""} ${dragId === job.id ? "opacity-50" : ""} ${dragOverId === job.id && dragId && dragId !== job.id ? "ring-2 ring-primary" : ""}`}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
+                  <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing" onClick={e => e.stopPropagation()}>
+                    <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <Cctv className="h-4 w-4 text-primary" />
@@ -578,6 +650,47 @@ const CameraJobManager = () => {
                             <span className={`text-sm ${job.checklist?.[key] ? "line-through text-muted-foreground" : "text-foreground"}`}>{label}</span>
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* İş Adımları */}
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İş Adımları</p>
+                      {(job.steps || []).length === 0 && <p className="text-xs text-muted-foreground mb-2">Henüz adım eklenmedi</p>}
+                      <div className="space-y-1.5 mb-2">
+                        {(job.steps || []).map((step, i) => (
+                          <div key={step.id} className="flex items-center gap-2">
+                            <button onClick={() => toggleStep(job, step.id)}
+                              className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
+                              {step.completed ? <Check className="h-3 w-3" /> : <ArrowRight className="h-3 w-3 text-muted-foreground" />}
+                            </button>
+                            {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
+                              <div className="flex items-center gap-1 flex-1">
+                                <Input value={editStepText} onChange={e => setEditStepText(e.target.value)} className="h-7 text-sm" maxLength={200}
+                                  onKeyDown={e => { if (e.key === "Enter") saveEditStep(job, step.id); }} />
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => saveEditStep(job, step.id)}><Save className="h-3.5 w-3.5" /></Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep(null); setEditStepText(""); }}><X className="h-3.5 w-3.5" /></Button>
+                              </div>
+                            ) : (
+                              <>
+                                <span className={`text-sm flex-1 ${step.completed ? "text-muted-foreground" : "text-foreground"}`}>{i + 1}. {step.description}</span>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep({ jobId: job.id, stepId: step.id }); setEditStepText(step.description); }}>
+                                  <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => deleteStep(job, step.id)}>
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Input placeholder="Yeni adım ekle..." value={newStepText[job.id] || ""} maxLength={200}
+                          onChange={e => setNewStepText({ ...newStepText, [job.id]: e.target.value })}
+                          onKeyDown={e => { if (e.key === "Enter") handleAddStep(job); }}
+                          className="h-8 text-sm" />
+                        <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => handleAddStep(job)}><Plus className="h-3 w-3" /> Ekle</Button>
                       </div>
                     </div>
 

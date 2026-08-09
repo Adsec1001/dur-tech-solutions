@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -113,6 +113,8 @@ const AdminPanel = () => {
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
+  const [dragJobId, setDragJobId] = useState<string | null>(null);
+  const [dragOverJobId, setDragOverJobId] = useState<string | null>(null);
 
   const refreshJobs = useCallback(async () => {
     const data = await getJobs();
@@ -409,6 +411,32 @@ const AdminPanel = () => {
     await refreshJobs();
     if (editingJob === id) cancelEditing();
     toast({ title: "İş silindi" });
+  };
+
+  // ---- Drag & drop ordering (persisted) ----
+  const persistOrder = async (ordered: ServiceJob[]) => {
+    const withOrder = ordered.map((j, i) => ({ ...j, sortOrder: i }));
+    setJobs(withOrder);
+    await Promise.all(
+      withOrder.map((j) =>
+        (supabase as any).from("service_jobs").update({ sort_order: j.sortOrder }).eq("id", j.id)
+      )
+    );
+  };
+
+  const handleJobDrop = async (targetId: string) => {
+    const sourceId = dragJobId;
+    setDragJobId(null);
+    setDragOverJobId(null);
+    if (!sourceId || sourceId === targetId) return;
+    const ordered = [...jobs];
+    const from = ordered.findIndex((j) => j.id === sourceId);
+    const to = ordered.findIndex((j) => j.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ordered.splice(from, 1);
+    ordered.splice(to, 0, moved);
+    await persistOrder(ordered);
+    toast({ title: "Sıralama kaydedildi" });
   };
 
   const monthFiltered = monthFilter === "all"
@@ -857,10 +885,22 @@ const AdminPanel = () => {
             const isExpanded = expandedJob === job.id;
             const isEditing = editingJob === job.id;
             return (
-              <Card id={`job-${job.id}`} key={job.id} className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""}`}>
+              <Card
+                id={`job-${job.id}`}
+                key={job.id}
+                draggable={!isEditing}
+                onDragStart={() => setDragJobId(job.id)}
+                onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
+                onDragOver={(e) => { e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
+                onDrop={(e) => { e.preventDefault(); handleJobDrop(job.id); }}
+                className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""} ${dragJobId === job.id ? "opacity-50" : ""} ${dragOverJobId === job.id && dragJobId && dragJobId !== job.id ? "ring-2 ring-primary" : ""}`}
+              >
                 <CardContent className="p-4">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
+                    <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing">
+                      <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                    </span>
                     <div className="flex-1 min-w-0" onClick={() => { if (!isEditing) setExpandedJob(isExpanded ? null : job.id); }} style={{ cursor: isEditing ? "default" : "pointer" }}>
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-foreground">{job.customerName} {job.customerSurname}</span>
