@@ -26,6 +26,7 @@ const rowToJob = (row: any): ServiceJob => ({
   paymentMethod: (row.payment_method as any) || "nakit",
   installments: Number(row.installments) || 1,
   scheduledAt: row.scheduled_at || undefined,
+  sortOrder: row.sort_order ?? 0,
 });
 
 // Convert ServiceJob to DB row
@@ -53,12 +54,14 @@ const jobToRow = (job: ServiceJob) => ({
   payment_method: job.paymentMethod || "nakit",
   installments: job.installments || 1,
   scheduled_at: job.scheduledAt || null,
+  sort_order: job.sortOrder ?? 0,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {
   const { data, error } = await supabase
     .from("service_jobs")
     .select("*")
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
   if (error) {
     console.error("getJobs error:", error);
