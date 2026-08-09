@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign } from "lucide-react";
+import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, CalendarClock, CheckCircle2, Banknote, TrendingUp, AlertCircle, DollarSign, GripVertical, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
-import { PaymentMethod } from "@/types/serviceJob";
+import { PaymentMethod, JobStep } from "@/types/serviceJob";
 import { AlarmClock } from "lucide-react";
 import { formatSchedule, downloadAlarm } from "@/lib/scheduleUtils";
 
@@ -49,6 +49,8 @@ interface CameraJob {
   dvr_model: string | null;
   notes: string | null;
   checklist: Record<string, boolean>;
+  steps?: JobStep[];
+  sort_order?: number;
   status: CameraJobStatus;
   fee: number | null;
   paid_amount: number | null;
@@ -99,12 +101,18 @@ const CameraJobManager = () => {
   const [form, setForm] = useState(emptyForm);
   const [filter, setFilter] = useState<CameraJobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all");
+  const [newStepText, setNewStepText] = useState<Record<string, string>>({});
+  const [editingStep, setEditingStep] = useState<{ jobId: string; stepId: string } | null>(null);
+  const [editStepText, setEditStepText] = useState("");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchJobs = useCallback(async () => {
     const { data } = await (supabase as any)
       .from("camera_jobs")
       .select("*")
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
     if (data) setJobs(data as CameraJob[]);
   }, []);
@@ -199,6 +207,58 @@ const CameraJobManager = () => {
     const updated = { ...job.checklist, [key]: !job.checklist[key] };
     await (supabase as any).from("camera_jobs").update({ checklist: updated }).eq("id", job.id);
     await fetchJobs();
+  };
+
+  // ---- İş adımları ----
+  const saveSteps = async (job: CameraJob, steps: JobStep[]) => {
+    await (supabase as any).from("camera_jobs").update({ steps }).eq("id", job.id);
+    await fetchJobs();
+  };
+
+  const handleAddStep = async (job: CameraJob) => {
+    const text = newStepText[job.id]?.trim();
+    if (!text) return;
+    const step: JobStep = { id: crypto.randomUUID(), description: text, completed: false, createdAt: new Date().toISOString() };
+    await saveSteps(job, [...(job.steps || []), step]);
+    setNewStepText({ ...newStepText, [job.id]: "" });
+  };
+
+  const toggleStep = async (job: CameraJob, stepId: string) => {
+    const steps = (job.steps || []).map(s =>
+      s.id === stepId ? { ...s, completed: !s.completed, completedAt: !s.completed ? new Date().toISOString() : undefined } : s
+    );
+    await saveSteps(job, steps);
+  };
+
+  const saveEditStep = async (job: CameraJob, stepId: string) => {
+    const text = editStepText.trim();
+    if (!text) return;
+    const steps = (job.steps || []).map(s => (s.id === stepId ? { ...s, description: text } : s));
+    setEditingStep(null);
+    setEditStepText("");
+    await saveSteps(job, steps);
+  };
+
+  const deleteStep = async (job: CameraJob, stepId: string) => {
+    await saveSteps(job, (job.steps || []).filter(s => s.id !== stepId));
+  };
+
+  // ---- Sürükle-bırak sıralama (kalıcı) ----
+  const handleDropOn = async (targetId: string) => {
+    const sourceId = dragId;
+    setDragId(null);
+    setDragOverId(null);
+    if (!sourceId || sourceId === targetId) return;
+    const ordered = [...jobs];
+    const from = ordered.findIndex(j => j.id === sourceId);
+    const to = ordered.findIndex(j => j.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = ordered.splice(from, 1);
+    ordered.splice(to, 0, moved);
+    const withOrder = ordered.map((j, i) => ({ ...j, sort_order: i }));
+    setJobs(withOrder);
+    await Promise.all(withOrder.map(j => (supabase as any).from("camera_jobs").update({ sort_order: j.sort_order }).eq("id", j.id)));
+    toast({ title: "Sıralama kaydedildi" });
   };
 
   const handleMarkPaid = async (job: CameraJob) => {
