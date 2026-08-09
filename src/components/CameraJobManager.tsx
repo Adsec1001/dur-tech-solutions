@@ -653,6 +653,47 @@ const CameraJobManager = () => {
                       </div>
                     </div>
 
+                    {/* İş Adımları */}
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İş Adımları</p>
+                      {(job.steps || []).length === 0 && <p className="text-xs text-muted-foreground mb-2">Henüz adım eklenmedi</p>}
+                      <div className="space-y-1.5 mb-2">
+                        {(job.steps || []).map((step, i) => (
+                          <div key={step.id} className="flex items-center gap-2">
+                            <button onClick={() => toggleStep(job, step.id)}
+                              className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
+                              {step.completed ? <Check className="h-3 w-3" /> : <ArrowRight className="h-3 w-3 text-muted-foreground" />}
+                            </button>
+                            {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
+                              <div className="flex items-center gap-1 flex-1">
+                                <Input value={editStepText} onChange={e => setEditStepText(e.target.value)} className="h-7 text-sm" maxLength={200}
+                                  onKeyDown={e => { if (e.key === "Enter") saveEditStep(job, step.id); }} />
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => saveEditStep(job, step.id)}><Save className="h-3.5 w-3.5" /></Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep(null); setEditStepText(""); }}><X className="h-3.5 w-3.5" /></Button>
+                              </div>
+                            ) : (
+                              <>
+                                <span className={`text-sm flex-1 ${step.completed ? "text-muted-foreground" : "text-foreground"}`}>{i + 1}. {step.description}</span>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep({ jobId: job.id, stepId: step.id }); setEditStepText(step.description); }}>
+                                  <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => deleteStep(job, step.id)}>
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Input placeholder="Yeni adım ekle..." value={newStepText[job.id] || ""} maxLength={200}
+                          onChange={e => setNewStepText({ ...newStepText, [job.id]: e.target.value })}
+                          onKeyDown={e => { if (e.key === "Enter") handleAddStep(job); }}
+                          className="h-8 text-sm" />
+                        <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => handleAddStep(job)}><Plus className="h-3 w-3" /> Ekle</Button>
+                      </div>
+                    </div>
+
                     {job.fee != null && job.fee > 0 && (job.paid_amount || 0) < job.fee && (
                       <div className="flex items-center gap-2 p-2 rounded-lg border border-red-500/30 bg-red-500/5">
                         <Banknote className="h-4 w-4 text-red-400 shrink-0" />
