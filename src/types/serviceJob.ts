@@ -41,4 +41,5 @@ export interface ServiceJob {
   paymentMethod?: PaymentMethod;
   installments?: number;
   scheduledAt?: string;
+  sortOrder?: number;
 }
