@@ -620,6 +620,28 @@ const CameraJobManager = () => {
                         )}
                       </div>
                     )}
+                    {job.tracking_code && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.tracking_code}</code>
+                        <Clipboard
+                          className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(job.tracking_code || "");
+                            toast({ title: "Takip kodu kopyalandı!" });
+                          }}
+                        />
+                        <Link2
+                          className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const url = `${window.location.origin}/takip?kod=${encodeURIComponent(job.tracking_code || "")}`;
+                            navigator.clipboard.writeText(url);
+                            toast({ title: "İşlem takip bağlantısı kopyalandı!", description: "Müşteriye iletebilirsiniz." });
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={e => { e.stopPropagation(); startEdit(job); }}>
