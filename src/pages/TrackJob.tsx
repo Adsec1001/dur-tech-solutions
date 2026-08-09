@@ -33,19 +33,75 @@ const TrackJob = () => {
   const [searchParams] = useSearchParams();
   const [code, setCode] = useState("");
   const [job, setJob] = useState<ServiceJob | null>(null);
+  const [isCamera, setIsCamera] = useState(false);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
+
+  useEffect(() => {
+    document.title = "İşlem Takip Sayfası | Dur Bilişim";
+    const setMeta = (attr: "name" | "property", key: string, content: string) => {
+      let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+    const desc = "Takip kodunuzla teknik servis ve kamera işlemlerinizin durumunu anında öğrenin.";
+    setMeta("name", "description", desc);
+    setMeta("property", "og:title", "İşlem Takip Sayfası | Dur Bilişim");
+    setMeta("property", "og:description", desc);
+    setMeta("name", "twitter:title", "İşlem Takip Sayfası | Dur Bilişim");
+    setMeta("name", "twitter:description", desc);
+  }, []);
+
+  const CAM_STATUS_MAP: Record<string, JobStatus> = {
+    bekliyor: "pending",
+    devam_ediyor: "in_progress",
+    tamamlandi: "completed",
+    ertelendi: "postponed",
+  };
 
   const handleSearch = async (override?: string) => {
     const q = (override ?? code).trim();
     if (!q) return;
     setLoading(true);
-    const found = await findByTrackingCode(q);
+    let found = await findByTrackingCode(q);
+    let camera = false;
+    if (!found) {
+      const { data: cam } = await (supabase as any)
+        .from("camera_jobs")
+        .select("*")
+        .ilike("tracking_code", q)
+        .maybeSingle();
+      if (cam) {
+        camera = true;
+        found = {
+          id: cam.id,
+          trackingCode: cam.tracking_code,
+          customerName: cam.customer_name,
+          customerSurname: "",
+          customerPhone: cam.customer_phone || "",
+          serviceType: "device" as any,
+          deviceName: cam.dvr_model || "",
+          accessories: [],
+          fee: Number(cam.fee) || 0,
+          notes: "",
+          status: CAM_STATUS_MAP[cam.status] || "pending",
+          steps: (cam.steps || []) as ServiceJob["steps"],
+          completionNotes: "",
+          createdAt: cam.created_at,
+          paidAmount: Number(cam.paid_amount) || 0,
+        } as ServiceJob;
+      }
+    }
+    setIsCamera(camera);
     setJob(found || null);
     setSearched(true);
     setQueuePosition(null);
-    if (found && found.status !== "completed") {
+    if (found && !camera && found.status !== "completed") {
       // Count uncompleted service + camera jobs created before this one
       const [svc, cam] = await Promise.all([
         supabase.from("service_jobs").select("id", { count: "exact", head: true })
@@ -129,7 +185,9 @@ const TrackJob = () => {
               <div className="text-sm">
                 <p className="text-muted-foreground text-xs">Hizmet Türü</p>
                 <p className="font-medium text-foreground">
-                  {job.serviceType === "remote" ? "Uzaktan Destek" : job.serviceType === "freelance" ? "Freelance" : "Cihaz Servisi"}
+                  {isCamera
+                    ? "Kamera / Güvenlik Sistemi"
+                    : job.serviceType === "remote" ? "Uzaktan Destek" : job.serviceType === "freelance" ? "Freelance" : "Cihaz Servisi"}
                 </p>
               </div>
 
