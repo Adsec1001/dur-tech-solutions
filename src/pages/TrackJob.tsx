@@ -101,17 +101,22 @@ const TrackJob = () => {
     setJob(found || null);
     setSearched(true);
     setQueuePosition(null);
-    if (found && !camera && found.status !== "completed") {
-      // Count uncompleted service + camera jobs created before this one
-      const [svc, cam] = await Promise.all([
-        supabase.from("service_jobs").select("id", { count: "exact", head: true })
-          .in("status", ["pending", "in_progress", "postponed"])
-          .lt("created_at", found.createdAt),
-        (supabase as any).from("camera_jobs").select("id", { count: "exact", head: true })
+    if (found && found.status !== "completed") {
+      if (camera) {
+        // Only other camera jobs count for a camera job's queue
+        const res = await (supabase as any).from("camera_jobs")
+          .select("id", { count: "exact", head: true })
           .in("status", ["bekliyor", "devam_ediyor", "ertelendi"])
-          .lt("created_at", found.createdAt),
-      ]);
-      setQueuePosition((svc.count || 0) + (cam.count || 0));
+          .lt("created_at", found.createdAt);
+        setQueuePosition(res.count || 0);
+      } else {
+        // Only other service jobs count for a service job's queue
+        const res = await supabase.from("service_jobs")
+          .select("id", { count: "exact", head: true })
+          .in("status", ["pending", "in_progress", "postponed"])
+          .lt("created_at", found.createdAt);
+        setQueuePosition(res.count || 0);
+      }
     }
     setLoading(false);
   };
