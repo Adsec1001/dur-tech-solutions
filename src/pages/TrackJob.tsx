@@ -146,8 +146,12 @@ const TrackJob = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary mb-1">İşlem Takip Sayfası</h1>
-          <p className="text-sm text-muted-foreground">Takip kodunuzu girerek işleminizin durumunu öğrenin</p>
+          <h1 className="text-2xl font-bold text-primary mb-1">
+            {isCamera && job ? "Kamera İşlem Takip Sayfası" : "İşlem Takip Sayfası"}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {isCamera && job ? "Kamera takip kodunuzu girerek işleminizin durumunu öğrenin" : "Takip kodunuzu girerek işleminizin durumunu öğrenin"}
+          </p>
         </div>
 
         <div className="flex gap-2">
