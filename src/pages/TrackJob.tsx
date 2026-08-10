@@ -39,7 +39,14 @@ const TrackJob = () => {
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = "İşlem Takip Sayfası | Dur Bilişim";
+    const isCameraJob = isCamera && job;
+    const title = isCameraJob
+      ? "Kamera İşlem Takip Sayfası | Dur Bilişim"
+      : "İşlem Takip Sayfası | Dur Bilişim";
+    const desc = isCameraJob
+      ? "Kamera takip kodunuzla kamera işlemlerinizin durumunu anında öğrenin."
+      : "Takip kodunuzla teknik servis ve kamera işlemlerinizin durumunu anında öğrenin.";
+    document.title = title;
     const setMeta = (attr: "name" | "property", key: string, content: string) => {
       let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
       if (!el) {
@@ -49,13 +56,12 @@ const TrackJob = () => {
       }
       el.setAttribute("content", content);
     };
-    const desc = "Takip kodunuzla teknik servis ve kamera işlemlerinizin durumunu anında öğrenin.";
     setMeta("name", "description", desc);
-    setMeta("property", "og:title", "İşlem Takip Sayfası | Dur Bilişim");
+    setMeta("property", "og:title", title);
     setMeta("property", "og:description", desc);
-    setMeta("name", "twitter:title", "İşlem Takip Sayfası | Dur Bilişim");
+    setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", desc);
-  }, []);
+  }, [isCamera, job]);
 
   const CAM_STATUS_MAP: Record<string, JobStatus> = {
     bekliyor: "pending",
