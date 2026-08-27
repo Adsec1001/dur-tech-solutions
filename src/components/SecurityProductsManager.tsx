@@ -5,10 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Pencil, ShieldCheck, Mic, MicOff, Search, X } from "lucide-react";
+import { Plus, Trash2, Pencil, ShieldCheck, Mic, MicOff, Search, X, FileDown, TrendingUp, Loader2, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceInput } from "@/hooks/use-voice-input";
+import { exportTablePdf } from "@/lib/tablePdf";
+
 
 interface SecurityProduct {
   id: string;
