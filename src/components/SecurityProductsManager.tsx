@@ -76,6 +76,11 @@ const SecurityProductsManager = () => {
   const [filterVariation, setFilterVariation] = useState<string>("all");
   const [filterBrand, setFilterBrand] = useState<string>("all");
   const [voiceTarget, setVoiceTarget] = useState<VoiceTarget>(null);
+  const [showMarket, setShowMarket] = useState(false);
+  const [marketLoading, setMarketLoading] = useState(false);
+  const [marketPrices, setMarketPrices] = useState<Record<string, { price: number; note?: string }>>({});
+  const [applying, setApplying] = useState(false);
+
   const { toast } = useToast();
 
   const handleVoiceResult = useCallback((text: string) => {
