@@ -216,6 +216,96 @@ const SecurityProductsManager = () => {
   const totalValue = useMemo(() => items.reduce((s, p) => s + (p.price || 0) * (p.stock || 0), 0), [items]);
   const priced = items.filter(p => (p.price || 0) > 0).length;
 
+  const catLabelOf = (v: string) => CATEGORIES.find(c => c.value === v)?.label || v;
+
+  const handleExportPdf = async () => {
+    const activeFilters = [
+      filterCategory !== "all" ? `Kategori: ${catLabelOf(filterCategory)}` : null,
+      filterVariation !== "all" ? `Varyasyon: ${filterVariation}` : null,
+      filterBrand !== "all" ? `Marka: ${filterBrand}` : null,
+      search.trim() ? `Arama: "${search.trim()}"` : null,
+    ].filter(Boolean).join(" · ");
+
+    await exportTablePdf({
+      title: "Güvenlik Sistemleri Fiyat Listesi",
+      subtitle: activeFilters || "Tüm kayıtlar",
+      columns: ["Ürün", "Kategori", "Varyasyon", "Marka", "Model", "Stok", "Fiyat", "Tedarikçi"],
+      rows: filtered.map(p => [
+        p.name,
+        catLabelOf(p.category),
+        p.variation || "-",
+        p.brand || "-",
+        p.model || "-",
+        p.stock ?? 0,
+        `${(p.price || 0).toLocaleString("tr-TR")} ${p.currency === "USD" ? "$" : p.currency === "EUR" ? "€" : "₺"}`,
+        p.supplier || "-",
+      ]),
+      summary: [
+        { label: "Kalem", value: String(filtered.length) },
+        { label: "Stok Değeri", value: `${filtered.reduce((s, p) => s + (p.price || 0) * (p.stock || 0), 0).toLocaleString("tr-TR")} ₺` },
+      ],
+      fileName: "Guvenlik_Fiyat_Listesi",
+    });
+  };
+
+  const toggleMarketPrices = async () => {
+    if (showMarket) {
+      setShowMarket(false);
+      setMarketPrices({});
+      return;
+    }
+    if (filtered.length === 0) { toast({ title: "Listede ürün yok" }); return; }
+    setMarketLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("market-prices", {
+        body: {
+          items: filtered.map(p => ({
+            id: p.id, name: p.name, category: p.category, variation: p.variation, brand: p.brand, model: p.model, price: p.price,
+          })),
+        },
+      });
+      if (error) throw error;
+      const map: Record<string, { price: number; note?: string }> = {};
+      (data?.prices || []).forEach((x: any) => {
+        if (x?.id && typeof x.price === "number") map[x.id] = { price: x.price, note: x.note };
+      });
+      if (Object.keys(map).length === 0) { toast({ title: "Güncel fiyat alınamadı", variant: "destructive" }); return; }
+      setMarketPrices(map);
+      setShowMarket(true);
+      toast({ title: `${Object.keys(map).length} ürün için güncel fiyat önerisi hazır` });
+    } catch (e: any) {
+      toast({ title: "Güncel fiyatlar alınamadı", description: e?.message, variant: "destructive" });
+    } finally {
+      setMarketLoading(false);
+    }
+  };
+
+  const applyMarketPrice = async (id: string) => {
+    const suggestion = marketPrices[id];
+    if (!suggestion) return;
+    const { error } = await supabase.from("security_products" as any).update({ price: suggestion.price }).eq("id", id);
+    if (error) { toast({ title: "Uygulanamadı", description: error.message, variant: "destructive" }); return; }
+    await fetchItems();
+    toast({ title: "Fiyat güncellendi" });
+  };
+
+  const applyAllMarketPrices = async () => {
+    const entries = filtered.filter(p => marketPrices[p.id]);
+    if (!entries.length) return;
+    if (!confirm(`${entries.length} ürünün fiyatı güncel önerilerle değiştirilecek. Onaylıyor musun?`)) return;
+    setApplying(true);
+    try {
+      for (const p of entries) {
+        await supabase.from("security_products" as any).update({ price: marketPrices[p.id].price }).eq("id", p.id);
+      }
+      await fetchItems();
+      toast({ title: `${entries.length} ürünün fiyatı güncellendi` });
+    } finally {
+      setApplying(false);
+    }
+  };
+
+
   const MicButton = ({ target, className }: { target: Exclude<VoiceTarget, null>; className?: string }) => {
     const active = voiceTarget === target && voice.listening;
     return (
