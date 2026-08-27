@@ -330,10 +330,37 @@ const SecurityProductsManager = () => {
           <ShieldCheck className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold text-foreground">Güvenlik Sistemleri Fiyat Listesi</h2>
         </div>
-        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="gap-1">
-          <Plus className="h-4 w-4" /> Yeni Malzeme
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={handleExportPdf} className="gap-1">
+            <FileDown className="h-4 w-4" /> PDF
+          </Button>
+          <Button
+            size="sm"
+            variant={showMarket ? "default" : "outline"}
+            onClick={toggleMarketPrices}
+            disabled={marketLoading}
+            className="gap-1"
+          >
+            {marketLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
+            {showMarket ? "Güncel Fiyatları Kapat" : "Güncel Fiyatlar"}
+          </Button>
+          {showMarket && (
+            <Button size="sm" variant="secondary" onClick={applyAllMarketPrices} disabled={applying} className="gap-1">
+              {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Tümünü Kaydet
+            </Button>
+          )}
+          <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="gap-1">
+            <Plus className="h-4 w-4" /> Yeni Malzeme
+          </Button>
+        </div>
       </div>
+
+      {showMarket && (
+        <p className="text-[11px] text-muted-foreground border border-primary/30 rounded-md p-2">
+          Güncel fiyatlar yapay zekâ ile Türkiye piyasası baz alınarak tahmin edilir; yaklaşık değerlerdir. Tek tek "Uygula" veya "Tümünü Kaydet" ile mevcut fiyatların üzerine yazabilirsin.
+        </p>
+      )}
+
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
