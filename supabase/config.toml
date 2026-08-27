@@ -1,1 +1,4 @@
 project_id = "pvhrvgiozxcwauphclmk"
+
+[functions.market-prices]
+verify_jwt = false

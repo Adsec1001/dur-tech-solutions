@@ -5,10 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Pencil, ShieldCheck, Mic, MicOff, Search, X } from "lucide-react";
+import { Plus, Trash2, Pencil, ShieldCheck, Mic, MicOff, Search, X, FileDown, TrendingUp, Loader2, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useVoiceInput } from "@/hooks/use-voice-input";
+import { exportTablePdf } from "@/lib/tablePdf";
+
 
 interface SecurityProduct {
   id: string;
@@ -74,6 +76,11 @@ const SecurityProductsManager = () => {
   const [filterVariation, setFilterVariation] = useState<string>("all");
   const [filterBrand, setFilterBrand] = useState<string>("all");
   const [voiceTarget, setVoiceTarget] = useState<VoiceTarget>(null);
+  const [showMarket, setShowMarket] = useState(false);
+  const [marketLoading, setMarketLoading] = useState(false);
+  const [marketPrices, setMarketPrices] = useState<Record<string, { price: number; note?: string }>>({});
+  const [applying, setApplying] = useState(false);
+
   const { toast } = useToast();
 
   const handleVoiceResult = useCallback((text: string) => {
@@ -209,6 +216,96 @@ const SecurityProductsManager = () => {
   const totalValue = useMemo(() => items.reduce((s, p) => s + (p.price || 0) * (p.stock || 0), 0), [items]);
   const priced = items.filter(p => (p.price || 0) > 0).length;
 
+  const catLabelOf = (v: string) => CATEGORIES.find(c => c.value === v)?.label || v;
+
+  const handleExportPdf = async () => {
+    const activeFilters = [
+      filterCategory !== "all" ? `Kategori: ${catLabelOf(filterCategory)}` : null,
+      filterVariation !== "all" ? `Varyasyon: ${filterVariation}` : null,
+      filterBrand !== "all" ? `Marka: ${filterBrand}` : null,
+      search.trim() ? `Arama: "${search.trim()}"` : null,
+    ].filter(Boolean).join(" · ");
+
+    await exportTablePdf({
+      title: "Güvenlik Sistemleri Fiyat Listesi",
+      subtitle: activeFilters || "Tüm kayıtlar",
+      columns: ["Ürün", "Kategori", "Varyasyon", "Marka", "Model", "Stok", "Fiyat", "Tedarikçi"],
+      rows: filtered.map(p => [
+        p.name,
+        catLabelOf(p.category),
+        p.variation || "-",
+        p.brand || "-",
+        p.model || "-",
+        p.stock ?? 0,
+        `${(p.price || 0).toLocaleString("tr-TR")} ${p.currency === "USD" ? "$" : p.currency === "EUR" ? "€" : "₺"}`,
+        p.supplier || "-",
+      ]),
+      summary: [
+        { label: "Kalem", value: String(filtered.length) },
+        { label: "Stok Değeri", value: `${filtered.reduce((s, p) => s + (p.price || 0) * (p.stock || 0), 0).toLocaleString("tr-TR")} ₺` },
+      ],
+      fileName: "Guvenlik_Fiyat_Listesi",
+    });
+  };
+
+  const toggleMarketPrices = async () => {
+    if (showMarket) {
+      setShowMarket(false);
+      setMarketPrices({});
+      return;
+    }
+    if (filtered.length === 0) { toast({ title: "Listede ürün yok" }); return; }
+    setMarketLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("market-prices", {
+        body: {
+          items: filtered.map(p => ({
+            id: p.id, name: p.name, category: p.category, variation: p.variation, brand: p.brand, model: p.model, price: p.price,
+          })),
+        },
+      });
+      if (error) throw error;
+      const map: Record<string, { price: number; note?: string }> = {};
+      (data?.prices || []).forEach((x: any) => {
+        if (x?.id && typeof x.price === "number") map[x.id] = { price: x.price, note: x.note };
+      });
+      if (Object.keys(map).length === 0) { toast({ title: "Güncel fiyat alınamadı", variant: "destructive" }); return; }
+      setMarketPrices(map);
+      setShowMarket(true);
+      toast({ title: `${Object.keys(map).length} ürün için güncel fiyat önerisi hazır` });
+    } catch (e: any) {
+      toast({ title: "Güncel fiyatlar alınamadı", description: e?.message, variant: "destructive" });
+    } finally {
+      setMarketLoading(false);
+    }
+  };
+
+  const applyMarketPrice = async (id: string) => {
+    const suggestion = marketPrices[id];
+    if (!suggestion) return;
+    const { error } = await supabase.from("security_products" as any).update({ price: suggestion.price }).eq("id", id);
+    if (error) { toast({ title: "Uygulanamadı", description: error.message, variant: "destructive" }); return; }
+    await fetchItems();
+    toast({ title: "Fiyat güncellendi" });
+  };
+
+  const applyAllMarketPrices = async () => {
+    const entries = filtered.filter(p => marketPrices[p.id]);
+    if (!entries.length) return;
+    if (!confirm(`${entries.length} ürünün fiyatı güncel önerilerle değiştirilecek. Onaylıyor musun?`)) return;
+    setApplying(true);
+    try {
+      for (const p of entries) {
+        await supabase.from("security_products" as any).update({ price: marketPrices[p.id].price }).eq("id", p.id);
+      }
+      await fetchItems();
+      toast({ title: `${entries.length} ürünün fiyatı güncellendi` });
+    } finally {
+      setApplying(false);
+    }
+  };
+
+
   const MicButton = ({ target, className }: { target: Exclude<VoiceTarget, null>; className?: string }) => {
     const active = voiceTarget === target && voice.listening;
     return (
@@ -233,10 +330,37 @@ const SecurityProductsManager = () => {
           <ShieldCheck className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold text-foreground">Güvenlik Sistemleri Fiyat Listesi</h2>
         </div>
-        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="gap-1">
-          <Plus className="h-4 w-4" /> Yeni Malzeme
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={handleExportPdf} className="gap-1">
+            <FileDown className="h-4 w-4" /> PDF
+          </Button>
+          <Button
+            size="sm"
+            variant={showMarket ? "default" : "outline"}
+            onClick={toggleMarketPrices}
+            disabled={marketLoading}
+            className="gap-1"
+          >
+            {marketLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
+            {showMarket ? "Güncel Fiyatları Kapat" : "Güncel Fiyatlar"}
+          </Button>
+          {showMarket && (
+            <Button size="sm" variant="secondary" onClick={applyAllMarketPrices} disabled={applying} className="gap-1">
+              {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Tümünü Kaydet
+            </Button>
+          )}
+          <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="gap-1">
+            <Plus className="h-4 w-4" /> Yeni Malzeme
+          </Button>
+        </div>
       </div>
+
+      {showMarket && (
+        <p className="text-[11px] text-muted-foreground border border-primary/30 rounded-md p-2">
+          Güncel fiyatlar yapay zekâ ile Türkiye piyasası baz alınarak tahmin edilir; yaklaşık değerlerdir. Tek tek "Uygula" veya "Tümünü Kaydet" ile mevcut fiyatların üzerine yazabilirsin.
+        </p>
+      )}
+
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -437,7 +561,18 @@ const SecurityProductsManager = () => {
                       <span>Stok: {p.stock}</span>
                       {p.supplier && <span>Tedarikçi: {p.supplier}</span>}
                     </div>
+                    {showMarket && marketPrices[p.id] && (
+                      <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] rounded-md border border-primary/30 bg-primary/5 p-2">
+                        <span className="text-muted-foreground">Güncel piyasa:</span>
+                        <span className="font-bold text-primary">{marketPrices[p.id].price.toLocaleString("tr-TR")} ₺</span>
+                        {marketPrices[p.id].note && <span className="text-muted-foreground">{marketPrices[p.id].note}</span>}
+                        <Button size="sm" variant="outline" className="h-6 px-2 text-[11px]" onClick={() => applyMarketPrice(p.id)}>
+                          Uygula
+                        </Button>
+                      </div>
+                    )}
                   </div>
+
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="flex items-center gap-1">
                       <Input
