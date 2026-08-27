@@ -561,7 +561,18 @@ const SecurityProductsManager = () => {
                       <span>Stok: {p.stock}</span>
                       {p.supplier && <span>Tedarikçi: {p.supplier}</span>}
                     </div>
+                    {showMarket && marketPrices[p.id] && (
+                      <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px] rounded-md border border-primary/30 bg-primary/5 p-2">
+                        <span className="text-muted-foreground">Güncel piyasa:</span>
+                        <span className="font-bold text-primary">{marketPrices[p.id].price.toLocaleString("tr-TR")} ₺</span>
+                        {marketPrices[p.id].note && <span className="text-muted-foreground">{marketPrices[p.id].note}</span>}
+                        <Button size="sm" variant="outline" className="h-6 px-2 text-[11px]" onClick={() => applyMarketPrice(p.id)}>
+                          Uygula
+                        </Button>
+                      </div>
+                    )}
                   </div>
+
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="flex items-center gap-1">
                       <Input
