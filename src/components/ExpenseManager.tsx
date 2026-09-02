@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Save, X, Receipt, TrendingDown } from "lucide-react";
+import { Plus, Trash2, Pencil, Save, X, Receipt, TrendingDown, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 interface Expense {
   id: string;
@@ -37,6 +38,9 @@ const ExpenseManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0], payment_method: "nakit" as PaymentMethod, installments: 1 });
+  const [query, setQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [monthFilter, setMonthFilter] = useState("all");
   const { toast } = useToast();
 
   const fetchExpenses = useCallback(async () => {
@@ -104,10 +108,48 @@ const ExpenseManager = () => {
     fetchExpenses();
   };
 
-  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
+  const filtered = expenses.filter(e => {
+    const q = query.trim().toLowerCase();
+    if (q && !`${e.description} ${e.notes ?? ""}`.toLowerCase().includes(q)) return false;
+    if (catFilter !== "all" && e.category !== catFilter) return false;
+    const d = new Date(e.expense_date);
+    if (monthFilter !== "all" && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` !== monthFilter) return false;
+    return true;
+  });
+
+  const totalExpenses = filtered.reduce((s, e) => s + e.amount, 0);
+
+  const months = Array.from(new Set(expenses.map(e => {
+    const d = new Date(e.expense_date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }))).sort().reverse();
+
+  const handleExportPdf = async () => {
+    await exportTablePdf({
+      title: "Gider Listesi",
+      subtitle: [
+        query ? `Arama: ${query}` : null,
+        catFilter !== "all" ? `Kategori: ${getCategoryLabel(catFilter)}` : null,
+        monthFilter !== "all" ? `Ay: ${monthFilter}` : null,
+      ].filter(Boolean).join(" · ") || "Tüm giderler",
+      columns: ["Tarih", "Açıklama", "Kategori", "Tutar", "Not"],
+      rows: filtered.map(e => [
+        new Date(e.expense_date).toLocaleDateString("tr-TR"),
+        e.description,
+        getCategoryLabel(e.category),
+        `${e.amount.toLocaleString("tr-TR")}₺`,
+        e.notes || "-",
+      ]),
+      summary: [
+        { label: "Kayıt Sayısı", value: String(filtered.length) },
+        { label: "Toplam Gider", value: `${totalExpenses.toLocaleString("tr-TR")}₺` },
+      ],
+      fileName: "Gider_Listesi",
+    });
+  };
 
   // Group by month
-  const grouped = expenses.reduce((acc: Record<string, Expense[]>, e) => {
+  const grouped = filtered.reduce((acc: Record<string, Expense[]>, e) => {
     const month = new Date(e.expense_date).toLocaleDateString("tr-TR", { year: "numeric", month: "long" });
     if (!acc[month]) acc[month] = [];
     acc[month].push(e);
@@ -133,10 +175,30 @@ const ExpenseManager = () => {
               <Receipt className="h-4 w-4 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground font-medium">Kayıt Sayısı</span>
             </div>
-            <p className="text-lg font-bold text-foreground">{expenses.length}</p>
+            <p className="text-lg font-bold text-foreground">{filtered.length}</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Filters + PDF */}
+      <Card className="border-border/50">
+        <CardContent className="p-3 space-y-2">
+          <Input placeholder="Gider ara..." value={query} onChange={e => setQuery(e.target.value)} />
+          <div className="flex flex-wrap gap-2">
+            <select className="h-10 flex-1 min-w-[130px] rounded-md border border-input bg-background px-3 text-sm" value={catFilter} onChange={e => setCatFilter(e.target.value)}>
+              <option value="all">Tüm kategoriler</option>
+              {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+            <select className="h-10 flex-1 min-w-[130px] rounded-md border border-input bg-background px-3 text-sm" value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
+              <option value="all">Tüm aylar</option>
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <Button variant="outline" onClick={handleExportPdf} className="gap-1">
+              <FileDown className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Add button */}
       <Button onClick={() => { resetForm(); setShowForm(true); }} className="w-full" variant={showForm ? "secondary" : "default"}>

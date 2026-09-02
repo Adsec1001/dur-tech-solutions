@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image, TrendingUp, BarChart3, AlertTriangle, Boxes } from "lucide-react";
+import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image, TrendingUp, BarChart3, AlertTriangle, Boxes, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 interface Product {
   id: string;
@@ -42,7 +43,48 @@ const ProductManager = () => {
   const [newFeature, setNewFeature] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const { toast } = useToast();
+
+  const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[];
+
+  const filteredProducts = products.filter(p => {
+    const q = query.trim().toLowerCase();
+    if (q && !`${p.name} ${p.category ?? ""} ${p.description ?? ""}`.toLowerCase().includes(q)) return false;
+    if (catFilter !== "all" && (p.category || "") !== catFilter) return false;
+    if (statusFilter === "active" && !p.is_active) return false;
+    if (statusFilter === "inactive" && p.is_active) return false;
+    if (statusFilter === "stock" && p.stock <= 0) return false;
+    if (statusFilter === "out" && p.stock !== 0) return false;
+    return true;
+  });
+
+  const handleExportPdf = async () => {
+    const totalValue = filteredProducts.reduce((s, p) => s + (p.price || 0) * p.stock, 0);
+    await exportTablePdf({
+      title: "Ürün Listesi",
+      subtitle: [
+        query ? `Arama: ${query}` : null,
+        catFilter !== "all" ? `Kategori: ${catFilter}` : null,
+        statusFilter !== "all" ? `Durum: ${statusFilter}` : null,
+      ].filter(Boolean).join(" · ") || "Tüm ürünler",
+      columns: ["Ürün", "Kategori", "Fiyat", "Stok", "Durum"],
+      rows: filteredProducts.map(p => [
+        p.name,
+        p.category || "-",
+        p.price ? `${p.price.toLocaleString("tr-TR")}₺` : "-",
+        p.stock,
+        p.is_active ? "Aktif" : "Pasif",
+      ]),
+      summary: [
+        { label: "Ürün Sayısı", value: String(filteredProducts.length) },
+        { label: "Stok Değeri", value: `${totalValue.toLocaleString("tr-TR")}₺` },
+      ],
+      fileName: "Urun_Listesi",
+    });
+  };
 
   const fetchProducts = useCallback(async () => {
     const { data } = await supabase
@@ -328,12 +370,44 @@ const ProductManager = () => {
         );
       })()}
 
+      {/* Filters + PDF */}
+      <Card className="border-border/50">
+        <CardContent className="p-3 space-y-2">
+          <div className="flex flex-wrap gap-2">
+            <Input className="flex-1 min-w-[160px]" placeholder="Ürün ara..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={catFilter}
+              onChange={(e) => setCatFilter(e.target.value)}
+            >
+              <option value="all">Tüm kategoriler</option>
+              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Tümü</option>
+              <option value="active">Aktif</option>
+              <option value="inactive">Pasif</option>
+              <option value="stock">Stokta</option>
+              <option value="out">Tükenen</option>
+            </select>
+            <Button variant="outline" onClick={handleExportPdf} className="gap-1">
+              <FileDown className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{filteredProducts.length} / {products.length} ürün listeleniyor</p>
+        </CardContent>
+      </Card>
+
       {/* Product list */}
       <div className="space-y-3">
-        {products.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">Henüz ürün eklenmedi</p>
+        {filteredProducts.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">Ürün bulunamadı</p>
         )}
-        {products.map((p) => (
+        {filteredProducts.map((p) => (
           <Card key={p.id} className={`border-border/50 ${!p.is_active ? "opacity-50" : ""}`}>
             <CardContent className="p-4">
               <div className="flex items-center gap-4">

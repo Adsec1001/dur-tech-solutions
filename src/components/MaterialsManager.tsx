@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Trash2, Pencil, Save, X, Package2, ShoppingCart, AlertTriangle,
-  Check, ArrowDown, ArrowUp, History, Boxes, ListChecks
+  Check, ArrowDown, ArrowUp, History, Boxes, ListChecks, FileDown
 } from "lucide-react";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 type Material = {
   id: string;
@@ -215,6 +216,48 @@ const MaterialsManager = () => {
   const estimatedShopCost = shopping.filter(s => !s.is_purchased).reduce((s, x) => s + (Number(x.estimated_cost) || 0) * Number(x.quantity), 0);
   const fmt = (n: number) => `${(n || 0).toLocaleString("tr-TR")}₺`;
 
+  const [matQuery, setMatQuery] = useState("");
+  const [matCat, setMatCat] = useState("all");
+  const [matStock, setMatStock] = useState("all");
+  const matCategories = Array.from(new Set(materials.map(m => m.category).filter(Boolean))) as string[];
+  const filteredMaterials = materials.filter(m => {
+    const q = matQuery.trim().toLowerCase();
+    if (q && !`${m.name} ${m.category ?? ""} ${m.supplier ?? ""} ${m.location ?? ""}`.toLowerCase().includes(q)) return false;
+    if (matCat !== "all" && (m.category || "") !== matCat) return false;
+    const low = Number(m.current_stock) <= Number(m.min_stock) && Number(m.min_stock) > 0;
+    if (matStock === "low" && !low) return false;
+    if (matStock === "ok" && low) return false;
+    return true;
+  });
+
+  const exportMaterialsPdf = async () => {
+    const value = filteredMaterials.reduce((s, m) => s + (Number(m.unit_cost) || 0) * Number(m.current_stock), 0);
+    await exportTablePdf({
+      title: "Malzeme Stok Listesi",
+      subtitle: [
+        matQuery ? `Arama: ${matQuery}` : null,
+        matCat !== "all" ? `Kategori: ${matCat}` : null,
+        matStock !== "all" ? (matStock === "low" ? "Kritik stok" : "Yeterli stok") : null,
+      ].filter(Boolean).join(" · ") || "Tüm malzemeler",
+      columns: ["Malzeme", "Kategori", "Stok", "Kritik", "Birim Fiyat", "Tedarikçi", "Konum"],
+      rows: filteredMaterials.map(m => [
+        m.name,
+        m.category || "-",
+        `${Number(m.current_stock).toLocaleString("tr-TR")} ${m.unit}`,
+        Number(m.min_stock).toLocaleString("tr-TR"),
+        m.unit_cost ? fmt(Number(m.unit_cost)) : "-",
+        m.supplier || "-",
+        m.location || "-",
+      ]),
+      summary: [
+        { label: "Malzeme Sayısı", value: String(filteredMaterials.length) },
+        { label: "Stok Değeri", value: fmt(value) },
+      ],
+      fileName: "Malzeme_Stok",
+    });
+  };
+
+
   const pending = shopping.filter(s => !s.is_purchased);
   const purchased = shopping.filter(s => s.is_purchased);
   const prioOrder: Record<string, number> = { urgent: 0, normal: 1, low: 2 };
@@ -356,12 +399,30 @@ const MaterialsManager = () => {
             <CardTitle className="flex items-center gap-2 text-lg">
               <Package2 className="h-5 w-5 text-primary" /> Malzeme Stoğu
             </CardTitle>
-            <Button size="sm" onClick={() => setShowMatForm(!showMatForm)} className="gap-1">
-              <Plus className="h-3.5 w-3.5" /> Yeni Malzeme
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={exportMaterialsPdf} className="gap-1">
+                <FileDown className="h-3.5 w-3.5" /> PDF
+              </Button>
+              <Button size="sm" onClick={() => setShowMatForm(!showMatForm)} className="gap-1">
+                <Plus className="h-3.5 w-3.5" /> Yeni Malzeme
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Input className="flex-1 min-w-[160px]" placeholder="Malzeme ara..." value={matQuery} onChange={(e) => setMatQuery(e.target.value)} />
+            <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={matCat} onChange={(e) => setMatCat(e.target.value)}>
+              <option value="all">Tüm kategoriler</option>
+              {matCategories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={matStock} onChange={(e) => setMatStock(e.target.value)}>
+              <option value="all">Tüm stoklar</option>
+              <option value="low">Kritik stok</option>
+              <option value="ok">Yeterli stok</option>
+            </select>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{filteredMaterials.length} / {materials.length} malzeme</p>
           {showMatForm && (
             <div className="p-3 border border-primary/30 rounded-lg space-y-2 bg-primary/5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -384,11 +445,11 @@ const MaterialsManager = () => {
             </div>
           )}
 
-          {materials.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Henüz malzeme eklenmemiş.</p>
+          {filteredMaterials.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Malzeme bulunamadı.</p>
           )}
 
-          {materials.map((m) => {
+          {filteredMaterials.map((m) => {
             const low = Number(m.current_stock) <= Number(m.min_stock) && Number(m.min_stock) > 0;
             const isEditing = editingMat === m.id;
             const history = movements.filter(mv => mv.material_id === m.id).slice(0, 10);
