@@ -328,12 +328,44 @@ const ProductManager = () => {
         );
       })()}
 
+      {/* Filters + PDF */}
+      <Card className="border-border/50">
+        <CardContent className="p-3 space-y-2">
+          <div className="flex flex-wrap gap-2">
+            <Input className="flex-1 min-w-[160px]" placeholder="Ürün ara..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={catFilter}
+              onChange={(e) => setCatFilter(e.target.value)}
+            >
+              <option value="all">Tüm kategoriler</option>
+              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Tümü</option>
+              <option value="active">Aktif</option>
+              <option value="inactive">Pasif</option>
+              <option value="stock">Stokta</option>
+              <option value="out">Tükenen</option>
+            </select>
+            <Button variant="outline" onClick={handleExportPdf} className="gap-1">
+              <FileDown className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{filteredProducts.length} / {products.length} ürün listeleniyor</p>
+        </CardContent>
+      </Card>
+
       {/* Product list */}
       <div className="space-y-3">
-        {products.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">Henüz ürün eklenmedi</p>
+        {filteredProducts.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">Ürün bulunamadı</p>
         )}
-        {products.map((p) => (
+        {filteredProducts.map((p) => (
           <Card key={p.id} className={`border-border/50 ${!p.is_active ? "opacity-50" : ""}`}>
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
