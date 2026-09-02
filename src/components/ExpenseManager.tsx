@@ -175,10 +175,30 @@ const ExpenseManager = () => {
               <Receipt className="h-4 w-4 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground font-medium">Kayıt Sayısı</span>
             </div>
-            <p className="text-lg font-bold text-foreground">{expenses.length}</p>
+            <p className="text-lg font-bold text-foreground">{filtered.length}</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Filters + PDF */}
+      <Card className="border-border/50">
+        <CardContent className="p-3 space-y-2">
+          <Input placeholder="Gider ara..." value={query} onChange={e => setQuery(e.target.value)} />
+          <div className="flex flex-wrap gap-2">
+            <select className="h-10 flex-1 min-w-[130px] rounded-md border border-input bg-background px-3 text-sm" value={catFilter} onChange={e => setCatFilter(e.target.value)}>
+              <option value="all">Tüm kategoriler</option>
+              {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+            <select className="h-10 flex-1 min-w-[130px] rounded-md border border-input bg-background px-3 text-sm" value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
+              <option value="all">Tüm aylar</option>
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <Button variant="outline" onClick={handleExportPdf} className="gap-1">
+              <FileDown className="h-4 w-4" /> PDF
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Add button */}
       <Button onClick={() => { resetForm(); setShowForm(true); }} className="w-full" variant={showForm ? "secondary" : "default"}>
