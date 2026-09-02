@@ -216,6 +216,48 @@ const MaterialsManager = () => {
   const estimatedShopCost = shopping.filter(s => !s.is_purchased).reduce((s, x) => s + (Number(x.estimated_cost) || 0) * Number(x.quantity), 0);
   const fmt = (n: number) => `${(n || 0).toLocaleString("tr-TR")}₺`;
 
+  const [matQuery, setMatQuery] = useState("");
+  const [matCat, setMatCat] = useState("all");
+  const [matStock, setMatStock] = useState("all");
+  const matCategories = Array.from(new Set(materials.map(m => m.category).filter(Boolean))) as string[];
+  const filteredMaterials = materials.filter(m => {
+    const q = matQuery.trim().toLowerCase();
+    if (q && !`${m.name} ${m.category ?? ""} ${m.supplier ?? ""} ${m.location ?? ""}`.toLowerCase().includes(q)) return false;
+    if (matCat !== "all" && (m.category || "") !== matCat) return false;
+    const low = Number(m.current_stock) <= Number(m.min_stock) && Number(m.min_stock) > 0;
+    if (matStock === "low" && !low) return false;
+    if (matStock === "ok" && low) return false;
+    return true;
+  });
+
+  const exportMaterialsPdf = async () => {
+    const value = filteredMaterials.reduce((s, m) => s + (Number(m.unit_cost) || 0) * Number(m.current_stock), 0);
+    await exportTablePdf({
+      title: "Malzeme Stok Listesi",
+      subtitle: [
+        matQuery ? `Arama: ${matQuery}` : null,
+        matCat !== "all" ? `Kategori: ${matCat}` : null,
+        matStock !== "all" ? (matStock === "low" ? "Kritik stok" : "Yeterli stok") : null,
+      ].filter(Boolean).join(" · ") || "Tüm malzemeler",
+      columns: ["Malzeme", "Kategori", "Stok", "Kritik", "Birim Fiyat", "Tedarikçi", "Konum"],
+      rows: filteredMaterials.map(m => [
+        m.name,
+        m.category || "-",
+        `${Number(m.current_stock).toLocaleString("tr-TR")} ${m.unit}`,
+        Number(m.min_stock).toLocaleString("tr-TR"),
+        m.unit_cost ? fmt(Number(m.unit_cost)) : "-",
+        m.supplier || "-",
+        m.location || "-",
+      ]),
+      summary: [
+        { label: "Malzeme Sayısı", value: String(filteredMaterials.length) },
+        { label: "Stok Değeri", value: fmt(value) },
+      ],
+      fileName: "Malzeme_Stok",
+    });
+  };
+
+
   const pending = shopping.filter(s => !s.is_purchased);
   const purchased = shopping.filter(s => s.is_purchased);
   const prioOrder: Record<string, number> = { urgent: 0, normal: 1, low: 2 };
