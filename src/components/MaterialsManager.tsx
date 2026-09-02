@@ -356,12 +356,30 @@ const MaterialsManager = () => {
             <CardTitle className="flex items-center gap-2 text-lg">
               <Package2 className="h-5 w-5 text-primary" /> Malzeme Stoğu
             </CardTitle>
-            <Button size="sm" onClick={() => setShowMatForm(!showMatForm)} className="gap-1">
-              <Plus className="h-3.5 w-3.5" /> Yeni Malzeme
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={exportMaterialsPdf} className="gap-1">
+                <FileDown className="h-3.5 w-3.5" /> PDF
+              </Button>
+              <Button size="sm" onClick={() => setShowMatForm(!showMatForm)} className="gap-1">
+                <Plus className="h-3.5 w-3.5" /> Yeni Malzeme
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Input className="flex-1 min-w-[160px]" placeholder="Malzeme ara..." value={matQuery} onChange={(e) => setMatQuery(e.target.value)} />
+            <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={matCat} onChange={(e) => setMatCat(e.target.value)}>
+              <option value="all">Tüm kategoriler</option>
+              {matCategories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={matStock} onChange={(e) => setMatStock(e.target.value)}>
+              <option value="all">Tüm stoklar</option>
+              <option value="low">Kritik stok</option>
+              <option value="ok">Yeterli stok</option>
+            </select>
+          </div>
+          <p className="text-[11px] text-muted-foreground">{filteredMaterials.length} / {materials.length} malzeme</p>
           {showMatForm && (
             <div className="p-3 border border-primary/30 rounded-lg space-y-2 bg-primary/5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -384,11 +402,11 @@ const MaterialsManager = () => {
             </div>
           )}
 
-          {materials.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Henüz malzeme eklenmemiş.</p>
+          {filteredMaterials.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Malzeme bulunamadı.</p>
           )}
 
-          {materials.map((m) => {
+          {filteredMaterials.map((m) => {
             const low = Number(m.current_stock) <= Number(m.min_stock) && Number(m.min_stock) > 0;
             const isEditing = editingMat === m.id;
             const history = movements.filter(mv => mv.material_id === m.id).slice(0, 10);
