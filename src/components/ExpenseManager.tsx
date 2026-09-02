@@ -104,10 +104,48 @@ const ExpenseManager = () => {
     fetchExpenses();
   };
 
-  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
+  const filtered = expenses.filter(e => {
+    const q = query.trim().toLowerCase();
+    if (q && !`${e.description} ${e.notes ?? ""}`.toLowerCase().includes(q)) return false;
+    if (catFilter !== "all" && e.category !== catFilter) return false;
+    const d = new Date(e.expense_date);
+    if (monthFilter !== "all" && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` !== monthFilter) return false;
+    return true;
+  });
+
+  const totalExpenses = filtered.reduce((s, e) => s + e.amount, 0);
+
+  const months = Array.from(new Set(expenses.map(e => {
+    const d = new Date(e.expense_date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }))).sort().reverse();
+
+  const handleExportPdf = async () => {
+    await exportTablePdf({
+      title: "Gider Listesi",
+      subtitle: [
+        query ? `Arama: ${query}` : null,
+        catFilter !== "all" ? `Kategori: ${getCategoryLabel(catFilter)}` : null,
+        monthFilter !== "all" ? `Ay: ${monthFilter}` : null,
+      ].filter(Boolean).join(" · ") || "Tüm giderler",
+      columns: ["Tarih", "Açıklama", "Kategori", "Tutar", "Not"],
+      rows: filtered.map(e => [
+        new Date(e.expense_date).toLocaleDateString("tr-TR"),
+        e.description,
+        getCategoryLabel(e.category),
+        `${e.amount.toLocaleString("tr-TR")}₺`,
+        e.notes || "-",
+      ]),
+      summary: [
+        { label: "Kayıt Sayısı", value: String(filtered.length) },
+        { label: "Toplam Gider", value: `${totalExpenses.toLocaleString("tr-TR")}₺` },
+      ],
+      fileName: "Gider_Listesi",
+    });
+  };
 
   // Group by month
-  const grouped = expenses.reduce((acc: Record<string, Expense[]>, e) => {
+  const grouped = filtered.reduce((acc: Record<string, Expense[]>, e) => {
     const month = new Date(e.expense_date).toLocaleDateString("tr-TR", { year: "numeric", month: "long" });
     if (!acc[month]) acc[month] = [];
     acc[month].push(e);
