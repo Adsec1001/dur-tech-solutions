@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Save, X, Receipt, TrendingDown } from "lucide-react";
+import { Plus, Trash2, Pencil, Save, X, Receipt, TrendingDown, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 interface Expense {
   id: string;
