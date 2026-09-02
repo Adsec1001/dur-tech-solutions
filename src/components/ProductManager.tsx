@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image, TrendingUp, BarChart3, AlertTriangle, Boxes } from "lucide-react";
+import { Plus, Trash2, Pencil, Package, XCircle, GripVertical, Image, TrendingUp, BarChart3, AlertTriangle, Boxes, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 interface Product {
   id: string;
