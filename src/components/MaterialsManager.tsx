@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Trash2, Pencil, Save, X, Package2, ShoppingCart, AlertTriangle,
-  Check, ArrowDown, ArrowUp, History, Boxes, ListChecks
+  Check, ArrowDown, ArrowUp, History, Boxes, ListChecks, FileDown
 } from "lucide-react";
+import { exportTablePdf } from "@/lib/tablePdf";
 
 type Material = {
   id: string;
