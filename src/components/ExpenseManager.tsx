@@ -38,6 +38,9 @@ const ExpenseManager = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ description: "", amount: "", category: "genel", notes: "", expense_date: new Date().toISOString().split("T")[0], payment_method: "nakit" as PaymentMethod, installments: 1 });
+  const [query, setQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [monthFilter, setMonthFilter] = useState("all");
   const { toast } = useToast();
 
   const fetchExpenses = useCallback(async () => {
