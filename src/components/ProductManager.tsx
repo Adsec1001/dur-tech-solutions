@@ -43,7 +43,48 @@ const ProductManager = () => {
   const [newFeature, setNewFeature] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const { toast } = useToast();
+
+  const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[];
+
+  const filteredProducts = products.filter(p => {
+    const q = query.trim().toLowerCase();
+    if (q && !`${p.name} ${p.category ?? ""} ${p.description ?? ""}`.toLowerCase().includes(q)) return false;
+    if (catFilter !== "all" && (p.category || "") !== catFilter) return false;
+    if (statusFilter === "active" && !p.is_active) return false;
+    if (statusFilter === "inactive" && p.is_active) return false;
+    if (statusFilter === "stock" && p.stock <= 0) return false;
+    if (statusFilter === "out" && p.stock !== 0) return false;
+    return true;
+  });
+
+  const handleExportPdf = async () => {
+    const totalValue = filteredProducts.reduce((s, p) => s + (p.price || 0) * p.stock, 0);
+    await exportTablePdf({
+      title: "Ürün Listesi",
+      subtitle: [
+        query ? `Arama: ${query}` : null,
+        catFilter !== "all" ? `Kategori: ${catFilter}` : null,
+        statusFilter !== "all" ? `Durum: ${statusFilter}` : null,
+      ].filter(Boolean).join(" · ") || "Tüm ürünler",
+      columns: ["Ürün", "Kategori", "Fiyat", "Stok", "Durum"],
+      rows: filteredProducts.map(p => [
+        p.name,
+        p.category || "-",
+        p.price ? `${p.price.toLocaleString("tr-TR")}₺` : "-",
+        p.stock,
+        p.is_active ? "Aktif" : "Pasif",
+      ]),
+      summary: [
+        { label: "Ürün Sayısı", value: String(filteredProducts.length) },
+        { label: "Stok Değeri", value: `${totalValue.toLocaleString("tr-TR")}₺` },
+      ],
+      fileName: "Urun_Listesi",
+    });
+  };
 
   const fetchProducts = useCallback(async () => {
     const { data } = await supabase
