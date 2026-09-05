@@ -894,19 +894,23 @@ const AdminPanel = () => {
               <Card
                 id={`job-${job.id}`}
                 key={job.id}
-                draggable={!isEditing}
-                onDragStart={() => setDragJobId(job.id)}
-                onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
-                onDragOver={(e) => { e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
-                onDrop={(e) => { e.preventDefault(); handleJobDrop(job.id); }}
+                onDragOver={(e) => { if (!dragJobId) return; e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
+                onDrop={(e) => { if (!dragJobId) return; e.preventDefault(); handleJobDrop(job.id); }}
                 className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""} ${dragJobId === job.id ? "opacity-50" : ""} ${dragOverJobId === job.id && dragJobId && dragJobId !== job.id ? "ring-2 ring-primary" : ""}`}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-4 md:p-5">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
-                    <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing">
-                      <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                    <span
+                      draggable={!isEditing}
+                      onDragStart={() => setDragJobId(job.id)}
+                      onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
+                      title="Sıralamak için bu simgeden sürükleyin"
+                      className="mt-1 shrink-0 cursor-grab active:cursor-grabbing rounded p-1 -m-1 text-muted-foreground/60 hover:text-primary hover:bg-muted/60"
+                    >
+                      <GripVertical className="h-4 w-4" />
                     </span>
+
                     <div className="flex-1 min-w-0" onClick={() => { if (!isEditing) setExpandedJob(isExpanded ? null : job.id); }} style={{ cursor: isEditing ? "default" : "pointer" }}>
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-foreground">{job.customerName} {job.customerSurname}</span>
