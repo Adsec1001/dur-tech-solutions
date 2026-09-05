@@ -400,6 +400,11 @@ const AdminPanel = () => {
     await refreshJobs();
   };
 
+  const saveSteps = async (job: ServiceJob, steps: JobStep[]) => {
+    await updateJob({ ...job, steps });
+    await refreshJobs();
+  };
+
   const handleMarkPaid = async (job: ServiceJob) => {
     const updated = { ...job, paidAmount: job.fee };
     await updateJob(updated);
