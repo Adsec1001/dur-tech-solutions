@@ -8,6 +8,7 @@ import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, Cal
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import JobStepsEditor from "@/components/JobStepsEditor";
 import { PaymentMethod, JobStep } from "@/types/serviceJob";
 import { generateTrackingCode } from "@/lib/jobStorage";
 import { AlarmClock } from "lucide-react";
