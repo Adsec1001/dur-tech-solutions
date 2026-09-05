@@ -527,18 +527,23 @@ const CameraJobManager = () => {
             <Card
               id={`cam-job-${job.id}`}
               key={job.id}
-              draggable
-              onDragStart={() => setDragId(job.id)}
-              onDragEnd={() => { setDragId(null); setDragOverId(null); }}
-              onDragOver={e => { e.preventDefault(); if (dragOverId !== job.id) setDragOverId(job.id); }}
-              onDrop={e => { e.preventDefault(); handleDropOn(job.id); }}
+              onDragOver={e => { if (!dragId) return; e.preventDefault(); if (dragOverId !== job.id) setDragOverId(job.id); }}
+              onDrop={e => { if (!dragId) return; e.preventDefault(); handleDropOn(job.id); }}
               className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""} ${dragId === job.id ? "opacity-50" : ""} ${dragOverId === job.id && dragId && dragId !== job.id ? "ring-2 ring-primary" : ""}`}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-4 md:p-5">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
-                  <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing" onClick={e => e.stopPropagation()}>
-                    <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                  <span
+                    draggable
+                    onDragStart={() => setDragId(job.id)}
+                    onDragEnd={() => { setDragId(null); setDragOverId(null); }}
+                    title="Sıralamak için bu simgeden sürükleyin"
+                    className="mt-1 shrink-0 cursor-grab active:cursor-grabbing rounded p-1 -m-1 text-muted-foreground/60 hover:text-primary hover:bg-muted/60"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <GripVertical className="h-4 w-4" />
                   </span>
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <Cctv className="h-4 w-4 text-primary" />
