@@ -8,6 +8,7 @@ import { Plus, Trash2, Pencil, Cctv, Check, ChevronDown, ChevronUp, Save, X, Cal
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
+import JobStepsEditor from "@/components/JobStepsEditor";
 import { PaymentMethod, JobStep } from "@/types/serviceJob";
 import { generateTrackingCode } from "@/lib/jobStorage";
 import { AlarmClock } from "lucide-react";
@@ -517,7 +518,7 @@ const CameraJobManager = () => {
       </div>
 
       {/* Job List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Henüz kamera işi eklenmedi</p>}
         {filtered.map(job => {
           const isExpanded = expandedId === job.id;
@@ -527,18 +528,23 @@ const CameraJobManager = () => {
             <Card
               id={`cam-job-${job.id}`}
               key={job.id}
-              draggable
-              onDragStart={() => setDragId(job.id)}
-              onDragEnd={() => { setDragId(null); setDragOverId(null); }}
-              onDragOver={e => { e.preventDefault(); if (dragOverId !== job.id) setDragOverId(job.id); }}
-              onDrop={e => { e.preventDefault(); handleDropOn(job.id); }}
+              onDragOver={e => { if (!dragId) return; e.preventDefault(); if (dragOverId !== job.id) setDragOverId(job.id); }}
+              onDrop={e => { if (!dragId) return; e.preventDefault(); handleDropOn(job.id); }}
               className={`border-border/50 ${job.status === "ertelendi" ? "border-orange-500/30" : ""} ${dragId === job.id ? "opacity-50" : ""} ${dragOverId === job.id && dragId && dragId !== job.id ? "ring-2 ring-primary" : ""}`}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-4 md:p-5">
                 <div className="flex items-start justify-between gap-3 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : job.id)}>
-                  <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing" onClick={e => e.stopPropagation()}>
-                    <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                  <span
+                    draggable
+                    onDragStart={() => setDragId(job.id)}
+                    onDragEnd={() => { setDragId(null); setDragOverId(null); }}
+                    title="Sıralamak için bu simgeden sürükleyin"
+                    className="mt-1 shrink-0 cursor-grab active:cursor-grabbing rounded p-1 -m-1 text-muted-foreground/60 hover:text-primary hover:bg-muted/60"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <GripVertical className="h-4 w-4" />
                   </span>
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <Cctv className="h-4 w-4 text-primary" />
@@ -652,7 +658,7 @@ const CameraJobManager = () => {
                 </div>
 
                 {isExpanded && (
-                  <div className="mt-4 pt-4 border-t border-border/50 space-y-3 animate-fade-in">
+                  <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                     {job.customer_phone && <p className="text-xs text-muted-foreground">📞 {job.customer_phone}</p>}
                     {job.address && <p className="text-xs text-muted-foreground">📍 {job.address}</p>}
                     {job.notes && (
@@ -678,45 +684,8 @@ const CameraJobManager = () => {
                     </div>
 
                     {/* İş Adımları */}
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İş Adımları</p>
-                      {(job.steps || []).length === 0 && <p className="text-xs text-muted-foreground mb-2">Henüz adım eklenmedi</p>}
-                      <div className="space-y-1.5 mb-2">
-                        {(job.steps || []).map((step, i) => (
-                          <div key={step.id} className="flex items-center gap-2">
-                            <button onClick={() => toggleStep(job, step.id)}
-                              className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
-                              {step.completed ? <Check className="h-3 w-3" /> : <ArrowRight className="h-3 w-3 text-muted-foreground" />}
-                            </button>
-                            {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
-                              <div className="flex items-center gap-1 flex-1">
-                                <Input value={editStepText} onChange={e => setEditStepText(e.target.value)} className="h-7 text-sm" maxLength={200}
-                                  onKeyDown={e => { if (e.key === "Enter") saveEditStep(job, step.id); }} />
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => saveEditStep(job, step.id)}><Save className="h-3.5 w-3.5" /></Button>
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep(null); setEditStepText(""); }}><X className="h-3.5 w-3.5" /></Button>
-                              </div>
-                            ) : (
-                              <>
-                                <span className={`text-sm flex-1 ${step.completed ? "text-muted-foreground" : "text-foreground"}`}>{i + 1}. {step.description}</span>
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setEditingStep({ jobId: job.id, stepId: step.id }); setEditStepText(step.description); }}>
-                                  <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                                </Button>
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => deleteStep(job, step.id)}>
-                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Input placeholder="Yeni adım ekle..." value={newStepText[job.id] || ""} maxLength={200}
-                          onChange={e => setNewStepText({ ...newStepText, [job.id]: e.target.value })}
-                          onKeyDown={e => { if (e.key === "Enter") handleAddStep(job); }}
-                          className="h-8 text-sm" />
-                        <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => handleAddStep(job)}><Plus className="h-3 w-3" /> Ekle</Button>
-                      </div>
-                    </div>
+                    <JobStepsEditor steps={job.steps || []} onChange={(steps) => saveSteps(job, steps)} title="İş Adımları" />
+
 
                     {job.fee != null && job.fee > 0 && (job.paid_amount || 0) < job.fee && (
                       <div className="flex items-center gap-2 p-2 rounded-lg border border-red-500/30 bg-red-500/5">

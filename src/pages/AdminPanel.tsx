@@ -17,6 +17,7 @@ import MonthlyProfitPanel from "@/components/MonthlyProfitPanel";
 import MaterialsManager from "@/components/MaterialsManager";
 import SecurityProductsManager from "@/components/SecurityProductsManager";
 import AdminNotifications from "@/components/AdminNotifications";
+import JobStepsEditor from "@/components/JobStepsEditor";
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
@@ -396,6 +397,11 @@ const AdminPanel = () => {
   const deleteStep = async (job: ServiceJob, stepId: string) => {
     const updated = { ...job, steps: job.steps.filter((s) => s.id !== stepId) };
     await updateJob(updated);
+    await refreshJobs();
+  };
+
+  const saveSteps = async (job: ServiceJob, steps: JobStep[]) => {
+    await updateJob({ ...job, steps });
     await refreshJobs();
   };
 
@@ -877,7 +883,7 @@ const AdminPanel = () => {
         </div>
 
         {/* Job List */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filtered.length === 0 && (
             <p className="text-center text-muted-foreground py-12">Henüz iş kaydı yok</p>
           )}
@@ -888,19 +894,23 @@ const AdminPanel = () => {
               <Card
                 id={`job-${job.id}`}
                 key={job.id}
-                draggable={!isEditing}
-                onDragStart={() => setDragJobId(job.id)}
-                onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
-                onDragOver={(e) => { e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
-                onDrop={(e) => { e.preventDefault(); handleJobDrop(job.id); }}
+                onDragOver={(e) => { if (!dragJobId) return; e.preventDefault(); if (dragOverJobId !== job.id) setDragOverJobId(job.id); }}
+                onDrop={(e) => { if (!dragJobId) return; e.preventDefault(); handleJobDrop(job.id); }}
                 className={`border-border/50 transition-all ${job.status === "postponed" ? "border-orange-500/30" : ""} ${dragJobId === job.id ? "opacity-50" : ""} ${dragOverJobId === job.id && dragJobId && dragJobId !== job.id ? "ring-2 ring-primary" : ""}`}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-4 md:p-5">
                   {/* Summary row */}
                   <div className="flex items-start justify-between gap-3">
-                    <span title="Sıralamak için sürükleyin" className="mt-1 shrink-0 cursor-grab active:cursor-grabbing">
-                      <GripVertical className="h-4 w-4 text-muted-foreground/60" />
+                    <span
+                      draggable={!isEditing}
+                      onDragStart={() => setDragJobId(job.id)}
+                      onDragEnd={() => { setDragJobId(null); setDragOverJobId(null); }}
+                      title="Sıralamak için bu simgeden sürükleyin"
+                      className="mt-1 shrink-0 cursor-grab active:cursor-grabbing rounded p-1 -m-1 text-muted-foreground/60 hover:text-primary hover:bg-muted/60"
+                    >
+                      <GripVertical className="h-4 w-4" />
                     </span>
+
                     <div className="flex-1 min-w-0" onClick={() => { if (!isEditing) setExpandedJob(isExpanded ? null : job.id); }} style={{ cursor: isEditing ? "default" : "pointer" }}>
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-foreground">{job.customerName} {job.customerSurname}</span>
@@ -1022,7 +1032,7 @@ const AdminPanel = () => {
 
                   {/* Edit Mode */}
                   {isExpanded && isEditing && (
-                    <div className="mt-4 pt-4 border-t border-border/50 space-y-4 animate-fade-in">
+                    <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                       <div className="grid grid-cols-2 gap-3">
                         <Input placeholder="Ad *" value={editForm.customerName || ""} onChange={(e) => setEditForm({ ...editForm, customerName: e.target.value })} maxLength={50} />
                         <Input placeholder="Soyad *" value={editForm.customerSurname || ""} onChange={(e) => setEditForm({ ...editForm, customerSurname: e.target.value })} maxLength={50} />
@@ -1146,46 +1156,8 @@ const AdminPanel = () => {
                       />
 
                       {/* Steps — still editable in edit mode */}
-                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İşlem Adımları</p>
-                        <div className="space-y-1.5">
-                          {job.steps.map((step, i) => (
-                            <div key={step.id} className="flex items-center gap-2">
-                              <button onClick={() => toggleStep(job, step.id)} className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
-                                {step.completed && <Check className="h-3 w-3" />}
-                              </button>
-                              {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
-                                <>
-                                  <Input value={editStepText} onChange={(e) => setEditStepText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveEditStep(job, step.id)} className="text-sm h-7 flex-1" maxLength={200} autoFocus />
-                                  <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => saveEditStep(job, step.id)}><Save className="h-3 w-3" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={cancelEditStep}><X className="h-3 w-3" /></Button>
-                                </>
-                              ) : (
-                                <>
-                                  <span className={`text-sm flex-1 ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                    {i + 1}. {step.description}
-                                  </span>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => startEditStep(job, step)}><Pencil className="h-3 w-3" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => deleteStep(job, step.id)}><Trash2 className="h-3 w-3" /></Button>
-                                </>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            placeholder="Yeni adım ekle..."
-                            value={newStepText[job.id] || ""}
-                            onChange={(e) => setNewStepText({ ...newStepText, [job.id]: e.target.value })}
-                            onKeyDown={(e) => e.key === "Enter" && handleAddStep(job)}
-                            className="text-sm h-8"
-                            maxLength={200}
-                          />
-                          <Button size="sm" variant="outline" className="h-8" onClick={() => handleAddStep(job)}>
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
+                      <JobStepsEditor steps={job.steps} onChange={(steps) => saveSteps(job, steps)} />
+
 
                       <div className="flex gap-2 justify-end pt-2">
                         <Button size="sm" variant="outline" className="gap-1" onClick={cancelEditing}>
@@ -1200,7 +1172,7 @@ const AdminPanel = () => {
 
                   {/* Normal expanded details (non-edit mode) */}
                   {isExpanded && !isEditing && (
-                    <div className="mt-4 pt-4 border-t border-border/50 space-y-4 animate-fade-in">
+                    <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                       {job.accessories.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Aksesuarlar</p>
@@ -1219,47 +1191,8 @@ const AdminPanel = () => {
                         </div>
                       )}
 
-                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">İşlem Adımları</p>
-                        {job.steps.length === 0 && <p className="text-xs text-muted-foreground">Henüz adım eklenmedi</p>}
-                        <div className="space-y-1.5">
-                          {job.steps.map((step, i) => (
-                            <div key={step.id} className="flex items-center gap-2">
-                              <button onClick={() => toggleStep(job, step.id)} className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-all ${step.completed ? "bg-green-500/20 border-green-500/50 text-green-400" : "border-border hover:border-primary/50"}`}>
-                                {step.completed && <Check className="h-3 w-3" />}
-                              </button>
-                              {editingStep?.jobId === job.id && editingStep?.stepId === step.id ? (
-                                <>
-                                  <Input value={editStepText} onChange={(e) => setEditStepText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveEditStep(job, step.id)} className="text-sm h-7 flex-1" maxLength={200} autoFocus />
-                                  <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => saveEditStep(job, step.id)}><Save className="h-3 w-3" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={cancelEditStep}><X className="h-3 w-3" /></Button>
-                                </>
-                              ) : (
-                                <>
-                                  <span className={`text-sm flex-1 ${step.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                    {i + 1}. {step.description}
-                                  </span>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => startEditStep(job, step)}><Pencil className="h-3 w-3" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => deleteStep(job, step.id)}><Trash2 className="h-3 w-3" /></Button>
-                                </>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <Input
-                            placeholder="Yeni adım ekle..."
-                            value={newStepText[job.id] || ""}
-                            onChange={(e) => setNewStepText({ ...newStepText, [job.id]: e.target.value })}
-                            onKeyDown={(e) => e.key === "Enter" && handleAddStep(job)}
-                            className="text-sm h-8"
-                            maxLength={200}
-                          />
-                          <Button size="sm" variant="outline" className="h-8" onClick={() => handleAddStep(job)}>
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
+                      <JobStepsEditor steps={job.steps} onChange={(steps) => saveSteps(job, steps)} />
+
 
                       {job.status !== "completed" && (
                         <Textarea
