@@ -883,7 +883,7 @@ const AdminPanel = () => {
         </div>
 
         {/* Job List */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filtered.length === 0 && (
             <p className="text-center text-muted-foreground py-12">Henüz iş kaydı yok</p>
           )}
@@ -1032,7 +1032,7 @@ const AdminPanel = () => {
 
                   {/* Edit Mode */}
                   {isExpanded && isEditing && (
-                    <div className="mt-4 pt-4 border-t border-border/50 space-y-4 animate-fade-in">
+                    <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                       <div className="grid grid-cols-2 gap-3">
                         <Input placeholder="Ad *" value={editForm.customerName || ""} onChange={(e) => setEditForm({ ...editForm, customerName: e.target.value })} maxLength={50} />
                         <Input placeholder="Soyad *" value={editForm.customerSurname || ""} onChange={(e) => setEditForm({ ...editForm, customerSurname: e.target.value })} maxLength={50} />
@@ -1172,7 +1172,7 @@ const AdminPanel = () => {
 
                   {/* Normal expanded details (non-edit mode) */}
                   {isExpanded && !isEditing && (
-                    <div className="mt-4 pt-4 border-t border-border/50 space-y-4 animate-fade-in">
+                    <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                       {job.accessories.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Aksesuarlar</p>

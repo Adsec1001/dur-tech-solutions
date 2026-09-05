@@ -518,7 +518,7 @@ const CameraJobManager = () => {
       </div>
 
       {/* Job List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Henüz kamera işi eklenmedi</p>}
         {filtered.map(job => {
           const isExpanded = expandedId === job.id;
@@ -658,7 +658,7 @@ const CameraJobManager = () => {
                 </div>
 
                 {isExpanded && (
-                  <div className="mt-4 pt-4 border-t border-border/50 space-y-3 animate-fade-in">
+                  <div className="mt-4 pt-4 border-t border-border/60 space-y-4 animate-fade-in">
                     {job.customer_phone && <p className="text-xs text-muted-foreground">📞 {job.customer_phone}</p>}
                     {job.address && <p className="text-xs text-muted-foreground">📍 {job.address}</p>}
                     {job.notes && (
