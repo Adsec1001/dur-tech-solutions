@@ -601,6 +601,8 @@ const AdminPanel = () => {
             <ExpenseManager />
           </div>
         )}
+        {activeTab === "reminders" && <RemindersManager />}
+
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
