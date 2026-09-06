@@ -294,6 +294,48 @@ export type Database = {
         }
         Relationships: []
       }
+      reminders: {
+        Row: {
+          created_at: string
+          done_at: string | null
+          id: string
+          is_done: boolean
+          linked_jobs: Json
+          note: string
+          priority: string
+          remind_at: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          done_at?: string | null
+          id?: string
+          is_done?: boolean
+          linked_jobs?: Json
+          note?: string
+          priority?: string
+          remind_at?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          done_at?: string | null
+          id?: string
+          is_done?: boolean
+          linked_jobs?: Json
+          note?: string
+          priority?: string
+          remind_at?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       security_products: {
         Row: {
           brand: string | null
