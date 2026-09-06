@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing
 } from "lucide-react";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
@@ -18,6 +18,8 @@ import MaterialsManager from "@/components/MaterialsManager";
 import SecurityProductsManager from "@/components/SecurityProductsManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import JobStepsEditor from "@/components/JobStepsEditor";
+import RemindersManager from "@/components/RemindersManager";
+
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
@@ -81,7 +83,7 @@ const AdminPanel = () => {
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
@@ -573,7 +575,18 @@ const AdminPanel = () => {
             <Receipt className="h-4 w-4" /> Giderler
             <span className="ml-1 text-[10px] opacity-70">/ Kâr</span>
           </button>
+          <button
+            onClick={() => setActiveTab("reminders")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "reminders"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <BellRing className="h-4 w-4" /> Hatırlatmalar
+          </button>
         </div>
+
 
         {activeTab === "products" && (
           <div className="space-y-8">
@@ -590,6 +603,8 @@ const AdminPanel = () => {
             <ExpenseManager />
           </div>
         )}
+        {activeTab === "reminders" && <RemindersManager />}
+
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
         {activeTab === "jobs" && (() => {
