@@ -573,7 +573,18 @@ const AdminPanel = () => {
             <Receipt className="h-4 w-4" /> Giderler
             <span className="ml-1 text-[10px] opacity-70">/ Kâr</span>
           </button>
+          <button
+            onClick={() => setActiveTab("reminders")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "reminders"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <BellRing className="h-4 w-4" /> Hatırlatmalar
+          </button>
         </div>
+
 
         {activeTab === "products" && (
           <div className="space-y-8">
