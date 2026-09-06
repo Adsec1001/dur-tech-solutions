@@ -18,6 +18,8 @@ import MaterialsManager from "@/components/MaterialsManager";
 import SecurityProductsManager from "@/components/SecurityProductsManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import JobStepsEditor from "@/components/JobStepsEditor";
+import RemindersManager from "@/components/RemindersManager";
+
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { getJobs, addJob, updateJob, deleteJob, generateTrackingCode, formatPhone } from "@/lib/jobStorage";
