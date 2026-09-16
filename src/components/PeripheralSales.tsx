@@ -202,8 +202,9 @@ const PeripheralSales = () => {
                 <div className="min-w-0 bg-muted/40 p-4 sm:p-6">
                   {selectedProduct.image_urls.length > 0 ? (
                     <>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         className="group relative block w-full overflow-hidden rounded-md border border-border bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         onClick={() => openZoom(selectedProduct.image_urls, detailImageIndex)}
                         aria-label="Ürün görselini büyüt"
@@ -216,13 +217,14 @@ const PeripheralSales = () => {
                         <span className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-md bg-background/90 px-3 py-2 text-xs font-medium text-foreground shadow-medium">
                           <Eye className="h-4 w-4" /> Büyüt
                         </span>
-                      </button>
+                      </Button>
                       {selectedProduct.image_urls.length > 1 && (
                         <div className="mt-3 grid grid-cols-5 gap-2">
                           {selectedProduct.image_urls.map((url, index) => (
-                            <button
+                            <Button
                               key={url}
                               type="button"
+                              variant="ghost"
                               className={`aspect-square overflow-hidden rounded-md border bg-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                 detailImageIndex === index ? "border-primary" : "border-border hover:border-primary/60"
                               }`}
@@ -230,7 +232,7 @@ const PeripheralSales = () => {
                               aria-label={`${index + 1}. görseli göster`}
                             >
                               <img src={url} alt="" className="h-full w-full object-cover" />
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       )}
