@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import SystemBuilder from "@/components/SystemBuilder";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, ShoppingBag, ChevronLeft, ChevronRight, Check, Eye } from "lucide-react";
 
 interface Product {
   id: string;
@@ -26,6 +26,25 @@ const PeripheralSales = () => {
   const [loading, setLoading] = useState(true);
   const [zoomedImages, setZoomedImages] = useState<string[]>([]);
   const [zoomedIndex, setZoomedIndex] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [detailImageIndex, setDetailImageIndex] = useState(0);
+
+  const openProduct = useCallback((product: Product, imageIndex = 0) => {
+    setSelectedProduct(product);
+    setDetailImageIndex(imageIndex);
+  }, []);
+
+  const closeProduct = useCallback(() => {
+    setSelectedProduct(null);
+    setDetailImageIndex(0);
+  }, []);
+
+  const openWhatsApp = useCallback((productName: string) => {
+    window.open(
+      "https://wa.me/905397784000?text=Merhaba%20" + encodeURIComponent(productName) + "%20hakkında%20bilgi%20almak%20istiyorum.",
+      "_blank"
+    );
+  }, []);
 
   const openZoom = useCallback((images: string[], startIndex: number) => {
     setZoomedImages(images);
@@ -79,20 +98,30 @@ const PeripheralSales = () => {
           {products.map((item, index) => (
             <Card
               key={item.id}
-              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden flex flex-col"
+              className="border-border hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-2 animate-scale-in overflow-hidden flex flex-col cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
+              role="button"
+              tabIndex={0}
+              aria-label={`${item.name} ürününü incele`}
+              onClick={() => openProduct(item)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openProduct(item);
+                }
+              }}
             >
               {item.image_urls && item.image_urls.length > 0 ? (
                 item.image_urls.length === 1 ? (
-                  <div className="h-44 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, 0)}>
+                  <div className="h-44 overflow-hidden">
                     <img src={item.image_urls[0]} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                   </div>
                 ) : (
-                  <Carousel className="w-full">
+                  <Carousel className="w-full" onClick={(event) => event.stopPropagation()}>
                     <CarouselContent>
                       {item.image_urls.map((url, idx) => (
                         <CarouselItem key={idx}>
-                          <div className="h-44 overflow-hidden cursor-pointer" onClick={() => openZoom(item.image_urls, idx)}>
+                          <div className="h-44 overflow-hidden cursor-pointer" onClick={() => openProduct(item, idx)}>
                             <img src={url} alt={`${item.name} ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
                           </div>
                         </CarouselItem>
@@ -152,7 +181,10 @@ const PeripheralSales = () => {
                 <Button
                   className="w-full hover:scale-105 transition-transform duration-300"
                   size="sm"
-                  onClick={() => window.open("https://wa.me/905397784000?text=Merhaba%20" + encodeURIComponent(item.name) + "%20hakkında%20bilgi%20almak%20istiyorum.", "_blank")}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openWhatsApp(item.name);
+                  }}
                 >
                   Bilgi Al
                 </Button>
@@ -162,6 +194,99 @@ const PeripheralSales = () => {
         </div>
 
         <SystemBuilder />
+
+        <Dialog open={selectedProduct !== null} onOpenChange={(open) => !open && closeProduct()}>
+          <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 bg-background border-border">
+            {selectedProduct && (
+              <div className="grid md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                <div className="min-w-0 bg-muted/40 p-4 sm:p-6">
+                  {selectedProduct.image_urls.length > 0 ? (
+                    <>
+                      <button
+                        type="button"
+                        className="group relative block w-full overflow-hidden rounded-md border border-border bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        onClick={() => openZoom(selectedProduct.image_urls, detailImageIndex)}
+                        aria-label="Ürün görselini büyüt"
+                      >
+                        <img
+                          src={selectedProduct.image_urls[detailImageIndex]}
+                          alt={`${selectedProduct.name} ürün görseli`}
+                          className="aspect-square w-full object-contain p-3"
+                        />
+                        <span className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-md bg-background/90 px-3 py-2 text-xs font-medium text-foreground shadow-medium">
+                          <Eye className="h-4 w-4" /> Büyüt
+                        </span>
+                      </button>
+                      {selectedProduct.image_urls.length > 1 && (
+                        <div className="mt-3 grid grid-cols-5 gap-2">
+                          {selectedProduct.image_urls.map((url, index) => (
+                            <button
+                              key={url}
+                              type="button"
+                              className={`aspect-square overflow-hidden rounded-md border bg-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                detailImageIndex === index ? "border-primary" : "border-border hover:border-primary/60"
+                              }`}
+                              onClick={() => setDetailImageIndex(index)}
+                              aria-label={`${index + 1}. görseli göster`}
+                            >
+                              <img src={url} alt="" className="h-full w-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex aspect-square items-center justify-center rounded-md border border-border bg-muted">
+                      <Package className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex min-w-0 flex-col p-5 sm:p-8">
+                  <DialogHeader className="pr-6 text-left">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {selectedProduct.category && <Badge variant="secondary">{selectedProduct.category}</Badge>}
+                      <Badge variant={selectedProduct.stock > 0 ? "default" : "destructive"}>
+                        {selectedProduct.stock > 0 ? `${selectedProduct.stock} adet stokta` : "Tükendi"}
+                      </Badge>
+                    </div>
+                    <DialogTitle className="pt-3 text-2xl leading-tight sm:text-3xl">{selectedProduct.name}</DialogTitle>
+                    {selectedProduct.description && (
+                      <DialogDescription className="pt-2 text-sm leading-7 text-muted-foreground sm:text-base">
+                        {selectedProduct.description}
+                      </DialogDescription>
+                    )}
+                  </DialogHeader>
+
+                  {selectedProduct.features.length > 0 && (
+                    <div className="mt-6 border-t border-border pt-5">
+                      <h3 className="mb-3 text-base font-semibold text-foreground">Ürün özellikleri</h3>
+                      <ul className="grid gap-3 sm:grid-cols-2">
+                        {selectedProduct.features.map((feature, index) => (
+                          <li key={`${feature}-${index}`} className="flex items-start gap-2.5 text-sm leading-6 text-foreground">
+                            <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                              <Check className="h-3 w-3" />
+                            </span>
+                            <span className="break-words">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="mt-auto border-t border-border pt-6">
+                    {selectedProduct.price != null && selectedProduct.price > 0 && (
+                      <p className="mb-4 text-2xl font-bold text-primary">{selectedProduct.price.toLocaleString("tr-TR")} ₺</p>
+                    )}
+                    <Button className="w-full" size="lg" onClick={() => openWhatsApp(selectedProduct.name)}>
+                      WhatsApp'tan Bilgi Al
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={zoomedImages.length > 0} onOpenChange={closeZoom}>
           <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 bg-background/95 border-border">
