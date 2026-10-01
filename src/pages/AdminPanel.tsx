@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing, Printer
 } from "lucide-react";
+import { exportJobPdf } from "@/lib/jobPdf";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
