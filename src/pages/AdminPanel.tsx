@@ -1105,6 +1105,9 @@ const AdminPanel = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="PDF olarak yazdır" onClick={(e) => { e.stopPropagation(); handlePrintJob(job); }}>
+                        <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Button>
                       {!isEditing && (
                         <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => startEditing(job)}>
                           <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
