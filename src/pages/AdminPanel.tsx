@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing, Printer
 } from "lucide-react";
+import { exportJobPdf } from "@/lib/jobPdf";
 import ProductManager from "@/components/ProductManager";
 import ProductSalesManager from "@/components/ProductSalesManager";
 import CameraJobManager from "@/components/CameraJobManager";
@@ -246,6 +247,74 @@ const AdminPanel = () => {
     if (!newAccessory.trim()) return;
     setAccessories([...accessories, { id: crypto.randomUUID(), name: newAccessory.trim() }]);
     setNewAccessory("");
+  };
+
+  const money = (n: number) => `${(n || 0).toLocaleString("tr-TR")}₺`;
+
+  const handlePrintJob = async (job: ServiceJob) => {
+    const fee = job.fee || 0;
+    const paid = job.paidAmount || 0;
+    const remaining = Math.max(fee - paid, 0);
+    const paymentBadge = fee <= 0 ? "Ücret belirtilmedi" : paid >= fee ? "ÖDENDİ" : paid > 0 ? "KISMİ ÖDEME" : "ÖDENMEDİ";
+
+    const payFields = [
+      { label: "İşlem Ücreti", value: fee > 0 ? money(fee) : "Belirtilmedi" },
+      { label: "Ödenen Tutar", value: money(paid) },
+      { label: "Kalan Borç", value: remaining > 0 ? money(remaining) : "Yok" },
+      { label: "Ödeme Durumu", value: paymentBadge },
+    ];
+    if (job.paymentMethod) {
+      payFields.push({
+        label: "Ödeme Yöntemi",
+        value: job.paymentMethod === "nakit" ? "Nakit" : job.paymentMethod === "kart" ? "Kredi/Banka Kartı" : `Taksit (${job.installments || 1})`,
+      });
+    }
+    if (fee > 0 && (job.paymentMethod === "kart" || job.paymentMethod === "taksit")) {
+      payFields.push({ label: "KDV Dahil Toplam (%20)", value: money(+(fee * 1.2).toFixed(2)) });
+    }
+    if (job.promisedPaymentDate && remaining > 0) {
+      payFields.push({ label: "Söz Verilen Ödeme Günü", value: new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR") });
+    }
+
+    await exportJobPdf({
+      docTitle: "Teknik Servis İş Formu",
+      headerCode: job.trackingCode,
+      statusLabel: STATUS_LABELS[job.status],
+      paymentBadge,
+      fileName: `Servis_${job.trackingCode}_${job.customerName}_${job.customerSurname}`,
+      sections: [
+        {
+          heading: "Müşteri Bilgileri",
+          fields: [
+            { label: "Ad Soyad", value: `${job.customerName} ${job.customerSurname}` },
+            { label: "Telefon", value: job.customerPhone ? formatPhone(job.customerPhone) : "-" },
+          ],
+        },
+        {
+          heading: "İş Bilgileri",
+          fields: [
+            { label: "Hizmet Türü", value: SERVICE_LABELS[job.serviceType] },
+            { label: "Durum", value: STATUS_LABELS[job.status] },
+            ...(job.deviceName ? [{ label: "Cihaz", value: job.deviceName }] : []),
+            ...(job.rustdeskId ? [{ label: "RustDesk ID", value: job.rustdeskId }] : []),
+            { label: "Kayıt Tarihi", value: new Date(job.createdAt).toLocaleString("tr-TR") },
+            ...(job.scheduledAt ? [{ label: "Yapılacak Gün", value: formatSchedule(job.scheduledAt) }] : []),
+            ...(job.postponedTo ? [{ label: "Ertelendi", value: formatSchedule(job.postponedTo) }] : []),
+            ...(job.completedAt ? [{ label: "Tamamlanma", value: new Date(job.completedAt).toLocaleString("tr-TR") }] : []),
+          ],
+        },
+        ...(job.accessories && job.accessories.length
+          ? [{ heading: "Teslim Alınan Aksesuarlar", list: job.accessories.map((a) => ({ text: a.name, done: true })) }]
+          : []),
+        ...(job.notes ? [{ heading: "İşlem Notu", text: job.notes }] : []),
+        ...(job.steps && job.steps.length
+          ? [{ heading: "İşlem Adımları", list: job.steps.map((s) => ({ text: s.description, done: s.completed })) }]
+          : []),
+        ...(job.completionNotes ? [{ heading: "Yapılan İşlem", text: job.completionNotes }] : []),
+        { heading: "Ödeme Bilgileri", fields: payFields },
+      ],
+    });
+    toast({ title: "PDF oluşturuldu" });
   };
 
   const startEditing = (job: ServiceJob) => {
@@ -1036,6 +1105,9 @@ const AdminPanel = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" title="PDF olarak yazdır" onClick={(e) => { e.stopPropagation(); handlePrintJob(job); }}>
+                        <Printer className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Button>
                       {!isEditing && (
                         <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => startEditing(job)}>
                           <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
