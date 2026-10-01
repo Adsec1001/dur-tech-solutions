@@ -183,6 +183,75 @@ const CameraJobManager = () => {
     await fetchJobs();
   };
 
+  const money = (n: number) => `${(n || 0).toLocaleString("tr-TR")}₺`;
+
+  const handlePrintJob = async (job: CameraJob) => {
+    const fee = Number(job.fee) || 0;
+    const paid = Number(job.paid_amount) || 0;
+    const remaining = Math.max(fee - paid, 0);
+    const paymentBadge = fee <= 0 ? "Ücret belirtilmedi" : paid >= fee ? "ÖDENDİ" : paid > 0 ? "KISMİ ÖDEME" : "ÖDENMEDİ";
+
+    const payFields = [
+      { label: "İşlem Ücreti", value: fee > 0 ? money(fee) : "Belirtilmedi" },
+      { label: "Ödenen Tutar", value: money(paid) },
+      { label: "Kalan Borç", value: remaining > 0 ? money(remaining) : "Yok" },
+      { label: "Ödeme Durumu", value: paymentBadge },
+    ];
+    if (job.payment_method) {
+      payFields.push({
+        label: "Ödeme Yöntemi",
+        value: job.payment_method === "nakit" ? "Nakit" : job.payment_method === "kart" ? "Kredi/Banka Kartı" : `Taksit (${job.installments || 1})`,
+      });
+    }
+    if (fee > 0 && (job.payment_method === "kart" || job.payment_method === "taksit")) {
+      payFields.push({ label: "KDV Dahil Toplam (%20)", value: money(+(fee * 1.2).toFixed(2)) });
+    }
+    if (job.promised_payment_date && remaining > 0) {
+      payFields.push({ label: "Söz Verilen Ödeme Günü", value: new Date(job.promised_payment_date).toLocaleDateString("tr-TR") });
+    }
+
+    await exportJobPdf({
+      docTitle: "Kamera Sistemleri İş Formu",
+      headerCode: job.tracking_code || undefined,
+      statusLabel: STATUS_LABELS[job.status],
+      paymentBadge,
+      fileName: `Kamera_${job.tracking_code || ""}_${job.customer_name}`,
+      sections: [
+        {
+          heading: "Müşteri Bilgileri",
+          fields: [
+            { label: "Ad Soyad", value: job.customer_name },
+            { label: "Telefon", value: job.customer_phone || "-" },
+            ...(job.address ? [{ label: "Adres", value: job.address }] : []),
+          ],
+        },
+        {
+          heading: "İş Bilgileri",
+          fields: [
+            { label: "İş Tipi", value: JOB_TYPE_LABELS[job.job_type] },
+            { label: "Durum", value: STATUS_LABELS[job.status] },
+            { label: "Kamera Sayısı", value: String(job.camera_count ?? 0) },
+            ...(job.dvr_model ? [{ label: "DVR/NVR Modeli", value: job.dvr_model }] : []),
+            { label: "Kayıt Tarihi", value: new Date(job.created_at).toLocaleString("tr-TR") },
+            ...(job.scheduled_at ? [{ label: "Yapılacak Gün", value: formatSchedule(job.scheduled_at) }] : []),
+            ...(job.postponed_to ? [{ label: "Ertelendi", value: formatSchedule(job.postponed_to) }] : []),
+            ...(job.completed_at ? [{ label: "Tamamlanma", value: new Date(job.completed_at).toLocaleString("tr-TR") }] : []),
+          ],
+        },
+        ...(job.notes ? [{ heading: "Notlar", text: job.notes }] : []),
+        {
+          heading: "Kontrol Listesi",
+          list: Object.entries(DEFAULT_CHECKLIST).map(([key, label]) => ({ text: label, done: !!job.checklist?.[key] })),
+        },
+        ...(job.steps && job.steps.length
+          ? [{ heading: "İş Adımları", list: job.steps.map(s => ({ text: s.description, done: s.completed })) }]
+          : []),
+        { heading: "Ödeme Bilgileri", fields: payFields },
+      ],
+    });
+    toast({ title: "PDF oluşturuldu" });
+  };
+
   const startEdit = (j: CameraJob) => {
     setEditingId(j.id);
     setForm({
