@@ -341,6 +341,12 @@ const CameraJobManager = () => {
     await fetchJobs();
   };
 
+  const handleMaintenanceDone = async (job: CameraJob) => {
+    await (supabase as any).from("camera_jobs").update({ maintenance_done_at: new Date().toISOString() }).eq("id", job.id);
+    toast({ title: "Bakım yapıldı olarak işaretlendi", description: "Hatırlatma 6 ay sonra tekrar görünecek." });
+    await fetchJobs();
+  };
+
   const handleDelete = async (id: string) => {
     await (supabase as any).from("camera_jobs").delete().eq("id", id);
     toast({ title: "İş silindi" });
