@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Cctv, CalendarClock, Wrench, X, Banknote, CheckCircle2 } from "lucide-react";
+import { Bell, BellRing, Cctv, CalendarClock, Wrench, X, Banknote, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getJobs } from "@/lib/jobStorage";
@@ -9,8 +9,8 @@ import { formatSchedule } from "@/lib/scheduleUtils";
 
 interface Notification {
   id: string;
-  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera" | "scheduled_service" | "scheduled_camera";
-  category: "service" | "camera";
+  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera" | "scheduled_service" | "scheduled_camera" | "reminder_due";
+  category: "service" | "camera" | "reminder";
   title: string;
   description: string;
   icon: "wrench" | "cctv" | "calendar" | "banknote";
