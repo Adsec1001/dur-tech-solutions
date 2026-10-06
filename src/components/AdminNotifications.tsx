@@ -13,7 +13,7 @@ interface Notification {
   category: "service" | "camera" | "reminder";
   title: string;
   description: string;
-  icon: "wrench" | "cctv" | "calendar" | "banknote";
+  icon: "wrench" | "cctv" | "calendar" | "banknote" | "bell";
   jobId?: string;
 }
 
@@ -186,6 +186,36 @@ const AdminNotifications = () => {
       });
     }
 
+    // 3. Reminders with a set day/time — not done
+    const { data: reminders } = await (supabase as any)
+      .from("reminders")
+      .select("*")
+      .eq("is_done", false)
+      .not("remind_at", "is", null);
+    if (reminders) {
+      reminders.forEach((r: any) => {
+        const d = new Date(r.remind_at);
+        const isToday = d.toDateString() === now.toDateString();
+        const isOverdue = d < now && !isToday;
+        const soon = d <= threeDaysLater;
+        const dateStr = formatSchedule(r.remind_at);
+        notifs.push({
+          id: `reminder-${r.id}`,
+          type: "reminder_due",
+          category: "reminder",
+          title: isToday
+            ? `🔔 Bugün: ${r.title}`
+            : isOverdue
+              ? `⚠️ Gecikmiş Hatırlatma: ${r.title}`
+              : soon
+                ? `🔔 Yaklaşan Hatırlatma: ${r.title}`
+                : `🔔 Hatırlatma: ${r.title}`,
+          description: `Tarih: ${dateStr}${r.note ? ` — ${r.note}` : ""}`,
+          icon: "bell",
+        });
+      });
+    }
+
     setNotifications(notifs);
     if (notifs.length > 0) setOpen(true);
   }, []);
@@ -205,9 +235,10 @@ const AdminNotifications = () => {
   const sortedNotifs = [...activeNotifs].sort((a, b) => priorityOrder(a) - priorityOrder(b));
   const serviceNotifs = sortedNotifs.filter(n => n.category === "service");
   const cameraNotifs = sortedNotifs.filter(n => n.category === "camera");
+  const reminderNotifs = sortedNotifs.filter(n => n.category === "reminder");
   const count = activeNotifs.length;
 
-  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote };
+  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote, bell: BellRing };
 
   const colorMap: Record<Notification["type"], string> = {
     postponed_service: "text-orange-400",
@@ -219,6 +250,7 @@ const AdminNotifications = () => {
     payment_due_camera: "text-blue-400",
     scheduled_service: "text-purple-400",
     scheduled_camera: "text-purple-400",
+    reminder_due: "text-amber-400",
   };
 
   const markMaintenanceDone = async (jobId: string) => {
