@@ -229,6 +229,7 @@ const AdminNotifications = () => {
   const priorityOrder = (n: Notification) => {
     if (n.type.startsWith("postponed")) return 0;
     if (n.type.startsWith("scheduled")) return 1;
+    if (n.type === "reminder_due") return 1;
     if (n.type.startsWith("payment_due")) return 2;
     return 3;
   };
@@ -346,6 +347,17 @@ const AdminNotifications = () => {
                     </div>
                     <div className="space-y-1.5">
                       {renderNotifList(cameraNotifs)}
+                    </div>
+                  </div>
+                )}
+                {reminderNotifs.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <BellRing className="h-3.5 w-3.5 text-amber-400" />
+                      <span className="text-xs font-semibold text-foreground">Hatırlatmalar ({reminderNotifs.length})</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {renderNotifList(reminderNotifs)}
                     </div>
                   </div>
                 )}
