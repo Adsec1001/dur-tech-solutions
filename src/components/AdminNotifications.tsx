@@ -135,13 +135,19 @@ const AdminNotifications = () => {
 
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-      cameraJobs.filter((j: any) => j.status === "tamamlandi" && j.completed_at && new Date(j.completed_at) <= sixMonthsAgo).forEach((j: any) => {
+      cameraJobs.filter((j: any) => {
+        if (j.status !== "tamamlandi") return false;
+        const ref = j.maintenance_done_at || j.completed_at;
+        return ref && new Date(ref) <= sixMonthsAgo;
+      }).forEach((j: any) => {
         notifs.push({
           id: `cam-maintenance-${j.id}`,
           type: "maintenance_due",
           category: "camera",
           title: `Bakım Zamanı: ${j.customer_name}`,
-          description: `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
+          description: j.maintenance_done_at
+            ? `Son bakımın üzerinden 6 ay geçti. Yeni bakım hatırlatması.`
+            : `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
           icon: "calendar", jobId: j.id,
         });
       });
