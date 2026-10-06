@@ -221,6 +221,11 @@ const AdminNotifications = () => {
     scheduled_camera: "text-purple-400",
   };
 
+  const markMaintenanceDone = async (jobId: string) => {
+    await (supabase as any).from("camera_jobs").update({ maintenance_done_at: new Date().toISOString() }).eq("id", jobId);
+    await checkNotifications();
+  };
+
   const renderNotifList = (notifs: Notification[]) => (
     notifs.map(n => {
       const Icon = IconMap[n.icon];
@@ -238,6 +243,16 @@ const AdminNotifications = () => {
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground">{n.title}</p>
             <p className="text-[11px] text-muted-foreground">{n.description}</p>
+            {n.type === "maintenance_due" && n.jobId && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-1.5 h-6 text-[11px] px-2 gap-1"
+                onClick={(e) => { e.stopPropagation(); markMaintenanceDone(n.jobId!); }}
+              >
+                <CheckCircle2 className="h-3 w-3" /> Bakım Yapıldı
+              </Button>
+            )}
           </div>
           <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]); }}>
             <X className="h-3 w-3 text-muted-foreground" />
