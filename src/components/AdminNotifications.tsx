@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Cctv, CalendarClock, Wrench, X, Banknote } from "lucide-react";
+import { Bell, Cctv, CalendarClock, Wrench, X, Banknote, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getJobs } from "@/lib/jobStorage";
@@ -135,13 +135,19 @@ const AdminNotifications = () => {
 
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-      cameraJobs.filter((j: any) => j.status === "tamamlandi" && j.completed_at && new Date(j.completed_at) <= sixMonthsAgo).forEach((j: any) => {
+      cameraJobs.filter((j: any) => {
+        if (j.status !== "tamamlandi") return false;
+        const ref = j.maintenance_done_at || j.completed_at;
+        return ref && new Date(ref) <= sixMonthsAgo;
+      }).forEach((j: any) => {
         notifs.push({
           id: `cam-maintenance-${j.id}`,
           type: "maintenance_due",
           category: "camera",
           title: `Bakım Zamanı: ${j.customer_name}`,
-          description: `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
+          description: j.maintenance_done_at
+            ? `Son bakımın üzerinden 6 ay geçti. Yeni bakım hatırlatması.`
+            : `Tamamlanan işin üzerinden 6 ay geçti. Bakım hatırlatması.`,
           icon: "calendar", jobId: j.id,
         });
       });
@@ -215,6 +221,11 @@ const AdminNotifications = () => {
     scheduled_camera: "text-purple-400",
   };
 
+  const markMaintenanceDone = async (jobId: string) => {
+    await (supabase as any).from("camera_jobs").update({ maintenance_done_at: new Date().toISOString() }).eq("id", jobId);
+    await checkNotifications();
+  };
+
   const renderNotifList = (notifs: Notification[]) => (
     notifs.map(n => {
       const Icon = IconMap[n.icon];
@@ -232,6 +243,16 @@ const AdminNotifications = () => {
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-foreground">{n.title}</p>
             <p className="text-[11px] text-muted-foreground">{n.description}</p>
+            {n.type === "maintenance_due" && n.jobId && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-1.5 h-6 text-[11px] px-2 gap-1"
+                onClick={(e) => { e.stopPropagation(); markMaintenanceDone(n.jobId!); }}
+              >
+                <CheckCircle2 className="h-3 w-3" /> Bakım Yapıldı
+              </Button>
+            )}
           </div>
           <Button size="sm" variant="ghost" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, n.id]); }}>
             <X className="h-3 w-3 text-muted-foreground" />

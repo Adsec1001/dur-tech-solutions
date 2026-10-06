@@ -66,6 +66,7 @@ interface CameraJob {
   payment_method?: string | null;
   installments?: number | null;
   scheduled_at?: string | null;
+  maintenance_done_at?: string | null;
 }
 
 const DEFAULT_CHECKLIST: Record<string, string> = {
@@ -337,6 +338,12 @@ const CameraJobManager = () => {
   const handleMarkPaid = async (job: CameraJob) => {
     await (supabase as any).from("camera_jobs").update({ paid_amount: job.fee }).eq("id", job.id);
     toast({ title: "Ödeme tamamlandı olarak işaretlendi!" });
+    await fetchJobs();
+  };
+
+  const handleMaintenanceDone = async (job: CameraJob) => {
+    await (supabase as any).from("camera_jobs").update({ maintenance_done_at: new Date().toISOString() }).eq("id", job.id);
+    toast({ title: "Bakım yapıldı olarak işaretlendi", description: "Hatırlatma 6 ay sonra tekrar görünecek." });
     await fetchJobs();
   };
 
@@ -788,6 +795,11 @@ const CameraJobManager = () => {
                       {job.status !== "tamamlandi" && job.status !== "ertelendi" && (
                         <Button size="sm" variant="outline" className="gap-1 text-xs text-orange-400 border-orange-500/30 hover:bg-orange-500/10" onClick={() => handleStatusChange(job, "ertelendi")}>
                           <CalendarClock className="h-3 w-3" /> Yarına Ertele
+                        </Button>
+                      )}
+                      {job.status === "tamamlandi" && (
+                        <Button size="sm" variant="outline" className="gap-1 text-xs text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/10" onClick={() => handleMaintenanceDone(job)}>
+                          <CheckCircle2 className="h-3 w-3" /> Bakım Yapıldı
                         </Button>
                       )}
                       <Button size="sm" variant="outline" className="gap-1 text-xs text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleDelete(job.id)}>
