@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Cctv, CalendarClock, Wrench, X, Banknote, CheckCircle2 } from "lucide-react";
+import { Bell, BellRing, Cctv, CalendarClock, Wrench, X, Banknote, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getJobs } from "@/lib/jobStorage";
@@ -9,11 +9,11 @@ import { formatSchedule } from "@/lib/scheduleUtils";
 
 interface Notification {
   id: string;
-  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera" | "scheduled_service" | "scheduled_camera";
-  category: "service" | "camera";
+  type: "postponed_service" | "postponed_camera" | "maintenance_due" | "unpaid_service" | "unpaid_camera" | "payment_due_service" | "payment_due_camera" | "scheduled_service" | "scheduled_camera" | "reminder_due";
+  category: "service" | "camera" | "reminder";
   title: string;
   description: string;
-  icon: "wrench" | "cctv" | "calendar" | "banknote";
+  icon: "wrench" | "cctv" | "calendar" | "banknote" | "bell";
   jobId?: string;
 }
 
@@ -186,6 +186,36 @@ const AdminNotifications = () => {
       });
     }
 
+    // 3. Reminders with a set day/time — not done
+    const { data: reminders } = await (supabase as any)
+      .from("reminders")
+      .select("*")
+      .eq("is_done", false)
+      .not("remind_at", "is", null);
+    if (reminders) {
+      reminders.forEach((r: any) => {
+        const d = new Date(r.remind_at);
+        const isToday = d.toDateString() === now.toDateString();
+        const isOverdue = d < now && !isToday;
+        const soon = d <= threeDaysLater;
+        const dateStr = formatSchedule(r.remind_at);
+        notifs.push({
+          id: `reminder-${r.id}`,
+          type: "reminder_due",
+          category: "reminder",
+          title: isToday
+            ? `🔔 Bugün: ${r.title}`
+            : isOverdue
+              ? `⚠️ Gecikmiş Hatırlatma: ${r.title}`
+              : soon
+                ? `🔔 Yaklaşan Hatırlatma: ${r.title}`
+                : `🔔 Hatırlatma: ${r.title}`,
+          description: `Tarih: ${dateStr}${r.note ? ` — ${r.note}` : ""}`,
+          icon: "bell",
+        });
+      });
+    }
+
     setNotifications(notifs);
     if (notifs.length > 0) setOpen(true);
   }, []);
@@ -199,15 +229,17 @@ const AdminNotifications = () => {
   const priorityOrder = (n: Notification) => {
     if (n.type.startsWith("postponed")) return 0;
     if (n.type.startsWith("scheduled")) return 1;
+    if (n.type === "reminder_due") return 1;
     if (n.type.startsWith("payment_due")) return 2;
     return 3;
   };
   const sortedNotifs = [...activeNotifs].sort((a, b) => priorityOrder(a) - priorityOrder(b));
   const serviceNotifs = sortedNotifs.filter(n => n.category === "service");
   const cameraNotifs = sortedNotifs.filter(n => n.category === "camera");
+  const reminderNotifs = sortedNotifs.filter(n => n.category === "reminder");
   const count = activeNotifs.length;
 
-  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote };
+  const IconMap = { wrench: Wrench, cctv: Cctv, calendar: CalendarClock, banknote: Banknote, bell: BellRing };
 
   const colorMap: Record<Notification["type"], string> = {
     postponed_service: "text-orange-400",
@@ -219,6 +251,7 @@ const AdminNotifications = () => {
     payment_due_camera: "text-blue-400",
     scheduled_service: "text-purple-400",
     scheduled_camera: "text-purple-400",
+    reminder_due: "text-amber-400",
   };
 
   const markMaintenanceDone = async (jobId: string) => {
@@ -314,6 +347,17 @@ const AdminNotifications = () => {
                     </div>
                     <div className="space-y-1.5">
                       {renderNotifList(cameraNotifs)}
+                    </div>
+                  </div>
+                )}
+                {reminderNotifs.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <BellRing className="h-3.5 w-3.5 text-amber-400" />
+                      <span className="text-xs font-semibold text-foreground">Hatırlatmalar ({reminderNotifs.length})</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {renderNotifList(reminderNotifs)}
                     </div>
                   </div>
                 )}

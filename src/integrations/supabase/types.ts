@@ -28,6 +28,7 @@ export type Database = {
           id: string
           installments: number | null
           job_type: string
+          maintenance_done_at: string | null
           material_cost: number | null
           notes: string | null
           paid_amount: number | null
@@ -53,6 +54,7 @@ export type Database = {
           id?: string
           installments?: number | null
           job_type?: string
+          maintenance_done_at?: string | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
@@ -78,6 +80,7 @@ export type Database = {
           id?: string
           installments?: number | null
           job_type?: string
+          maintenance_done_at?: string | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
