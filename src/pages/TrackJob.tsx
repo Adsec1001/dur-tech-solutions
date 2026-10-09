@@ -141,6 +141,7 @@ const TrackJob = () => {
 
   const completedSteps = job ? job.steps.filter((s) => s.completed).length : 0;
   const totalSteps = job ? job.steps.length : 0;
+  const nextStepId = job?.steps.find((s) => !s.completed)?.id;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
