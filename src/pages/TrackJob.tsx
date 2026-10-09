@@ -141,6 +141,7 @@ const TrackJob = () => {
 
   const completedSteps = job ? job.steps.filter((s) => s.completed).length : 0;
   const totalSteps = job ? job.steps.length : 0;
+  const nextStepId = job?.steps.find((s) => !s.completed)?.id;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -248,21 +249,40 @@ const TrackJob = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    {job.steps.map((step, i) => (
-                      <div key={step.id} className="flex items-start gap-2">
-                        <div className={`mt-0.5 h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          step.completed
-                            ? "bg-green-500/20 border-green-500/50 text-green-400"
-                            : "border-border text-muted-foreground"
-                        }`}>
-                          {step.completed ? <Check className="h-3 w-3" /> : <span className="text-[10px]">{i + 1}</span>}
-                        </div>
-                        <span className={`text-sm ${step.completed ? "text-muted-foreground" : "text-foreground"}`}>
-                          {step.description}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                     {job.steps.map((step, i) => {
+                       const isNext = step.id === nextStepId && job.status !== "completed";
+                       return (
+                         <div
+                           key={step.id}
+                           className={`flex items-start gap-2 rounded-lg px-2 py-1.5 -mx-2 border ${
+                             isNext
+                               ? "bg-green-500/10 border-green-500/30"
+                               : "border-transparent"
+                           }`}
+                         >
+                           <div className={`mt-0.5 h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${
+                             step.completed
+                               ? "bg-green-500/20 border-green-500/50 text-green-400"
+                               : isNext
+                                 ? "bg-green-500/20 border-green-500/50 text-green-400"
+                                 : "border-border text-muted-foreground"
+                           }`}>
+                             {step.completed ? <Check className="h-3 w-3" /> : <span className="text-[10px]">{i + 1}</span>}
+                           </div>
+                           <div className="flex-1 min-w-0">
+                             <span className={`text-sm ${step.completed || !isNext ? (step.completed ? "text-muted-foreground" : "text-foreground") : "text-green-400 font-medium"}`}>
+                               {step.description}
+                             </span>
+                             {isNext && (
+                               <span className="block text-[11px] font-semibold text-green-400">
+                                 ⏳ Sıradaki işlem
+                               </span>
+                             )}
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
                 </div>
               )}
 
