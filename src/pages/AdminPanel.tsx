@@ -20,6 +20,7 @@ import SecurityProductsManager from "@/components/SecurityProductsManager";
 import AdminNotifications from "@/components/AdminNotifications";
 import JobStepsEditor from "@/components/JobStepsEditor";
 import RemindersManager from "@/components/RemindersManager";
+import BackupManager from "@/components/BackupManager";
 
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
@@ -84,7 +85,7 @@ const AdminPanel = () => {
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders" | "backup">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
@@ -654,6 +655,16 @@ const AdminPanel = () => {
           >
             <BellRing className="h-4 w-4" /> Hatırlatmalar
           </button>
+          <button
+            onClick={() => setActiveTab("backup")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "backup"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            Yedekleme
+          </button>
         </div>
 
 
@@ -673,6 +684,8 @@ const AdminPanel = () => {
           </div>
         )}
         {activeTab === "reminders" && <RemindersManager />}
+        {activeTab === "backup" && <BackupManager />}
+
 
 
         {/* General Revenue Summary + Service Dashboard - only on jobs tab */}
