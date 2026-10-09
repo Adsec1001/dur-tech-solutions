@@ -53,6 +53,7 @@ const TrackingSection = () => {
 
   const completedSteps = job ? job.steps.filter((s) => s.completed).length : 0;
   const totalSteps = job ? job.steps.length : 0;
+  const nextStepId = job?.steps.find((s) => !s.completed)?.id;
 
   return (
     <section id="tracking" className="py-20">
