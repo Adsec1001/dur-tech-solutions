@@ -16,6 +16,7 @@ const TABLES = [
   "product_sales",
   "material_movements",
   "shopping_list",
+  "computer_sales",
 ] as const;
 
 const BackupManager = () => {
