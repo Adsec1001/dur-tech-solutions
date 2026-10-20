@@ -95,6 +95,96 @@ export type Database = {
         }
         Relationships: []
       }
+      computer_sales: {
+        Row: {
+          accessories: string | null
+          brand: string
+          buyer_address: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          condition: string
+          cpu: string | null
+          created_at: string
+          gpu: string | null
+          id: string
+          installments: number | null
+          model: string
+          notes: string | null
+          os: string | null
+          payment_method: string | null
+          purchase_date: string
+          purchase_price: number
+          ram_gb: string | null
+          sale_date: string | null
+          sale_price: number | null
+          serial_number: string | null
+          sort_order: number
+          status: string
+          storage: string | null
+          supplier: string | null
+          updated_at: string
+          warranty_months: number | null
+        }
+        Insert: {
+          accessories?: string | null
+          brand?: string
+          buyer_address?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          condition?: string
+          cpu?: string | null
+          created_at?: string
+          gpu?: string | null
+          id?: string
+          installments?: number | null
+          model?: string
+          notes?: string | null
+          os?: string | null
+          payment_method?: string | null
+          purchase_date?: string
+          purchase_price?: number
+          ram_gb?: string | null
+          sale_date?: string | null
+          sale_price?: number | null
+          serial_number?: string | null
+          sort_order?: number
+          status?: string
+          storage?: string | null
+          supplier?: string | null
+          updated_at?: string
+          warranty_months?: number | null
+        }
+        Update: {
+          accessories?: string | null
+          brand?: string
+          buyer_address?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          condition?: string
+          cpu?: string | null
+          created_at?: string
+          gpu?: string | null
+          id?: string
+          installments?: number | null
+          model?: string
+          notes?: string | null
+          os?: string | null
+          payment_method?: string | null
+          purchase_date?: string
+          purchase_price?: number
+          ram_gb?: string | null
+          sale_date?: string | null
+          sale_price?: number | null
+          serial_number?: string | null
+          sort_order?: number
+          status?: string
+          storage?: string | null
+          supplier?: string | null
+          updated_at?: string
+          warranty_months?: number | null
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
