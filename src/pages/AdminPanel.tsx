@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Plus, Trash2, Check, ArrowRight, ChevronDown, ChevronUp,
   Clipboard, CalendarClock, CheckCircle2, XCircle, LogOut, Pencil, Save, X, Package, Wrench, Cctv,
-  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing, Printer
+  DollarSign, TrendingUp, AlertCircle, Banknote, TrendingDown, Receipt, Eye, EyeOff, Link2, Boxes, ShieldCheck, GripVertical, BellRing, Printer, Monitor
 } from "lucide-react";
 import { exportJobPdf } from "@/lib/jobPdf";
 import ProductManager from "@/components/ProductManager";
@@ -21,6 +21,7 @@ import AdminNotifications from "@/components/AdminNotifications";
 import JobStepsEditor from "@/components/JobStepsEditor";
 import RemindersManager from "@/components/RemindersManager";
 import BackupManager from "@/components/BackupManager";
+import ComputerSalesManager from "@/components/ComputerSalesManager";
 
 import { ServiceJob, ServiceType, JobStatus, JobStep, Accessory, PaymentMethod } from "@/types/serviceJob";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
@@ -85,7 +86,7 @@ const AdminPanel = () => {
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<JobStatus | "all">("all");
   const [monthFilter, setMonthFilter] = useState<string>("all"); // "all" | "YYYY-MM"
-  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders" | "backup">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders" | "backup" | "computers">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
@@ -615,6 +616,16 @@ const AdminPanel = () => {
             <Package className="h-4 w-4" /> Ürünler
           </button>
           <button
+            onClick={() => setActiveTab("computers")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              activeTab === "computers"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            }`}
+          >
+            <Monitor className="h-4 w-4" /> Bilgisayar Satışları
+          </button>
+          <button
             onClick={() => setActiveTab("security")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
               activeTab === "security"
@@ -675,6 +686,7 @@ const AdminPanel = () => {
           </div>
         )}
         {activeTab === "camera" && <CameraJobManager />}
+        {activeTab === "computers" && <ComputerSalesManager />}
         {activeTab === "security" && <SecurityProductsManager />}
         {activeTab === "materials" && <MaterialsManager />}
         {activeTab === "expenses" && (
