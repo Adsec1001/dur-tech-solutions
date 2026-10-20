@@ -259,6 +259,7 @@ const ComputerSalesManager = () => {
   const inStock = computers.filter(c => c.status === "stokta");
   const sold = computers.filter(c => c.status === "satildi");
   const totalRevenue = sold.reduce((s, c) => s + (c.sale_price || 0), 0);
+  const totalNetProfit = sold.reduce((s, c) => s + ((c.sale_price || 0) - (c.purchase_price || 0)), 0);
 
   return (
     <div className="space-y-4">
@@ -296,6 +297,7 @@ const ComputerSalesManager = () => {
               <span className="text-[11px] text-muted-foreground font-medium">Satış Geliri</span>
             </div>
             <p className="text-lg font-bold text-foreground">{totalRevenue.toLocaleString("tr-TR")}₺</p>
+            <p className={`text-[11px] font-semibold ${totalNetProfit >= 0 ? "text-green-400" : "text-red-400"}`}>Net Kâr: {totalNetProfit.toLocaleString("tr-TR")}₺</p>
           </CardContent>
         </Card>
       </div>
@@ -393,6 +395,14 @@ const ComputerSalesManager = () => {
                       Alım: {new Date(c.purchase_date).toLocaleDateString("tr-TR")} · Alış: {c.purchase_price.toLocaleString("tr-TR")}₺
                       {c.serial_number && <> · SN: {c.serial_number}</>}
                     </p>
+                    {isSold && (() => {
+                      const np = (c.sale_price || 0) - (c.purchase_price || 0);
+                      return (
+                        <p className={`text-xs font-semibold mt-0.5 ${np >= 0 ? "text-green-400" : "text-red-400"}`}>
+                          📈 Net Kâr: {np.toLocaleString("tr-TR")}₺
+                        </p>
+                      );
+                    })()}
                     {isSold && (
                       <p className="text-xs text-green-400 mt-0.5">
                         💰 {(c.sale_price || 0).toLocaleString("tr-TR")}₺ · {c.sale_date ? new Date(c.sale_date).toLocaleDateString("tr-TR") : ""}
