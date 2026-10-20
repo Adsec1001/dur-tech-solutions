@@ -89,6 +89,7 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState<"jobs" | "products" | "camera" | "security" | "materials" | "expenses" | "reminders" | "backup" | "computers">("jobs");
   const [expensesForDashboard, setExpensesForDashboard] = useState<any[]>([]);
   const [productSalesForDashboard, setProductSalesForDashboard] = useState<any[]>([]);
+  const [computerSalesForDashboard, setComputerSalesForDashboard] = useState<any[]>([]);
   const [hideAmounts, setHideAmounts] = useState<boolean>(() => sessionStorage.getItem("db_hide_amounts") === "1");
   const { toast } = useToast();
 
@@ -133,6 +134,8 @@ const AdminPanel = () => {
     if (expData) setExpensesForDashboard(expData);
     const { data: salesData } = await (supabase as any).from("product_sales").select("*");
     if (salesData) setProductSalesForDashboard(salesData);
+    const { data: pcData } = await (supabase as any).from("computer_sales").select("status, sale_price, purchase_price");
+    if (pcData) setComputerSalesForDashboard(pcData);
     return data;
   }, []);
 
@@ -722,8 +725,11 @@ const AdminPanel = () => {
           const grandPaid = svcPaid + camPaid;
           const grandRemaining = grandTotal - grandPaid;
           const netProfit = grandPaid - totalExpenses - totalMaterial;
-          // Toplam Kâr: servis net + kamera net + ürün satışları - genel giderler
-          const totalProfit = (svcPaid - svcMaterial) + (camPaid - camMaterial) + productSalesTotal - totalExpenses;
+          const soldPcs = computerSalesForDashboard.filter((c: any) => c.status === "satildi");
+          const pcRevenue = soldPcs.reduce((s: number, c: any) => s + (Number(c.sale_price) || 0), 0);
+          const pcProfit = soldPcs.reduce((s: number, c: any) => s + ((Number(c.sale_price) || 0) - (Number(c.purchase_price) || 0)), 0);
+          // Toplam Kâr: servis net + kamera net + ürün satışları + bilgisayar net kârı - genel giderler
+          const totalProfit = (svcPaid - svcMaterial) + (camPaid - camMaterial) + productSalesTotal + pcProfit - totalExpenses;
 
           return (
             <>
@@ -787,6 +793,11 @@ const AdminPanel = () => {
                     <div className="flex items-center gap-1.5">
                       <Package className="h-3.5 w-3.5 text-primary" />
                       <span>Ürün Satış: <strong className="text-foreground">{fmt(productSalesTotal)}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                      <span>Bilgisayar: <strong className="text-foreground">{fmt(pcRevenue)}</strong></span>
+                      <span className={pcProfit >= 0 ? "text-green-400" : "text-red-400"}>(Net {fmt(pcProfit)})</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <TrendingDown className="h-3.5 w-3.5 text-red-400" />
