@@ -47,7 +47,7 @@ const barChart = (title: string, labels: string[], series: { name: string; color
 const hbars = (title: string, items: { label: string; value: number; color: string }[], fmt = (n: number) => String(n)) => {
   const max = Math.max(1, ...items.map((i) => i.value));
   return `<div style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px"><div style="font-weight:700;font-size:13px;margin-bottom:8px">${title}</div>${items
-    .map((i) => `<div style="font-size:10px;margin-bottom:6px"><div style="display:flex;justify-content:space-between"><span>${esc(i.label)}</span><b>${fmt(i.value)}</b></div><div style="background:#f1f5f9;border-radius:4px;height:9px"><div style="width:${(i.value / max) * 100}%;height:9px;background:${i.color};border-radius:4px"></div></div></div>`)
+    .map((i) => `<div style="font-size:10px;margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span>${esc(i.label)}</span><b>${fmt(i.value)}</b></div><div style="background:#f1f5f9;border-radius:4px;height:10px"><div style="width:${(i.value / max) * 100}%;height:10px;background:${i.color};border-radius:4px"></div></div></div>`)
     .join("") || '<div style="font-size:10px;color:#94a3b8">Kayıt yok</div>'}</div>`;
 };
 
@@ -103,11 +103,14 @@ export async function exportReportPdf(data: ReportData, year = new Date().getFul
       { name: "Teknik Servis", color: "#2563eb", values: monthly(sj, "created_at", () => 1) },
       { name: "Kamera", color: "#0891b2", values: monthly(cj, "created_at", () => 1) },
     ])}
-    <div style="display:flex;gap:8px;margin-top:12px">
+    `;
+
+  const distributions = `
+    <div style="display:flex;gap:8px">
       ${hbars("Servis Türleri", count(sj, "service_type").map(([l, v], i) => ({ label: l, value: v, color: palette[i] })))}
       ${hbars("Kamera İş Tipleri", count(cj, "job_type").map(([l, v], i) => ({ label: l, value: v, color: palette[i] })))}
     </div>
-    <div style="display:flex;gap:8px;margin-top:8px">
+    <div style="display:flex;gap:8px;margin-top:10px">
       ${hbars("Gider Kategorileri", Object.entries(ex.reduce((m: Record<string, number>, e) => ((m[e.category || "Diğer"] = (m[e.category || "Diğer"] || 0) + Number(e.amount || 0)), m), {})).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([l, v], i) => ({ label: l, value: v, color: palette[(i + 3) % 8] })), tl)}
       ${hbars("İş Durumları", [
         { label: "Tamamlanan", value: [...sj, ...cj].filter((j) => done(j.status)).length, color: "#16a34a" },
@@ -115,7 +118,10 @@ export async function exportReportPdf(data: ReportData, year = new Date().getFul
       ])}
     </div>`;
 
-  const bodies: { title: string; html: string }[] = [{ title: "Genel Özet ve Grafikler", html: summary }];
+  const bodies: { title: string; html: string }[] = [
+    { title: "Genel Özet ve Grafikler", html: summary },
+    { title: "Dağılımlar", html: distributions },
+  ];
   const sortDesc = (a: Row[], k: string) => [...a].sort((x, y) => String(y[k] || "").localeCompare(String(x[k] || "")));
   const R = 34;
   chunk(sortDesc(sj, "created_at"), R).forEach((c, i, all) => bodies.push({ title: `Teknik Servis İşleri (${i + 1}/${all.length})`, html: table(["Tarih", "Kod", "Müşteri", "Cihaz / Tür", "Durum", "Ücret", "Ödenen", "Ödeme"], c.map((j) => [d(j.created_at), esc(j.tracking_code), esc(`${j.customer_name} ${j.customer_surname || ""}`), esc(`${j.device_name || ""} ${j.service_type}`), done(j.status) ? '<span style="color:#16a34a">Tamamlandı</span>' : '<span style="color:#ca8a04">Devam</span>', tl(j.fee), tl(j.paid_amount), payBadge(Number(j.fee || 0), Number(j.paid_amount || 0))])) }));
