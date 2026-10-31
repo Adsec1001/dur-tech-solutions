@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import pdfLogo from "@/assets/db-pdf-logo.png";
+import { fileStamp } from "@/lib/fileStamp";
 
 export interface JobPdfField {
   label: string;
@@ -148,7 +149,7 @@ export const exportJobPdf = async (opts: JobPdfOptions) => {
     }
 
     const safe = (fileName || docTitle).replace(/[^\wğüşıöçĞÜŞİÖÇ\s-]/g, "").replace(/\s+/g, "_");
-    pdf.save(`${safe}_${new Date().toISOString().split("T")[0]}.pdf`);
+    pdf.save(`${safe}_${fileStamp()}.pdf`);
   } finally {
     document.body.removeChild(wrapper);
   }

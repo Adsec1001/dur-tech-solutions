@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Upload, DatabaseBackup, FileBarChart } from "lucide-react";
 import { exportReportPdf, type ReportData } from "@/lib/reportPdf";
+import { fileStamp } from "@/lib/fileStamp";
 
 // Order matters for restore (parents before children with foreign keys)
 const TABLES = [
@@ -32,7 +33,7 @@ const BackupManager = () => {
       for (const t of TABLES) {
         const all: unknown[] = [];
         for (let from = 0; ; from += 1000) {
-          const { data: rows, error } = await supabase.from(t).select("*").range(from, from + 999);
+          const { data: rows, error } = await supabase.from(t).select("*").setHeader("Cache-Control", "no-store").range(from, from + 999);
           if (error) throw new Error(`${t}: ${error.message}`);
           all.push(...(rows || []));
           if (!rows || rows.length < 1000) break;
@@ -43,7 +44,7 @@ const BackupManager = () => {
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `durbilisim_yedek_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+      a.download = `durbilisim_yedek_${fileStamp()}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
       const total = Object.values(data).reduce((s, r) => s + r.length, 0);
@@ -63,7 +64,7 @@ const BackupManager = () => {
       for (const t of keys) {
         const all: any[] = [];
         for (let from = 0; ; from += 1000) {
-          const { data: rows, error } = await supabase.from(t).select("*").range(from, from + 999);
+          const { data: rows, error } = await supabase.from(t).select("*").setHeader("Cache-Control", "no-store").range(from, from + 999);
           if (error) throw new Error(`${t}: ${error.message}`);
           all.push(...(rows || []));
           if (!rows || rows.length < 1000) break;
