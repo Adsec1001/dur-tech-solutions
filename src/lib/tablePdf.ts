@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { fileStamp } from "@/lib/fileStamp";
 
 export interface TablePdfOptions {
   title: string;
@@ -94,7 +95,7 @@ export const exportTablePdf = async (opts: TablePdfOptions) => {
     }
 
     const safe = (fileName || title).replace(/[^\wğüşıöçĞÜŞİÖÇ\s-]/g, "").replace(/\s+/g, "_");
-    pdf.save(`${safe}_${new Date().toISOString().split("T")[0]}.pdf`);
+    pdf.save(`${safe}_${fileStamp()}.pdf`);
   } finally {
     document.body.removeChild(wrapper);
   }

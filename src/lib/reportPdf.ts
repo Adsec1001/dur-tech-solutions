@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { fileStamp, humanStamp } from "@/lib/fileStamp";
 
 type Row = Record<string, any>;
 export interface ReportData {
@@ -136,5 +137,5 @@ export async function exportReportPdf(data: ReportData, year = new Date().getFul
   } finally {
     host.remove();
   }
-  pdf.save(`durbilisim_rapor_${new Date().toISOString().slice(0, 10)}.pdf`);
+  pdf.save(`durbilisim_rapor_${fileStamp()}.pdf`);
 }

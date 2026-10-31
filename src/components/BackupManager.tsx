@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Upload, DatabaseBackup, FileBarChart } from "lucide-react";
 import { exportReportPdf, type ReportData } from "@/lib/reportPdf";
+import { fileStamp } from "@/lib/fileStamp";
 
 // Order matters for restore (parents before children with foreign keys)
 const TABLES = [
@@ -43,7 +44,7 @@ const BackupManager = () => {
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `durbilisim_yedek_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+      a.download = `durbilisim_yedek_${fileStamp()}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
       const total = Object.values(data).reduce((s, r) => s + r.length, 0);
