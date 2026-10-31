@@ -88,6 +88,7 @@ export async function exportReportPdf(data: ReportData, year = new Date().getFul
   const palette = ["#2563eb", "#16a34a", "#ca8a04", "#dc2626", "#7c3aed", "#0891b2", "#db2777", "#475569"];
 
   const summary = `
+    <div style="font-size:11px;color:#475569;margin-bottom:8px">Rapor tarihi: <b>${humanStamp()}</b> · Tüm kayıtlar baştan sona, eksiksiz olarak listelenmiştir.</div>
     <div style="display:flex;gap:8px">${card("Teknik Servis Tahsilat", tl(sRev), "#2563eb")}${card("Kamera Tahsilat", tl(cRev), "#0891b2")}${card("Ürün Satış", tl(pRev), "#7c3aed")}</div>
     <div style="display:flex;gap:8px;margin-top:8px">${card("Bilgisayar Satış", tl(pcRev), "#16a34a")}${card("Toplam Gider", tl(exTot), "#dc2626")}${card("Bekleyen Alacak", tl(debt), "#ca8a04")}</div>
     <div style="display:flex;gap:8px;margin-top:8px">${card("Teknik Servis İşi", String(sj.length), "#2563eb")}${card("Kamera İşi", String(cj.length), "#0891b2")}${card("Satılan Bilgisayar", `${soldPcs.length} / ${cs.length}`, "#16a34a")}</div>

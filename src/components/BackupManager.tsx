@@ -33,7 +33,7 @@ const BackupManager = () => {
       for (const t of TABLES) {
         const all: unknown[] = [];
         for (let from = 0; ; from += 1000) {
-          const { data: rows, error } = await supabase.from(t).select("*").range(from, from + 999);
+          const { data: rows, error } = await supabase.from(t).select("*").setHeader("Cache-Control", "no-store").range(from, from + 999);
           if (error) throw new Error(`${t}: ${error.message}`);
           all.push(...(rows || []));
           if (!rows || rows.length < 1000) break;
@@ -64,7 +64,7 @@ const BackupManager = () => {
       for (const t of keys) {
         const all: any[] = [];
         for (let from = 0; ; from += 1000) {
-          const { data: rows, error } = await supabase.from(t).select("*").range(from, from + 999);
+          const { data: rows, error } = await supabase.from(t).select("*").setHeader("Cache-Control", "no-store").range(from, from + 999);
           if (error) throw new Error(`${t}: ${error.message}`);
           all.push(...(rows || []));
           if (!rows || rows.length < 1000) break;
