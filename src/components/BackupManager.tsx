@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Download, Upload, DatabaseBackup } from "lucide-react";
+import { Download, Upload, DatabaseBackup, FileBarChart } from "lucide-react";
+import { exportReportPdf, type ReportData } from "@/lib/reportPdf";
 
 // Order matters for restore (parents before children with foreign keys)
 const TABLES = [
@@ -54,6 +55,30 @@ const BackupManager = () => {
     }
   };
 
+  const exportReport = async () => {
+    setBusy(true);
+    try {
+      const keys = ["service_jobs", "camera_jobs", "product_sales", "computer_sales", "expenses"] as const;
+      const data: Record<string, any[]> = {};
+      for (const t of keys) {
+        const all: any[] = [];
+        for (let from = 0; ; from += 1000) {
+          const { data: rows, error } = await supabase.from(t).select("*").range(from, from + 999);
+          if (error) throw new Error(`${t}: ${error.message}`);
+          all.push(...(rows || []));
+          if (!rows || rows.length < 1000) break;
+        }
+        data[t] = all;
+      }
+      await exportReportPdf(data as unknown as ReportData);
+      toast({ title: "Rapor indirildi" });
+    } catch (e) {
+      toast({ title: "Rapor oluşturulamadı", description: String(e), variant: "destructive" });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const importBackup = async (file: File) => {
     if (!confirm("Yedekteki kayıtlar geri yüklenecek. Aynı kayıtlar yedekteki haliyle güncellenir. Devam edilsin mi?")) return;
     setBusy(true);
@@ -93,6 +118,9 @@ const BackupManager = () => {
       <div className="flex flex-wrap gap-3">
         <Button onClick={exportBackup} disabled={busy}>
           <Download className="h-4 w-4 mr-2" /> Yedek Al
+        </Button>
+        <Button variant="secondary" onClick={exportReport} disabled={busy}>
+          <FileBarChart className="h-4 w-4 mr-2" /> Grafikli PDF Rapor
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={busy}>
           <Upload className="h-4 w-4 mr-2" /> Yedekten Geri Yükle
