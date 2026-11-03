@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
 import { exportJobPdf } from "@/lib/jobPdf";
+import { Peripheral, PERIPHERAL_TYPES, computerRevenue, computerProfit } from "@/lib/computerTotals";
 
 interface ComputerSale {
   id: string;
@@ -40,6 +41,11 @@ interface ComputerSale {
   payment_method: string;
   installments: number;
   created_at: string;
+  peripherals?: Peripheral[];
+  paid_amount?: number | null;
+  promised_payment_date?: string | null;
+  sale_warranty_months?: number | null;
+  invoice_no?: string | null;
 }
 
 const emptyForm = {
@@ -68,6 +74,10 @@ const emptySaleForm = {
   buyer_address: "",
   payment_method: "nakit" as PaymentMethod,
   installments: 1,
+  paid_amount: "",
+  promised_payment_date: "",
+  sale_warranty_months: "12",
+  invoice_no: "",
 };
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -76,12 +86,29 @@ const CONDITION_LABELS: Record<string, string> = {
   yenilenmis: "Yenilenmiş",
 };
 
+const payState = (c: ComputerSale) => {
+  const total = computerRevenue(c);
+  const paid = Math.min(total, Number(c.paid_amount) || 0);
+  const remaining = Math.max(0, total - paid);
+  const status: "paid" | "partial" | "unpaid" = total > 0 && remaining === 0 ? "paid" : paid > 0 ? "partial" : "unpaid";
+  return { total, paid, remaining, status };
+};
+
+const warrantyEnd = (c: ComputerSale) => {
+  if (!c.sale_date || !c.sale_warranty_months) return null;
+  const d = new Date(c.sale_date);
+  d.setMonth(d.getMonth() + c.sale_warranty_months);
+  return d;
+};
+
+
 const ComputerSalesManager = () => {
   const [computers, setComputers] = useState<ComputerSale[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [sellingId, setSellingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [periphs, setPeriphs] = useState<Peripheral[]>([]);
   const [saleForm, setSaleForm] = useState(emptySaleForm);
   const { toast } = useToast();
 
@@ -97,6 +124,7 @@ const ComputerSalesManager = () => {
 
   const resetForm = () => {
     setForm(emptyForm);
+    setPeriphs([]);
     setEditingId(null);
     setShowForm(false);
   };
@@ -122,6 +150,7 @@ const ComputerSalesManager = () => {
       warranty_months: parseInt(form.warranty_months) || 0,
       accessories: form.accessories.trim(),
       notes: form.notes.trim(),
+      peripherals: periphs.map(p => ({ ...p, name: p.name.trim(), sale_price: p.sale_mode === "ayri" ? p.sale_price : 0 })),
     };
     if (editingId) {
       await (supabase as any).from("computer_sales").update(payload).eq("id", editingId);
@@ -153,6 +182,7 @@ const ComputerSalesManager = () => {
       accessories: c.accessories || "",
       notes: c.notes || "",
     });
+    setPeriphs(c.peripherals || []);
     setShowForm(true);
     setSellingId(null);
   };
@@ -162,6 +192,8 @@ const ComputerSalesManager = () => {
       toast({ title: "Satış fiyatı girin", variant: "destructive" });
       return;
     }
+    const c = computers.find(x => x.id === id);
+    const total = c ? saleTotal(c) : parseFloat(saleForm.sale_price);
     await (supabase as any).from("computer_sales").update({
       status: "satildi",
       sale_price: parseFloat(saleForm.sale_price),
@@ -171,10 +203,20 @@ const ComputerSalesManager = () => {
       buyer_address: saleForm.buyer_address.trim(),
       payment_method: saleForm.payment_method,
       installments: saleForm.installments,
+      paid_amount: Math.min(total, parseFloat(saleForm.paid_amount) || 0),
+      promised_payment_date: saleForm.promised_payment_date || null,
+      sale_warranty_months: parseInt(saleForm.sale_warranty_months) || 0,
+      invoice_no: saleForm.invoice_no.trim(),
     }).eq("id", id);
     toast({ title: "Satış olarak işaretlendi!" });
     setSellingId(null);
     setSaleForm(emptySaleForm);
+    await fetchData();
+  };
+
+  const updatePaid = async (c: ComputerSale, amount: number) => {
+    await (supabase as any).from("computer_sales").update({ paid_amount: amount }).eq("id", c.id);
+    toast({ title: amount >= computerRevenue(c) ? "Ödendi olarak işaretlendi" : amount === 0 ? "Ödenmedi olarak işaretlendi" : "Tahsilat kaydedildi" });
     await fetchData();
   };
 
@@ -186,6 +228,10 @@ const ComputerSalesManager = () => {
       buyer_name: "",
       buyer_phone: "",
       buyer_address: "",
+      paid_amount: 0,
+      promised_payment_date: null,
+      sale_warranty_months: 0,
+      invoice_no: "",
     }).eq("id", id);
     toast({ title: "Satış geri alındı, stokta" });
     await fetchData();
@@ -231,11 +277,23 @@ const ComputerSalesManager = () => {
         ...(c.accessories
           ? [{ heading: "Aksesuarlar", text: c.accessories }]
           : []),
+        ...((c.peripherals || []).length
+          ? [{
+              heading: "Çevre Birimleri",
+              fields: (c.peripherals || []).map(p => ({
+                label: `${PERIPHERAL_TYPES[p.type] || p.type}${p.name ? ` – ${p.name}` : ""}`,
+                value: p.sale_mode === "ayri" ? `Ayrı satış: ${(p.sale_price || 0).toLocaleString("tr-TR")}₺` : "Sete dahil",
+              })),
+            }]
+          : []),
         ...(sold
           ? [{
               heading: "Satış ve Ödeme Bilgileri",
               fields: [
-                { label: "Satış Fiyatı", value: `${(c.sale_price || 0).toLocaleString("tr-TR")}₺` },
+                { label: "Set Fiyatı", value: `${(c.sale_price || 0).toLocaleString("tr-TR")}₺` },
+                ...(computerRevenue(c) !== (c.sale_price || 0)
+                  ? [{ label: "Toplam Tutar", value: `${computerRevenue(c).toLocaleString("tr-TR")}₺` }]
+                  : []),
                 { label: "Satış Tarihi", value: c.sale_date ? new Date(c.sale_date).toLocaleDateString("tr-TR") : "—" },
                 { label: "Ödeme Yöntemi", value: paymentLabel },
                 { label: "Ödeme Durumu", value: "Ödendi" },
@@ -258,8 +316,8 @@ const ComputerSalesManager = () => {
 
   const inStock = computers.filter(c => c.status === "stokta");
   const sold = computers.filter(c => c.status === "satildi");
-  const totalRevenue = sold.reduce((s, c) => s + (c.sale_price || 0), 0);
-  const totalNetProfit = sold.reduce((s, c) => s + ((c.sale_price || 0) - (c.purchase_price || 0)), 0);
+  const totalRevenue = sold.reduce((s, c) => s + computerRevenue(c), 0);
+  const totalNetProfit = sold.reduce((s, c) => s + computerProfit(c), 0);
 
   return (
     <div className="space-y-4">
@@ -271,7 +329,17 @@ const ComputerSalesManager = () => {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="border-border/50 sm:order-last">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <CalendarDays className="h-4 w-4 text-amber-400" />
+              <span className="text-[11px] text-muted-foreground font-medium">Bekleyen Alacak</span>
+            </div>
+            <p className="text-lg font-bold text-amber-400">{sold.reduce((s, c) => s + payState(c).remaining, 0).toLocaleString("tr-TR")}₺</p>
+            <p className="text-[11px] text-muted-foreground">{sold.filter(c => payState(c).remaining > 0).length} satışta borç var</p>
+          </CardContent>
+        </Card>
         <Card className="border-border/50">
           <CardContent className="p-3">
             <div className="flex items-center gap-2 mb-1">
@@ -353,6 +421,54 @@ const ComputerSalesManager = () => {
             </div>
             <Input placeholder="Tedarikçi / Alınan Yer" value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} maxLength={100} />
             <Input placeholder="Aksesuarlar (ör. çanta, mouse, şarj aleti)" value={form.accessories} onChange={e => setForm({ ...form, accessories: e.target.value })} maxLength={200} />
+            <div className="rounded-md border border-border/60 p-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground">🖥️ Çevre Birimleri (monitör, klavye, mouse…)</p>
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setPeriphs([...periphs, { id: crypto.randomUUID(), type: "monitor", name: "", purchase_price: 0, sale_mode: "set", sale_price: 0 }])}>
+                  <Plus className="h-3 w-3 mr-1" />Ekle
+                </Button>
+              </div>
+              {periphs.length === 0 && <p className="text-[11px] text-muted-foreground">Çevre birimi yok</p>}
+              {periphs.map((p, i) => {
+                const upd = (patch: Partial<Peripheral>) => setPeriphs(periphs.map((x, j) => j === i ? { ...x, ...patch } : x));
+                return (
+                  <div key={p.id} className="grid grid-cols-2 md:grid-cols-6 gap-2 items-end border-t border-border/40 pt-2">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Tür</p>
+                      <select className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm" value={p.type} onChange={e => upd({ type: e.target.value })}>
+                        {Object.entries(PERIPHERAL_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Marka / Model</p>
+                      <Input value={p.name} onChange={e => upd({ name: e.target.value })} maxLength={100} placeholder="ör. Samsung 24&quot;" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Alış (₺)</p>
+                      <Input type="number" min={0} value={p.purchase_price || ""} onChange={e => upd({ purchase_price: parseFloat(e.target.value) || 0 })} />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground mb-0.5">Satış şekli</p>
+                      <select className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm" value={p.sale_mode} onChange={e => upd({ sale_mode: e.target.value as Peripheral["sale_mode"] })}>
+                        <option value="set">Sete dahil</option>
+                        <option value="ayri">Ayrı satış</option>
+                      </select>
+                    </div>
+                    <div className="flex gap-1 items-end">
+                      {p.sale_mode === "ayri" ? (
+                        <div className="flex-1">
+                          <p className="text-[11px] text-muted-foreground mb-0.5">Satış (₺)</p>
+                          <Input type="number" min={0} value={p.sale_price || ""} onChange={e => upd({ sale_price: parseFloat(e.target.value) || 0 })} />
+                        </div>
+                      ) : <div className="flex-1 text-[11px] text-muted-foreground pb-2">Set fiyatına dahil</div>}
+                      <Button size="sm" variant="ghost" className="h-9 w-8 p-0" onClick={() => setPeriphs(periphs.filter((_, j) => j !== i))}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
             <Textarea placeholder="Notlar" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={resetForm}>İptal</Button>
@@ -395,8 +511,18 @@ const ComputerSalesManager = () => {
                       Alım: {new Date(c.purchase_date).toLocaleDateString("tr-TR")} · Alış: {c.purchase_price.toLocaleString("tr-TR")}₺
                       {c.serial_number && <> · SN: {c.serial_number}</>}
                     </p>
+                    {(c.peripherals || []).length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {(c.peripherals || []).map(p => (
+                          <Badge key={p.id} variant="outline" className={`text-[11px] ${p.sale_mode === "ayri" ? "border-amber-500/40 text-amber-400" : "border-primary/40 text-primary"}`}>
+                            {PERIPHERAL_TYPES[p.type] || p.type}{p.name ? `: ${p.name}` : ""} · {p.sale_mode === "ayri" ? `Ayrı ${(p.sale_price || 0).toLocaleString("tr-TR")}₺` : "Sete dahil"}
+                            {` (alış ${(p.purchase_price || 0).toLocaleString("tr-TR")}₺)`}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                     {isSold && (() => {
-                      const np = (c.sale_price || 0) - (c.purchase_price || 0);
+                      const np = computerProfit(c);
                       return (
                         <p className={`text-xs font-semibold mt-0.5 ${np >= 0 ? "text-green-400" : "text-red-400"}`}>
                           📈 Net Kâr: {np.toLocaleString("tr-TR")}₺
@@ -405,11 +531,42 @@ const ComputerSalesManager = () => {
                     })()}
                     {isSold && (
                       <p className="text-xs text-green-400 mt-0.5">
-                        💰 {(c.sale_price || 0).toLocaleString("tr-TR")}₺ · {c.sale_date ? new Date(c.sale_date).toLocaleDateString("tr-TR") : ""}
+                        💰 {computerRevenue(c).toLocaleString("tr-TR")}₺{computerRevenue(c) !== (c.sale_price || 0) && <> (set {(c.sale_price || 0).toLocaleString("tr-TR")}₺ + ayrı satışlar)</>} · {c.sale_date ? new Date(c.sale_date).toLocaleDateString("tr-TR") : ""}
                         {c.buyer_name && <> · 👤 {c.buyer_name}</>}
-                        {c.buyer_phone && <> · 📞 {c.buyer_phone}</>}
+                        {c.buyer_phone && <> · <a href={`tel:${c.buyer_phone}`} className="underline">📞 {c.buyer_phone}</a></>}
+                        {c.invoice_no && <> · 🧾 {c.invoice_no}</>}
                       </p>
                     )}
+                    {isSold && (() => {
+                      const ps = payState(c);
+                      const wEnd = warrantyEnd(c);
+                      const overdue = ps.remaining > 0 && c.promised_payment_date && new Date(c.promised_payment_date) < new Date(new Date().toDateString());
+                      return (
+                        <div className="mt-1.5 rounded-md border border-border/50 bg-muted/30 p-2 space-y-1.5">
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <Badge className={`text-[11px] ${ps.status === "paid" ? "bg-green-500/20 text-green-400 border-green-500/30" : ps.status === "partial" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}>
+                              {ps.status === "paid" ? "✓ Ödendi" : ps.status === "partial" ? "Kısmi Ödendi" : "Ödenmedi"}
+                            </Badge>
+                            <span className="text-muted-foreground">Ödenen: <b className="text-foreground">{ps.paid.toLocaleString("tr-TR")}₺</b></span>
+                            {ps.remaining > 0 && <span className="text-amber-400 font-semibold">Kalan: {ps.remaining.toLocaleString("tr-TR")}₺</span>}
+                            {ps.remaining > 0 && (c.promised_payment_date
+                              ? <span className={overdue ? "text-red-400 font-semibold" : "text-muted-foreground"}>{overdue ? "⚠️ Gecikti" : "📆 Söz"}: {new Date(c.promised_payment_date).toLocaleDateString("tr-TR")}</span>
+                              : <span className="text-muted-foreground">⏳ Ödeme bekleniyor</span>)}
+                            {wEnd && <span className={wEnd < new Date() ? "text-muted-foreground line-through" : "text-cyan-400"}>🛡️ Garanti: {wEnd.toLocaleDateString("tr-TR")}'e kadar</span>}
+                          </div>
+                          <div className="flex flex-wrap gap-1 items-center">
+                            <Button size="sm" variant="outline" className="h-7 text-xs text-green-500 border-green-500/40" disabled={ps.status === "paid"} onClick={() => updatePaid(c, ps.total)}>Ödendi</Button>
+                            <Button size="sm" variant="outline" className="h-7 text-xs text-red-400 border-red-500/40" disabled={ps.paid === 0} onClick={() => updatePaid(c, 0)}>Ödenmedi</Button>
+                            {ps.remaining > 0 && (
+                              <>
+                                <Input type="number" min={0} placeholder="Tahsilat ₺" className="h-7 w-28 text-xs" value={payInputs[c.id] || ""} onChange={e => setPayInputs({ ...payInputs, [c.id]: e.target.value })} />
+                                <Button size="sm" variant="secondary" className="h-7 text-xs" onClick={() => { const v = parseFloat(payInputs[c.id] || ""); if (v > 0) { updatePaid(c, Math.min(ps.total, ps.paid + v)); setPayInputs({ ...payInputs, [c.id]: "" }); } }}>+ Ekle</Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                     {c.notes && <p className="text-xs text-muted-foreground mt-0.5">📝 {c.notes}</p>}
                   </div>
                   <div className="flex gap-1">
@@ -462,8 +619,38 @@ const ComputerSalesManager = () => {
                         installments={saleForm.installments}
                         onChange={(method, installments) => setSaleForm({ ...saleForm, payment_method: method, installments })}
                         fee={parseFloat(saleForm.sale_price) || 0}
-                        paid={0}
+                        paid={parseFloat(saleForm.paid_amount) || 0}
                       />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">💵 Peşin Alınan (₺)</p>
+                          <div className="flex gap-1">
+                            <Input type="number" min={0} value={saleForm.paid_amount} onChange={e => setSaleForm({ ...saleForm, paid_amount: e.target.value })} />
+                            <Button type="button" size="sm" variant="outline" className="text-xs text-green-500 border-green-500/40" onClick={() => setSaleForm({ ...saleForm, paid_amount: String(saleTotal(c)) })}>Tamamı</Button>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">📆 Söz Verilen Ödeme Günü</p>
+                          <Input type="date" value={saleForm.promised_payment_date} onChange={e => setSaleForm({ ...saleForm, promised_payment_date: e.target.value })} />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">🛡️ Müşteriye Garanti (ay)</p>
+                          <Input type="number" min={0} value={saleForm.sale_warranty_months} onChange={e => setSaleForm({ ...saleForm, sale_warranty_months: e.target.value })} />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">🧾 Fatura / Fiş No</p>
+                          <Input value={saleForm.invoice_no} onChange={e => setSaleForm({ ...saleForm, invoice_no: e.target.value })} maxLength={40} />
+                        </div>
+                      </div>
+                      {(() => {
+                        const total = saleTotal(c);
+                        const rem = Math.max(0, total - (parseFloat(saleForm.paid_amount) || 0));
+                        return total > 0 ? (
+                          <p className={`text-xs font-semibold ${rem > 0 ? "text-amber-400" : "text-green-400"}`}>
+                            Toplam: {total.toLocaleString("tr-TR")}₺ · {rem > 0 ? `Kalan borç: ${rem.toLocaleString("tr-TR")}₺` : "Tamamı ödendi ✓"}
+                          </p>
+                        ) : null;
+                      })()}
                       <div className="flex gap-2 justify-end">
                         <Button variant="outline" size="sm" onClick={() => { setSellingId(null); setSaleForm(emptySaleForm); }}>İptal</Button>
                         <Button size="sm" onClick={() => handleMarkSold(c.id)}>Satışı Onayla</Button>
