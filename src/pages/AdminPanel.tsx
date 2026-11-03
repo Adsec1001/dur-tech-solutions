@@ -726,8 +726,8 @@ const AdminPanel = () => {
           const grandRemaining = grandTotal - grandPaid;
           const netProfit = grandPaid - totalExpenses - totalMaterial;
           const soldPcs = computerSalesForDashboard.filter((c: any) => c.status === "satildi");
-          const pcRevenue = soldPcs.reduce((s: number, c: any) => s + (Number(c.sale_price) || 0), 0);
-          const pcProfit = soldPcs.reduce((s: number, c: any) => s + ((Number(c.sale_price) || 0) - (Number(c.purchase_price) || 0)), 0);
+          const pcRevenue = soldPcs.reduce((s: number, c: any) => s + computerRevenue(c), 0);
+          const pcProfit = soldPcs.reduce((s: number, c: any) => s + computerProfit(c), 0);
           // Toplam Kâr: servis net + kamera net + ürün satışları + bilgisayar net kârı - genel giderler
           const totalProfit = (svcPaid - svcMaterial) + (camPaid - camMaterial) + productSalesTotal + pcProfit - totalExpenses;
 
