@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
 import { exportJobPdf } from "@/lib/jobPdf";
+import { Peripheral, PERIPHERAL_TYPES, computerRevenue, computerProfit } from "@/lib/computerTotals";
 
 interface ComputerSale {
   id: string;
@@ -275,8 +276,8 @@ const ComputerSalesManager = () => {
 
   const inStock = computers.filter(c => c.status === "stokta");
   const sold = computers.filter(c => c.status === "satildi");
-  const totalRevenue = sold.reduce((s, c) => s + (c.sale_price || 0), 0);
-  const totalNetProfit = sold.reduce((s, c) => s + ((c.sale_price || 0) - (c.purchase_price || 0)), 0);
+  const totalRevenue = sold.reduce((s, c) => s + computerRevenue(c), 0);
+  const totalNetProfit = sold.reduce((s, c) => s + computerProfit(c), 0);
 
   return (
     <div className="space-y-4">
