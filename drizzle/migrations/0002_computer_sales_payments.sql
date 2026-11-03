@@ -1,0 +1,1 @@
+ALTER TABLE public.computer_sales ADD COLUMN IF NOT EXISTS paid_amount numeric NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS promised_payment_date timestamptz, ADD COLUMN IF NOT EXISTS sale_warranty_months integer DEFAULT 0, ADD COLUMN IF NOT EXISTS invoice_no text DEFAULT '';
