@@ -108,20 +108,16 @@ export type Database = {
           gpu: string | null
           id: string
           installments: number | null
-          invoice_no: string | null
           model: string
           notes: string | null
           os: string | null
-          paid_amount: number
           payment_method: string | null
           peripherals: Json
-          promised_payment_date: string | null
           purchase_date: string
           purchase_price: number
           ram_gb: string | null
           sale_date: string | null
           sale_price: number | null
-          sale_warranty_months: number | null
           serial_number: string | null
           sort_order: number
           status: string
@@ -142,20 +138,16 @@ export type Database = {
           gpu?: string | null
           id?: string
           installments?: number | null
-          invoice_no?: string | null
           model?: string
           notes?: string | null
           os?: string | null
-          paid_amount?: number
           payment_method?: string | null
           peripherals?: Json
-          promised_payment_date?: string | null
           purchase_date?: string
           purchase_price?: number
           ram_gb?: string | null
           sale_date?: string | null
           sale_price?: number | null
-          sale_warranty_months?: number | null
           serial_number?: string | null
           sort_order?: number
           status?: string
@@ -176,20 +168,16 @@ export type Database = {
           gpu?: string | null
           id?: string
           installments?: number | null
-          invoice_no?: string | null
           model?: string
           notes?: string | null
           os?: string | null
-          paid_amount?: number
           payment_method?: string | null
           peripherals?: Json
-          promised_payment_date?: string | null
           purchase_date?: string
           purchase_price?: number
           ram_gb?: string | null
           sale_date?: string | null
           sale_price?: number | null
-          sale_warranty_months?: number | null
           serial_number?: string | null
           sort_order?: number
           status?: string
