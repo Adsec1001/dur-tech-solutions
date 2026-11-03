@@ -8,13 +8,6 @@
       "when": 1792511147615,
       "tag": "0000_create_computer_sales",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1793695021331,
-      "tag": "0001_computer_sales_peripherals",
-      "breakpoints": true
     }
   ]
 }

@@ -112,7 +112,6 @@ export type Database = {
           notes: string | null
           os: string | null
           payment_method: string | null
-          peripherals: Json
           purchase_date: string
           purchase_price: number
           ram_gb: string | null
@@ -142,7 +141,6 @@ export type Database = {
           notes?: string | null
           os?: string | null
           payment_method?: string | null
-          peripherals?: Json
           purchase_date?: string
           purchase_price?: number
           ram_gb?: string | null
@@ -172,7 +170,6 @@ export type Database = {
           notes?: string | null
           os?: string | null
           payment_method?: string | null
-          peripherals?: Json
           purchase_date?: string
           purchase_price?: number
           ram_gb?: string | null

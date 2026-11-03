@@ -1,1 +1,0 @@
-ALTER TABLE public.computer_sales ADD COLUMN IF NOT EXISTS peripherals jsonb NOT NULL DEFAULT '[]'::jsonb;
