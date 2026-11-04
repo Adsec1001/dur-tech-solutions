@@ -135,7 +135,7 @@ const AdminPanel = () => {
     if (expData) setExpensesForDashboard(expData);
     const { data: salesData } = await (supabase as any).from("product_sales").select("*");
     if (salesData) setProductSalesForDashboard(salesData);
-    const { data: pcData } = await (supabase as any).from("computer_sales").select("status, sale_price, purchase_price");
+    const { data: pcData } = await (supabase as any).from("computer_sales").select("status, sale_price, purchase_price, peripherals");
     if (pcData) setComputerSalesForDashboard(pcData);
     return data;
   }, []);

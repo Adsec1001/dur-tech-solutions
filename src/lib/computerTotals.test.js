@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { computerRevenue, computerProfit, computerPayment, type Peripheral } from "./computerTotals";
+import { computerRevenue, computerProfit, computerPayment } from "./computerTotals.ts";
 
-const peripherals: Peripheral[] = [
+const peripherals = [
   { id: "monitor", type: "monitor", name: "Set monitörü", purchase_price: 1000, sale_mode: "set", sale_price: 1500 },
   { id: "mouse", type: "mouse", name: "Ayrı mouse", purchase_price: 100, sale_mode: "ayri", sale_price: 300 },
 ];
