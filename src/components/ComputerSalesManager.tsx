@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { PaymentMethod } from "@/types/serviceJob";
 import { exportJobPdf } from "@/lib/jobPdf";
-import { Peripheral, PERIPHERAL_TYPES, computerRevenue, computerProfit } from "@/lib/computerTotals";
+import { Peripheral, PERIPHERAL_TYPES, computerRevenue, computerProfit, computerPayment } from "@/lib/computerTotals";
 
 interface ComputerSale {
   id: string;
@@ -86,13 +86,7 @@ const CONDITION_LABELS: Record<string, string> = {
   yenilenmis: "Yenilenmiş",
 };
 
-const payState = (c: ComputerSale) => {
-  const total = computerRevenue(c);
-  const paid = Math.min(total, Number(c.paid_amount) || 0);
-  const remaining = Math.max(0, total - paid);
-  const status: "paid" | "partial" | "unpaid" = total > 0 && remaining === 0 ? "paid" : paid > 0 ? "partial" : "unpaid";
-  return { total, paid, remaining, status };
-};
+const payState = computerPayment;
 
 const warrantyEnd = (c: ComputerSale) => {
   if (!c.sale_date || !c.sale_warranty_months) return null;
@@ -110,15 +104,19 @@ const ComputerSalesManager = () => {
   const [form, setForm] = useState(emptyForm);
   const [periphs, setPeriphs] = useState<Peripheral[]>([]);
   const [saleForm, setSaleForm] = useState(emptySaleForm);
+  const [payInputs, setPayInputs] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
+  const saleTotal = (c: ComputerSale) => computerRevenue({ ...c, sale_price: parseFloat(saleForm.sale_price) || 0 });
+
   const fetchData = useCallback(async () => {
-    const { data } = await (supabase as any)
+    const { data, error } = await (supabase as any)
       .from("computer_sales")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setComputers(data as ComputerSale[]);
-  }, []);
+    if (error) toast({ title: "Bilgisayar kayıtları alınamadı", description: error.message, variant: "destructive" });
+    else if (data) setComputers(data as ComputerSale[]);
+  }, [toast]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -194,7 +192,7 @@ const ComputerSalesManager = () => {
     }
     const c = computers.find(x => x.id === id);
     const total = c ? saleTotal(c) : parseFloat(saleForm.sale_price);
-    await (supabase as any).from("computer_sales").update({
+    const { error } = await (supabase as any).from("computer_sales").update({
       status: "satildi",
       sale_price: parseFloat(saleForm.sale_price),
       sale_date: saleForm.sale_date || new Date().toISOString(),
@@ -203,11 +201,15 @@ const ComputerSalesManager = () => {
       buyer_address: saleForm.buyer_address.trim(),
       payment_method: saleForm.payment_method,
       installments: saleForm.installments,
-      paid_amount: Math.min(total, parseFloat(saleForm.paid_amount) || 0),
+      paid_amount: Math.max(0, Math.min(total, parseFloat(saleForm.paid_amount) || 0)),
       promised_payment_date: saleForm.promised_payment_date || null,
       sale_warranty_months: parseInt(saleForm.sale_warranty_months) || 0,
       invoice_no: saleForm.invoice_no.trim(),
     }).eq("id", id);
+    if (error) {
+      toast({ title: "Satış kaydedilemedi", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Satış olarak işaretlendi!" });
     setSellingId(null);
     setSaleForm(emptySaleForm);
@@ -215,7 +217,12 @@ const ComputerSalesManager = () => {
   };
 
   const updatePaid = async (c: ComputerSale, amount: number) => {
-    await (supabase as any).from("computer_sales").update({ paid_amount: amount }).eq("id", c.id);
+    const paidAmount = computerPayment({ ...c, paid_amount: amount }).paid;
+    const { error } = await (supabase as any).from("computer_sales").update({ paid_amount: paidAmount }).eq("id", c.id);
+    if (error) {
+      toast({ title: "Tahsilat kaydedilemedi", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: amount >= computerRevenue(c) ? "Ödendi olarak işaretlendi" : amount === 0 ? "Ödenmedi olarak işaretlendi" : "Tahsilat kaydedildi" });
     await fetchData();
   };
@@ -245,6 +252,8 @@ const ComputerSalesManager = () => {
 
   const handlePrint = (c: ComputerSale) => {
     const sold = c.status === "satildi";
+    const payment = payState(c);
+    const paymentStatus = payment.status === "paid" ? "Ödendi" : payment.status === "partial" ? "Kısmi Ödendi" : "Ödenmedi";
     const paymentLabel =
       c.payment_method === "kart" ? "Kredi Kartı" :
       c.payment_method === "taksit" ? `Taksit (${c.installments} ay)` : "Nakit";
@@ -252,7 +261,7 @@ const ComputerSalesManager = () => {
       docTitle: "Bilgisayar Satış Formu",
       headerCode: c.serial_number || undefined,
       statusLabel: sold ? "Satıldı" : "Stokta",
-      paymentBadge: sold ? "Ödendi" : undefined,
+      paymentBadge: sold ? paymentStatus : undefined,
       sections: [
         {
           heading: "Bilgisayar Bilgileri",
@@ -296,7 +305,12 @@ const ComputerSalesManager = () => {
                   : []),
                 { label: "Satış Tarihi", value: c.sale_date ? new Date(c.sale_date).toLocaleDateString("tr-TR") : "—" },
                 { label: "Ödeme Yöntemi", value: paymentLabel },
-                { label: "Ödeme Durumu", value: "Ödendi" },
+                { label: "Ödeme Durumu", value: paymentStatus },
+                { label: "Ödenen Tutar", value: `${payment.paid.toLocaleString("tr-TR")}₺` },
+                { label: "Kalan Borç", value: `${payment.remaining.toLocaleString("tr-TR")}₺` },
+                ...(payment.remaining > 0 ? [{ label: "Söz Verilen Ödeme Günü", value: c.promised_payment_date ? new Date(c.promised_payment_date).toLocaleDateString("tr-TR") : "Ödeme bekleniyor" }] : []),
+                { label: "Müşteriye Garanti", value: c.sale_warranty_months ? `${c.sale_warranty_months} ay` : "—" },
+                ...(c.invoice_no ? [{ label: "Fatura / Fiş No", value: c.invoice_no }] : []),
               ],
             },
             {
