@@ -62,7 +62,7 @@ const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | nul
       </Button>
       <div className="flex justify-between text-xs">
         {mode !== "login" ? <button className="text-primary" onClick={() => setMode("login")}>Girişe dön</button>
-          : <button className="text-primary" onClick={() => setMode("signup")}>İlk kez: hesap oluştur</button>}
+          : <span />}
         {mode === "login" && <button className="text-muted-foreground" onClick={() => setMode("forgot")}>Şifremi unuttum</button>}
       </div>
     </Wrap>
