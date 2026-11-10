@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
+import AdminLogin from "@/components/AdminLogin";
 import { computerRevenue, computerProfit } from "@/lib/computerTotals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,25 +54,8 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// Admin authentication key — obfuscated
-const _k = [97, 69, 50, 57, 55, 87, 64, 52, 74, 49, 35].map(c => String.fromCharCode(c)).join("");
-
-const hashPin = async (pin: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-};
-
-let resolvedHash: string | null = null;
-(async () => {
-  resolvedHash = await hashPin(_k);
-})();
-
 const AdminPanel = () => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [pin, setPin] = useState("");
+  const { loading: authLoading, isAdmin: authenticated, email: authEmail, signOut } = useAdminAuth();
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
   const [cameraJobsForDashboard, setCameraJobsForDashboard] = useState<any[]>([]);
   const [productsForDashboard, setProductsForDashboard] = useState<any[]>([]);
@@ -165,20 +150,6 @@ const AdminPanel = () => {
       });
     }
   }, [authenticated, refreshJobs]);
-
-  const handleLogin = async () => {
-    const inputHash = await hashPin(pin);
-    if (inputHash === resolvedHash) {
-      setAuthenticated(true);
-      sessionStorage.setItem("db_admin", "1");
-    } else {
-      toast({ title: "Hatalı PIN", variant: "destructive" });
-    }
-  };
-
-  useEffect(() => {
-    if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
-  }, []);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -543,29 +514,8 @@ const AdminPanel = () => {
     return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
   };
 
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm border-primary/30">
-          <CardHeader className="text-center">
-            <CardTitle className="text-primary text-xl">Admin Giriş</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              type="password"
-              placeholder="PIN giriniz"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              maxLength={20}
-              className="text-center text-lg tracking-widest"
-            />
-            <Button onClick={handleLogin} className="w-full">Giriş</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (authLoading) return <div className="min-h-screen bg-background" />;
+  if (!authenticated) return <AdminLogin signedInEmail={authEmail} onSignOut={signOut} />;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -579,7 +529,7 @@ const AdminPanel = () => {
           <Button
             size="sm"
             variant="outline"
-            onClick={() => { sessionStorage.removeItem("db_admin"); setAuthenticated(false); }}
+            onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
           </Button>
