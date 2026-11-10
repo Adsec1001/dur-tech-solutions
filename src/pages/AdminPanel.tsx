@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { uncollectedDays } from "@/lib/deliveryTracking";
 import { computerRevenue, computerProfit } from "@/lib/computerTotals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,25 +53,8 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// Admin authentication key — obfuscated
-const _k = [97, 69, 50, 57, 55, 87, 64, 52, 74, 49, 35].map(c => String.fromCharCode(c)).join("");
-
-const hashPin = async (pin: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-};
-
-let resolvedHash: string | null = null;
-(async () => {
-  resolvedHash = await hashPin(_k);
-})();
-
 const AdminPanel = () => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [pin, setPin] = useState("");
+  const authenticated = true;
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
   const [cameraJobsForDashboard, setCameraJobsForDashboard] = useState<any[]>([]);
   const [productsForDashboard, setProductsForDashboard] = useState<any[]>([]);
@@ -118,6 +102,9 @@ const AdminPanel = () => {
     paymentMethod: "nakit" as PaymentMethod,
     installments: 1,
     scheduledAt: "",
+    readyAt: "",
+    lastCustomerNotifiedAt: "",
+    collectedAt: "",
   });
   const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [newAccessory, setNewAccessory] = useState("");
@@ -165,20 +152,6 @@ const AdminPanel = () => {
       });
     }
   }, [authenticated, refreshJobs]);
-
-  const handleLogin = async () => {
-    const inputHash = await hashPin(pin);
-    if (inputHash === resolvedHash) {
-      setAuthenticated(true);
-      sessionStorage.setItem("db_admin", "1");
-    } else {
-      toast({ title: "Hatalı PIN", variant: "destructive" });
-    }
-  };
-
-  useEffect(() => {
-    if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
-  }, []);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -240,10 +213,13 @@ const AdminPanel = () => {
       paymentMethod: form.paymentMethod,
       installments: form.installments,
       scheduledAt: form.scheduledAt || undefined,
+      readyAt: form.readyAt || undefined,
+      lastCustomerNotifiedAt: form.lastCustomerNotifiedAt || undefined,
+      collectedAt: form.collectedAt || undefined,
     };
-    await addJob(job);
+    try { await addJob(job); } catch { toast({ title: "Kayıt eklenemedi; teslim tarihlerini kontrol edin.", variant: "destructive" }); return; }
     await refreshJobs();
-    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1, scheduledAt: "" });
+    setForm({ customerName: "", customerSurname: "", customerPhone: "", serviceType: "device", deviceName: "", fee: "", notes: "", rustdeskId: "", paidAmount: "", promisedPaymentDate: "", materialCost: "", paymentMethod: "nakit", installments: 1, scheduledAt: "", readyAt: "", lastCustomerNotifiedAt: "", collectedAt: "" });
     setAccessories([]);
     setShowForm(false);
     toast({ title: `İş eklendi! Takip Kodu: ${job.trackingCode}` });
@@ -306,6 +282,10 @@ const AdminPanel = () => {
             { label: "Kayıt Tarihi", value: new Date(job.createdAt).toLocaleString("tr-TR") },
             ...(job.scheduledAt ? [{ label: "Yapılacak Gün", value: formatSchedule(job.scheduledAt) }] : []),
             ...(job.postponedTo ? [{ label: "Ertelendi", value: formatSchedule(job.postponedTo) }] : []),
+            ...(job.readyAt ? [{ label: "Cihaz Hazır Olma Tarihi", value: new Date(job.readyAt).toLocaleDateString("tr-TR") }] : []),
+            ...(job.lastCustomerNotifiedAt ? [{ label: "Müşteriye Son Bildirim", value: new Date(job.lastCustomerNotifiedAt).toLocaleDateString("tr-TR") }] : []),
+            ...(job.readyAt ? [{ label: job.collectedAt ? "Teslim Alınana Kadar" : "Teslim Alınmama Süresi", value: `${uncollectedDays(job.readyAt, job.collectedAt)} gün` }] : []),
+            ...(job.collectedAt ? [{ label: "Teslim Alınma Tarihi", value: new Date(job.collectedAt).toLocaleDateString("tr-TR") }] : []),
             ...(job.completedAt ? [{ label: "Tamamlanma", value: new Date(job.completedAt).toLocaleString("tr-TR") }] : []),
           ],
         },
@@ -342,6 +322,9 @@ const AdminPanel = () => {
       paymentMethod: job.paymentMethod || "nakit",
       installments: job.installments || 1,
       scheduledAt: job.scheduledAt ? job.scheduledAt.slice(0, 16) : "",
+      readyAt: job.readyAt || "",
+      lastCustomerNotifiedAt: job.lastCustomerNotifiedAt || "",
+      collectedAt: job.collectedAt || "",
     } as any);
     setEditAccessories([...job.accessories]);
     setNewEditAccessory("");
@@ -376,6 +359,9 @@ const AdminPanel = () => {
       notes: editForm.notes?.trim() || "",
       completionNotes: editForm.completionNotes?.trim() || "",
       status: (editForm.status as JobStatus) || job.status,
+      readyAt: editForm.readyAt || undefined,
+      lastCustomerNotifiedAt: editForm.lastCustomerNotifiedAt || undefined,
+      collectedAt: editForm.collectedAt || undefined,
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
@@ -394,8 +380,9 @@ const AdminPanel = () => {
     }
     if (editForm.status === "completed" && job.status !== "completed") {
       updated.completedAt = new Date().toISOString();
+      if (job.serviceType === "device" && !updated.readyAt) updated.readyAt = new Date().toLocaleDateString("sv-SE");
     }
-    await updateJob(updated);
+    try { await updateJob(updated); } catch { toast({ title: "Kaydedilemedi; teslim tarihi hazır olma tarihinden önce olamaz.", variant: "destructive" }); return; }
     await refreshJobs();
     setEditingJob(null);
     setEditForm({});
@@ -417,6 +404,7 @@ const AdminPanel = () => {
     }
     if (status === "completed") {
       updated.completedAt = new Date().toISOString();
+      if (job.serviceType === "device" && !updated.readyAt) updated.readyAt = new Date().toLocaleDateString("sv-SE");
       updated.completionNotes = completionNotes[job.id] || "";
     }
     await updateJob(updated);
@@ -543,30 +531,6 @@ const AdminPanel = () => {
     return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
   };
 
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm border-primary/30">
-          <CardHeader className="text-center">
-            <CardTitle className="text-primary text-xl">Admin Giriş</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              type="password"
-              placeholder="PIN giriniz"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              maxLength={20}
-              className="text-center text-lg tracking-widest"
-            />
-            <Button onClick={handleLogin} className="w-full">Giriş</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
@@ -579,7 +543,7 @@ const AdminPanel = () => {
           <Button
             size="sm"
             variant="outline"
-            onClick={() => { sessionStorage.removeItem("db_admin"); setAuthenticated(false); }}
+            title="Çıkış yap" aria-label="Çıkış yap" onClick={() => void supabase.auth.signOut()}
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -956,6 +920,11 @@ const AdminPanel = () => {
                 <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
                 <Input type="datetime-local" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} />
               </div>
+              {form.serviceType === "device" && <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label className="text-xs text-muted-foreground">Cihaz hazır olma tarihi<Input aria-label="Cihaz hazır olma tarihi" type="date" value={form.readyAt} onChange={e => setForm({ ...form, readyAt: e.target.value })} /></label>
+                <label className="text-xs text-muted-foreground">Müşteriye son bildirim tarihi<Input aria-label="Müşteriye son bildirim tarihi" type="date" value={form.lastCustomerNotifiedAt} onChange={e => setForm({ ...form, lastCustomerNotifiedAt: e.target.value })} /></label>
+                <label className="text-xs text-muted-foreground">Teslim alınma tarihi<Input aria-label="Teslim alınma tarihi" type="date" min={form.readyAt} value={form.collectedAt} onChange={e => setForm({ ...form, collectedAt: e.target.value })} /></label>
+              </div>}
               <Textarea placeholder="Notlar (opsiyonel)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} maxLength={500} rows={2} />
 
               <div className="flex gap-2 justify-end">
@@ -1080,7 +1049,7 @@ const AdminPanel = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               downloadAlarm(
-                                job.scheduledAt!,
+                                job.scheduledAt || "",
                                 `İş: ${job.customerName} ${job.customerSurname}`,
                                 `${job.deviceName || ""} ${job.notes || ""}`.trim(),
                               );
@@ -1120,6 +1089,11 @@ const AdminPanel = () => {
                           )}
                         </div>
                       )}
+                      {job.serviceType === "device" && <div className="flex flex-wrap gap-2 mt-2 text-xs">
+                        <Badge variant="outline">Hazır: {job.readyAt ? new Date(job.readyAt).toLocaleDateString("tr-TR") : "Belirtilmedi"}</Badge>
+                        <Badge variant="outline">Son bildirim: {job.lastCustomerNotifiedAt ? new Date(job.lastCustomerNotifiedAt).toLocaleDateString("tr-TR") : "Belirtilmedi"}</Badge>
+                        <Badge variant={job.collectedAt ? "secondary" : "outline"}>{job.collectedAt ? `Teslim alındı: ${new Date(job.collectedAt).toLocaleDateString("tr-TR")}` : `Teslim alınmama süresi: ${uncollectedDays(job.readyAt) === null ? "—" : `${uncollectedDays(job.readyAt)} gün`}`}</Badge>
+                      </div>}
                       <div className="flex items-center gap-2 mt-1">
                         <code className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">{job.trackingCode}</code>
                         <Clipboard
@@ -1249,6 +1223,11 @@ const AdminPanel = () => {
                         <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
                         <Input type="datetime-local" value={(editForm as any).scheduledAt || ""} onChange={(e) => setEditForm({ ...editForm, scheduledAt: e.target.value } as any)} />
                       </div>
+                      {editForm.serviceType === "device" && <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label className="text-xs text-muted-foreground">Cihaz hazır olma tarihi<Input aria-label="Cihaz hazır olma tarihi" type="date" value={editForm.readyAt || ""} onChange={e => setEditForm({ ...editForm, readyAt: e.target.value })} /></label>
+                        <label className="text-xs text-muted-foreground">Müşteriye son bildirim tarihi<Input aria-label="Müşteriye son bildirim tarihi" type="date" value={editForm.lastCustomerNotifiedAt || ""} onChange={e => setEditForm({ ...editForm, lastCustomerNotifiedAt: e.target.value })} /></label>
+                        <label className="text-xs text-muted-foreground">Teslim alınma tarihi<Input aria-label="Teslim alınma tarihi" type="date" min={editForm.readyAt} value={editForm.collectedAt || ""} onChange={e => setEditForm({ ...editForm, collectedAt: e.target.value })} /></label>
+                      </div>}
                       <Textarea placeholder="Notlar" value={editForm.notes || ""} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })} maxLength={500} rows={2} />
 
                       <div>
