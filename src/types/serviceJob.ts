@@ -42,4 +42,9 @@ export interface ServiceJob {
   installments?: number;
   scheduledAt?: string;
   sortOrder?: number;
+  readyAt?: string;
+  lastCustomerNotifiedAt?: string;
+  collectedAt?: string;
+  trackingKind?: "service" | "camera";
+  queuePosition?: number;
 }

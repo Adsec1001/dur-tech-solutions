@@ -1,7 +1,6 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { z } from "npm:zod@3";
 
 interface ItemIn {
   id: string;
@@ -17,6 +16,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+    if (!token) return new Response(JSON.stringify({ error: "Giriş gerekli" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const client = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", { global: { headers: { Authorization: `Bearer ${token}` } } });
+    const { data: { user }, error: authError } = await client.auth.getUser(token);
+    if (authError || !user) return new Response(JSON.stringify({ error: "Geçersiz oturum" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const { data: admin, error: roleError } = await client.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (roleError || admin !== true) return new Response(JSON.stringify({ error: "Yetki gerekli" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return new Response(JSON.stringify({ error: "AI anahtarı yapılandırılmamış" }), {
@@ -25,7 +31,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { items } = (await req.json()) as { items: ItemIn[] };
+    const schema = z.object({ items: z.array(z.object({ id: z.string().uuid(), name: z.string().min(1).max(255), category: z.string().max(100).nullish(), variation: z.string().max(100).nullish(), brand: z.string().max(100).nullish(), model: z.string().max(100).nullish(), price: z.number().nonnegative().nullish() })).max(120) });
+    const parsed = schema.safeParse(await req.json());
+    if (!parsed.success) return new Response(JSON.stringify({ error: "Geçersiz ürün listesi" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const { items } = parsed.data;
     if (!Array.isArray(items) || items.length === 0) {
       return new Response(JSON.stringify({ prices: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -108,7 +117,7 @@ Deno.serve(async (req) => {
               : response.status === 402
               ? "AI kredisi tükendi."
               : "Fiyatlar alınamadı",
-          detail: text.slice(0, 300),
+
         }),
         { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -129,7 +138,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: (e as Error).message }), {
+    return new Response(JSON.stringify({ error: "İşlem tamamlanamadı" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

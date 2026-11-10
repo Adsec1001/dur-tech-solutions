@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2, Users } from "lucide-react";
 import { ServiceJob, JobStatus } from "@/types/serviceJob";
 import { findByTrackingCode } from "@/lib/jobStorage";
-import { supabase } from "@/integrations/supabase/client";
 
 const STATUS_LABELS: Record<JobStatus, string> = {
   pending: "Bekliyor",
@@ -42,12 +41,7 @@ const TrackingSection = () => {
     setJob(found || null);
     setSearched(true);
     setQueuePosition(null);
-    if (found && found.status !== "completed") {
-      const svc = await supabase.from("service_jobs").select("id", { count: "exact", head: true })
-        .in("status", ["pending", "in_progress", "postponed"])
-        .lt("created_at", found.createdAt);
-      setQueuePosition(svc.count || 0);
-    }
+    if (found && found.status !== "completed") setQueuePosition(found.queuePosition ?? 0);
     setLoading(false);
   };
 

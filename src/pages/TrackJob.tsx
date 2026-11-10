@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Check, Clock, ArrowRight, CalendarClock, CheckCircle2, ArrowLeft, Users } from "lucide-react";
 import { ServiceJob, JobStatus } from "@/types/serviceJob";
 import { findByTrackingCode } from "@/lib/jobStorage";
-import { supabase } from "@/integrations/supabase/client";
 import { Link, useSearchParams } from "react-router-dom";
 
 const STATUS_LABELS: Record<JobStatus, string> = {
@@ -63,68 +62,17 @@ const TrackJob = () => {
     setMeta("name", "twitter:description", desc);
   }, [isCamera, job]);
 
-  const CAM_STATUS_MAP: Record<string, JobStatus> = {
-    bekliyor: "pending",
-    devam_ediyor: "in_progress",
-    tamamlandi: "completed",
-    ertelendi: "postponed",
-  };
-
   const handleSearch = async (override?: string) => {
     const q = (override ?? code).trim();
     if (!q) return;
     setLoading(true);
-    let found = await findByTrackingCode(q);
-    let camera = false;
-    if (!found) {
-      const { data: cam } = await (supabase as any)
-        .from("camera_jobs")
-        .select("*")
-        .ilike("tracking_code", q)
-        .maybeSingle();
-      if (cam) {
-        camera = true;
-        found = {
-          id: cam.id,
-          trackingCode: cam.tracking_code,
-          customerName: cam.customer_name,
-          customerSurname: "",
-          customerPhone: cam.customer_phone || "",
-          serviceType: "device" as any,
-          deviceName: cam.dvr_model || "",
-          accessories: [],
-          fee: Number(cam.fee) || 0,
-          notes: "",
-          status: CAM_STATUS_MAP[cam.status] || "pending",
-          steps: (cam.steps || []) as ServiceJob["steps"],
-          completionNotes: "",
-          createdAt: cam.created_at,
-          paidAmount: Number(cam.paid_amount) || 0,
-        } as ServiceJob;
-      }
-    }
-    setIsCamera(camera);
-    setJob(found || null);
-    setSearched(true);
-    setQueuePosition(null);
-    if (found && found.status !== "completed") {
-      if (camera) {
-        // Only other camera jobs count for a camera job's queue
-        const res = await (supabase as any).from("camera_jobs")
-          .select("id", { count: "exact", head: true })
-          .in("status", ["bekliyor", "devam_ediyor", "ertelendi"])
-          .lt("created_at", found.createdAt);
-        setQueuePosition(res.count || 0);
-      } else {
-        // Only other service jobs count for a service job's queue
-        const res = await supabase.from("service_jobs")
-          .select("id", { count: "exact", head: true })
-          .in("status", ["pending", "in_progress", "postponed"])
-          .lt("created_at", found.createdAt);
-        setQueuePosition(res.count || 0);
-      }
-    }
-    setLoading(false);
+    try {
+      const found = await findByTrackingCode(q, "any");
+      setIsCamera(found?.trackingKind === "camera");
+      setJob(found || null);
+      setSearched(true);
+      setQueuePosition(found && found.status !== "completed" ? found.queuePosition ?? 0 : null);
+    } finally { setLoading(false); }
   };
 
   const autoRan = useRef(false);
