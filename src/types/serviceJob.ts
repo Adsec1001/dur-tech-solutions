@@ -37,6 +37,9 @@ export interface ServiceJob {
   rustdeskId?: string;
   paidAmount: number;
   promisedPaymentDate?: string;
+  readyAt?: string;
+  lastCustomerNotifiedAt?: string;
+  collectedAt?: string;
   materialCost?: number;
   paymentMethod?: PaymentMethod;
   installments?: number;
