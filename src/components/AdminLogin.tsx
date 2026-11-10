@@ -36,7 +36,7 @@ const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | nul
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
         if (error) throw error;
-        toast({ title: "Onay e-postası gönderildi", description: "E-postandaki bağlantıya tıklayıp sonra giriş yap." });
+        toast({ title: "Hesap oluşturuldu", description: "Giriş yapılıyor..." });
         setMode("login");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
@@ -45,7 +45,7 @@ const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | nul
         setMode("login");
       }
     } catch (e: any) {
-      const msg = /Invalid login/i.test(e?.message) ? "E-posta veya şifre hatalı" : /not confirmed/i.test(e?.message) ? "E-posta henüz onaylanmadı" : "İşlem başarısız";
+      const msg = /Invalid login/i.test(e?.message) ? "E-posta veya şifre hatalı" : /already registered/i.test(e?.message) ? "Bu hesap zaten var, Giriş yap" : /not confirmed/i.test(e?.message) ? "E-posta henüz onaylanmadı" : /restricted/i.test(e?.message) ? "Bu e-posta ile kayıt yapılamaz" : "İşlem başarısız";
       toast({ title: msg, variant: "destructive" });
     } finally { setBusy(false); }
   };
