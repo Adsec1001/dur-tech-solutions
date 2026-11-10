@@ -27,9 +27,6 @@ const rowToJob = (row: any): ServiceJob => ({
   installments: Number(row.installments) || 1,
   scheduledAt: row.scheduled_at || undefined,
   sortOrder: row.sort_order ?? 0,
-  readyAt: row.ready_at || undefined,
-  lastCustomerNotifiedAt: row.last_customer_notified_at || undefined,
-  collectedAt: row.collected_at || undefined,
 });
 
 // Convert ServiceJob to DB row
@@ -58,9 +55,6 @@ const jobToRow = (job: ServiceJob) => ({
   installments: job.installments || 1,
   scheduled_at: job.scheduledAt || null,
   sort_order: job.sortOrder ?? 0,
-  ready_at: job.readyAt || null,
-  last_customer_notified_at: job.lastCustomerNotifiedAt || null,
-  collected_at: job.collectedAt || null,
 });
 
 export const getJobs = async (): Promise<ServiceJob[]> => {
@@ -78,14 +72,14 @@ export const getJobs = async (): Promise<ServiceJob[]> => {
 
 export const addJob = async (job: ServiceJob): Promise<void> => {
   const { error } = await supabase.from("service_jobs").insert(jobToRow(job));
-  if (error) throw error;
+  if (error) console.error("addJob error:", error);
 };
 
 export const updateJob = async (job: ServiceJob): Promise<void> => {
   const row = jobToRow(job);
   const { id, ...rest } = row;
   const { error } = await supabase.from("service_jobs").update(rest).eq("id", id);
-  if (error) throw error;
+  if (error) console.error("updateJob error:", error);
 };
 
 export const deleteJob = async (id: string): Promise<void> => {
@@ -93,15 +87,17 @@ export const deleteJob = async (id: string): Promise<void> => {
   if (error) console.error("deleteJob error:", error);
 };
 
-export const findByTrackingCode = async (code: string, kind: "any" | "service" | "camera" = "service"): Promise<ServiceJob | undefined> => {
-  const { data, error } = await supabase.rpc("lookup_tracking", { _code: code, _kind: kind });
+export const findByTrackingCode = async (code: string): Promise<ServiceJob | undefined> => {
+  const { data, error } = await supabase
+    .from("service_jobs")
+    .select("*")
+    .ilike("tracking_code", code)
+    .maybeSingle();
   if (error) {
     console.error("findByTrackingCode error:", error);
     return undefined;
   }
-  if (!data || typeof data !== "object" || Array.isArray(data)) return undefined;
-  const result = data as { job?: any; kind?: "service" | "camera"; queue_position?: number };
-  return result.job ? { ...rowToJob(result.job), trackingKind: result.kind, queuePosition: result.queue_position } : undefined;
+  return data ? rowToJob(data) : undefined;
 };
 
 export const saveJobs = async (jobs: ServiceJob[]): Promise<void> => {
@@ -115,9 +111,7 @@ export const generateTrackingCode = (): string => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "DB-";
   for (let i = 0; i < 6; i++) {
-    const bytes = new Uint8Array(1);
-    crypto.getRandomValues(bytes);
-    code += chars[bytes[0] % chars.length];
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
 };

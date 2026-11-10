@@ -504,7 +504,6 @@ export type Database = {
       service_jobs: {
         Row: {
           accessories: Json | null
-          collected_at: string | null
           completed_at: string | null
           completion_notes: string | null
           created_at: string
@@ -515,14 +514,12 @@ export type Database = {
           fee: number | null
           id: string
           installments: number | null
-          last_customer_notified_at: string | null
           material_cost: number | null
           notes: string | null
           paid_amount: number | null
           payment_method: string | null
           postponed_to: string | null
           promised_payment_date: string | null
-          ready_at: string | null
           rustdesk_id: string | null
           scheduled_at: string | null
           service_type: string
@@ -533,7 +530,6 @@ export type Database = {
         }
         Insert: {
           accessories?: Json | null
-          collected_at?: string | null
           completed_at?: string | null
           completion_notes?: string | null
           created_at?: string
@@ -544,14 +540,12 @@ export type Database = {
           fee?: number | null
           id?: string
           installments?: number | null
-          last_customer_notified_at?: string | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
-          ready_at?: string | null
           rustdesk_id?: string | null
           scheduled_at?: string | null
           service_type?: string
@@ -562,7 +556,6 @@ export type Database = {
         }
         Update: {
           accessories?: Json | null
-          collected_at?: string | null
           completed_at?: string | null
           completion_notes?: string | null
           created_at?: string
@@ -573,14 +566,12 @@ export type Database = {
           fee?: number | null
           id?: string
           installments?: number | null
-          last_customer_notified_at?: string | null
           material_cost?: number | null
           notes?: string | null
           paid_amount?: number | null
           payment_method?: string | null
           postponed_to?: string | null
           promised_payment_date?: string | null
-          ready_at?: string | null
           rustdesk_id?: string | null
           scheduled_at?: string | null
           service_type?: string
@@ -647,43 +638,15 @@ export type Database = {
           },
         ]
       }
-      user_roles: {
-        Row: {
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      lookup_tracking: {
-        Args: { _code: string; _kind?: string }
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -810,8 +773,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin"],
-    },
+    Enums: {},
   },
 } as const
