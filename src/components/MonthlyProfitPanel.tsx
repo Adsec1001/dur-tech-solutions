@@ -9,21 +9,10 @@ import { getJobs } from "@/lib/jobStorage";
 import { ServiceJob } from "@/types/serviceJob";
 import { useToast } from "@/hooks/use-toast";
 
-// Same PIN as admin panel — obfuscated
-const _k = [97, 69, 50, 57, 55, 87, 64, 52, 74, 49, 35].map(c => String.fromCharCode(c)).join("");
-const hashPin = async (pin: string): Promise<string> => {
-  const enc = new TextEncoder().encode(pin);
-  const buf = await crypto.subtle.digest("SHA-256", enc);
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-};
-let targetHash: string | null = null;
-(async () => { targetHash = await hashPin(_k); })();
-
 const MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
 const MonthlyProfitPanel = () => {
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem("profit_unlocked") === "1");
-  const [pin, setPin] = useState("");
+  const unlocked = true; // panel lives inside the signed-in admin area
   const [hideAmounts, setHideAmounts] = useState(() => sessionStorage.getItem("profit_hidden") === "1");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -49,18 +38,6 @@ const MonthlyProfitPanel = () => {
 
   useEffect(() => { if (unlocked) load(); }, [unlocked, load]);
 
-  const tryUnlock = async () => {
-    const h = await hashPin(pin);
-    if (h === targetHash) {
-      sessionStorage.setItem("profit_unlocked", "1");
-      setUnlocked(true);
-      setPin("");
-    } else {
-      toast({ title: "Hatalı şifre", variant: "destructive" });
-      setPin("");
-    }
-  };
-
   const toggleHide = () => {
     const next = !hideAmounts;
     setHideAmounts(next);
@@ -68,24 +45,6 @@ const MonthlyProfitPanel = () => {
   };
 
   const fmt = (v: number) => hideAmounts ? "•••" : `${v.toLocaleString("tr-TR")}₺`;
-
-  if (!unlocked) {
-    return (
-      <Card className="border-primary/30">
-        <CardContent className="p-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Kâr & Gider Paneli</h3>
-          </div>
-          <p className="text-xs text-muted-foreground">Bu panel şifre ile korunmaktadır.</p>
-          <div className="flex gap-2">
-            <Input type="password" placeholder="Şifre" value={pin} onChange={e => setPin(e.target.value)} onKeyDown={e => e.key === "Enter" && tryUnlock()} />
-            <Button onClick={tryUnlock}>Aç</Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   // Filter by selected month
   const inMonth = (iso: string | null | undefined) => {
@@ -138,9 +97,6 @@ const MonthlyProfitPanel = () => {
           <div className="flex items-center gap-2">
             <Button size="sm" variant="ghost" onClick={toggleHide}>
               {hideAmounts ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => { sessionStorage.removeItem("profit_unlocked"); setUnlocked(false); }}>
-              <Lock className="h-4 w-4" />
             </Button>
           </div>
         </div>

@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
+import { daysSince, uncollectedDays } from "@/lib/deliveryDays";
+import AdminLogin from "@/components/AdminLogin";
 import { computerRevenue, computerProfit } from "@/lib/computerTotals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,25 +55,8 @@ const STATUS_COLORS: Record<JobStatus, string> = {
   postponed: "bg-orange-500/20 text-orange-400 border-orange-500/30",
 };
 
-// Admin authentication key — obfuscated
-const _k = [97, 69, 50, 57, 55, 87, 64, 52, 74, 49, 35].map(c => String.fromCharCode(c)).join("");
-
-const hashPin = async (pin: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-};
-
-let resolvedHash: string | null = null;
-(async () => {
-  resolvedHash = await hashPin(_k);
-})();
-
 const AdminPanel = () => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [pin, setPin] = useState("");
+  const { loading: authLoading, isAdmin: authenticated, email: authEmail, signOut } = useAdminAuth();
   const [jobs, setJobs] = useState<ServiceJob[]>([]);
   const [cameraJobsForDashboard, setCameraJobsForDashboard] = useState<any[]>([]);
   const [productsForDashboard, setProductsForDashboard] = useState<any[]>([]);
@@ -165,20 +151,6 @@ const AdminPanel = () => {
       });
     }
   }, [authenticated, refreshJobs]);
-
-  const handleLogin = async () => {
-    const inputHash = await hashPin(pin);
-    if (inputHash === resolvedHash) {
-      setAuthenticated(true);
-      sessionStorage.setItem("db_admin", "1");
-    } else {
-      toast({ title: "Hatalı PIN", variant: "destructive" });
-    }
-  };
-
-  useEffect(() => {
-    if (sessionStorage.getItem("db_admin") === "1") setAuthenticated(true);
-  }, []);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -278,6 +250,10 @@ const AdminPanel = () => {
     if (fee > 0 && (job.paymentMethod === "kart" || job.paymentMethod === "taksit")) {
       payFields.push({ label: "KDV Dahil Toplam (%20)", value: money(+(fee * 1.2).toFixed(2)) });
     }
+    if (job.readyAt) payFields.push({ label: "Cihaz Hazır Olma Tarihi", value: new Date(job.readyAt).toLocaleDateString("tr-TR") });
+    if (job.lastCustomerNotifiedAt) payFields.push({ label: "Müşteriye Son Bildirim", value: new Date(job.lastCustomerNotifiedAt).toLocaleDateString("tr-TR") });
+    if (job.collectedAt) payFields.push({ label: "Teslim Alınma Tarihi", value: new Date(job.collectedAt).toLocaleDateString("tr-TR") });
+    else if (job.readyAt) payFields.push({ label: "Teslim Alınmama Süresi", value: `${uncollectedDays(job.readyAt)} gün` });
     if (job.promisedPaymentDate && remaining > 0) {
       payFields.push({ label: "Söz Verilen Ödeme Günü", value: new Date(job.promisedPaymentDate).toLocaleDateString("tr-TR") });
     }
@@ -338,6 +314,9 @@ const AdminPanel = () => {
       rustdeskId: job.rustdeskId,
       paidAmount: job.paidAmount,
       promisedPaymentDate: job.promisedPaymentDate ? job.promisedPaymentDate.slice(0, 10) : "",
+      readyAt: job.readyAt?.slice(0, 10) || "",
+      lastCustomerNotifiedAt: job.lastCustomerNotifiedAt?.slice(0, 10) || "",
+      collectedAt: job.collectedAt?.slice(0, 10) || "",
       materialCost: job.materialCost ?? 0,
       paymentMethod: job.paymentMethod || "nakit",
       installments: job.installments || 1,
@@ -379,6 +358,9 @@ const AdminPanel = () => {
       rustdeskId: (editForm as any).rustdeskId?.trim() || undefined,
       paidAmount: Number((editForm as any).paidAmount) || 0,
       promisedPaymentDate: (editForm as any).promisedPaymentDate || undefined,
+      readyAt: (editForm as any).readyAt || undefined,
+      lastCustomerNotifiedAt: (editForm as any).lastCustomerNotifiedAt || undefined,
+      collectedAt: (editForm as any).collectedAt || undefined,
       materialCost: Number((editForm as any).materialCost) || 0,
       paymentMethod: ((editForm as any).paymentMethod as PaymentMethod) || job.paymentMethod || "nakit",
       installments: Number((editForm as any).installments) || 1,
@@ -543,29 +525,8 @@ const AdminPanel = () => {
     return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
   };
 
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-sm border-primary/30">
-          <CardHeader className="text-center">
-            <CardTitle className="text-primary text-xl">Admin Giriş</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              type="password"
-              placeholder="PIN giriniz"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              maxLength={20}
-              className="text-center text-lg tracking-widest"
-            />
-            <Button onClick={handleLogin} className="w-full">Giriş</Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (authLoading) return <div className="min-h-screen bg-background" />;
+  if (!authenticated) return <AdminLogin signedInEmail={authEmail} onSignOut={signOut} />;
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -579,7 +540,7 @@ const AdminPanel = () => {
           <Button
             size="sm"
             variant="outline"
-            onClick={() => { sessionStorage.removeItem("db_admin"); setAuthenticated(false); }}
+            onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -1068,6 +1029,19 @@ const AdminPanel = () => {
                           </Badge>
                         </div>
                       )}
+                      {(job.readyAt || job.collectedAt) && (() => {
+                        const wait = uncollectedDays(job.readyAt, job.collectedAt);
+                        const since = daysSince(job.lastCustomerNotifiedAt);
+                        return (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {job.readyAt && <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[11px]">✅ Hazır: {new Date(job.readyAt).toLocaleDateString("tr-TR")}</Badge>}
+                            {job.lastCustomerNotifiedAt && <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[11px]">📞 Son bildirim: {new Date(job.lastCustomerNotifiedAt).toLocaleDateString("tr-TR")} ({since} gün önce)</Badge>}
+                            {job.collectedAt
+                              ? <Badge className="bg-primary/20 text-primary border-primary/30 text-[11px]">📦 Teslim alındı: {new Date(job.collectedAt).toLocaleDateString("tr-TR")}</Badge>
+                              : wait !== null && <Badge className={`text-[11px] ${wait >= 7 ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-amber-500/20 text-amber-400 border-amber-500/30"}`}>⏱️ {wait} gündür teslim alınmadı</Badge>}
+                          </div>
+                        );
+                      })()}
                       {job.scheduledAt && (
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                           <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[11px]">
@@ -1245,6 +1219,18 @@ const AdminPanel = () => {
                         <p className="text-xs text-muted-foreground mb-1">📅 Söz Verilen Ödeme Tarihi</p>
                         <Input type="date" value={(editForm as any).promisedPaymentDate || ""} onChange={(e) => setEditForm({ ...editForm, promisedPaymentDate: e.target.value } as any)} />
                       </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {([["readyAt","✅ Cihaz Hazır Olma Tarihi"],["lastCustomerNotifiedAt","📞 Müşteriye Son Bildirim"],["collectedAt","📦 Teslim Alınma Tarihi"]] as const).map(([k,l]) => (
+                          <div key={k}>
+                            <p className="text-xs text-muted-foreground mb-1">{l}</p>
+                            <div className="flex gap-1">
+                              <Input type="date" value={(editForm as any)[k] || ""} onChange={(e) => setEditForm({ ...editForm, [k]: e.target.value } as any)} />
+                              <Button type="button" size="sm" variant="outline" onClick={() => { const t = new Date(); setEditForm({ ...editForm, [k]: `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}` } as any); }}>Bugün</Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {(() => { const d = uncollectedDays((editForm as any).readyAt, (editForm as any).collectedAt); return d !== null ? <p className="text-xs text-amber-400">⏱️ Teslim alınmama süresi: {d} gün</p> : null; })()}
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">🗓️ Yapılacak Gün & Saat</p>
                         <Input type="datetime-local" value={(editForm as any).scheduledAt || ""} onChange={(e) => setEditForm({ ...editForm, scheduledAt: e.target.value } as any)} />
