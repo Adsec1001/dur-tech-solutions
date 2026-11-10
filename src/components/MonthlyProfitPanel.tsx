@@ -98,9 +98,6 @@ const MonthlyProfitPanel = () => {
             <Button size="sm" variant="ghost" onClick={toggleHide}>
               {hideAmounts ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => { sessionStorage.removeItem("profit_unlocked"); setUnlocked(false); }}>
-              <Lock className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
