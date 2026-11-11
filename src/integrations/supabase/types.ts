@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          expires_at: string
+          last_activity_at: string
+          session_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string
+          last_activity_at?: string
+          session_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          last_activity_at?: string
+          session_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       camera_jobs: {
         Row: {
           address: string | null
@@ -670,6 +694,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      end_admin_session: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -681,6 +706,8 @@ export type Database = {
         Args: { _code: string; _kind?: string }
         Returns: Json
       }
+      start_admin_session: { Args: never; Returns: boolean }
+      touch_admin_session: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin"
