@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
 
-type Mode = "login" | "signup" | "forgot";
+type Mode = "login" | "forgot";
 
 const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | null; onSignOut?: () => void }) => {
   const [mode, setMode] = useState<Mode>("login");
@@ -33,11 +33,13 @@ const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | nul
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
-      } else if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
-        if (error) throw error;
-        toast({ title: "Hesap oluşturuldu", description: "Giriş yapılıyor..." });
-        setMode("login");
+        const { data: allowed, error: accessError } = await supabase.rpc("start_admin_session");
+        if (accessError || allowed !== true) {
+          await supabase.auth.signOut();
+          throw new Error("Access denied");
+        }
+        setPassword("");
+        window.dispatchEvent(new Event("admin:session-started"));
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
         if (error) throw error;
@@ -51,19 +53,19 @@ const AdminLogin = ({ signedInEmail, onSignOut }: { signedInEmail?: string | nul
   };
 
   return (
-    <Wrap title={mode === "login" ? "Admin Giriş" : mode === "signup" ? "Admin Hesabı Oluştur" : "Şifremi Unuttum"}>
+    <Wrap title={mode === "login" ? "Admin Giriş" : "Şifremi Unuttum"}>
       <Input type="email" placeholder="E-posta" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
       {mode !== "forgot" && (
         <Input type="password" placeholder="Şifre" value={password} onChange={e => setPassword(e.target.value)}
           onKeyDown={e => e.key === "Enter" && submit()} autoComplete={mode === "login" ? "current-password" : "new-password"} />
       )}
       <Button onClick={submit} disabled={busy} className="w-full">
-        {mode === "login" ? "Giriş" : mode === "signup" ? "Hesap oluştur" : "Bağlantı gönder"}
+        {mode === "login" ? "Giriş" : "Bağlantı gönder"}
       </Button>
       <div className="flex justify-between text-xs">
-        {mode !== "login" ? <button className="text-primary" onClick={() => setMode("login")}>Girişe dön</button>
+        {mode !== "login" ? <Button variant="link" onClick={() => setMode("login")}>Girişe dön</Button>
           : <span />}
-        {mode === "login" && <button className="text-muted-foreground" onClick={() => setMode("forgot")}>Şifremi unuttum</button>}
+        {mode === "login" && <Button variant="link" onClick={() => setMode("forgot")}>Şifremi unuttum</Button>}
       </div>
     </Wrap>
   );
