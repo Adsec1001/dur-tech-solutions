@@ -2,16 +2,20 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { sessionExpired } from "@/lib/adminSessionPolicy";
 
+const stamp = () => { try { sessionStorage.setItem("admin-last-seen", String(Date.now())); } catch { /* ignore */ } };
+const loadStart = () => { try { return Number(sessionStorage.getItem("admin-started")) || Date.now(); } catch { return Date.now(); } };
+
 /** Admin status comes only from the server-side user_roles table. */
 export const useAdminAuth = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
-  const times = useRef({ started: Date.now(), activity: Date.now(), touched: 0 });
+  const times = useRef({ started: loadStart(), activity: Date.now(), touched: 0 });
 
   const signOut = useCallback(async () => {
     setIsAdmin(false);
     setEmail(null);
+    try { sessionStorage.removeItem("admin-started"); } catch { /* ignore */ }
     try { await supabase.rpc("end_admin_session"); }
     finally { await supabase.auth.signOut({ scope: "local" }); }
   }, []);
@@ -29,6 +33,7 @@ export const useAdminAuth = () => {
     const { data: sub } = supabase.auth.onAuthStateChange(() => { setTimeout(check, 0); });
     const started = () => {
       times.current = { started: Date.now(), activity: Date.now(), touched: 0 };
+      try { sessionStorage.setItem("admin-started", String(times.current.started)); } catch { /* ignore */ }
       void check();
     };
     window.addEventListener("admin:session-started", started);
@@ -42,6 +47,7 @@ export const useAdminAuth = () => {
       const now = Date.now();
       if (sessionExpired(times.current.started, times.current.activity, now)) { void signOut(); return; }
       times.current.activity = now;
+      stamp();
       if (now - times.current.touched < 30000) return;
       times.current.touched = now;
       const { data, error } = await supabase.rpc("touch_admin_session");
@@ -52,7 +58,8 @@ export const useAdminAuth = () => {
     }, 1000);
     const events = ["pointerdown", "keydown", "scroll", "touchstart"];
     events.forEach(event => window.addEventListener(event, activity, { passive: true }));
-    const leave = () => { setIsAdmin(false); void signOut(); };
+    stamp();
+    const leave = () => stamp();
     window.addEventListener("pagehide", leave);
     return () => {
       clearInterval(interval);
